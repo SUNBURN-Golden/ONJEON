@@ -9,6 +9,8 @@ import type {
   Capability,
   CapabilityState,
   ConfirmParty,
+  ContractEffect,
+  ContractEffectKind,
   ContractVersionMatch,
   CorrectionReason,
   Criticality,
@@ -566,17 +568,17 @@ export interface TraceEntry {
  */
 export interface ContractEffectResult {
   /**
-   * none(효과 없음 또는 지급 사유 불성립), applies(성립), undetermined(판정 불가). 어휘 축 승격 대기
+   * 계약 효과 적용 여부
    */
-  kind: string;
+  kind: ContractEffectKind;
   /**
-   * kind=applies일 때. none, void_refund_premium(무효·보험료 반환), terminated_pay_reserve(해지·책임준비금 지급). 어휘 축 승격 대기
+   * kind=applies일 때 적용되는 계약 효과
    */
-  effect?: string;
+  effect?: ContractEffect;
   /**
-   * kind=undetermined일 때, 지급 사유가 성립하면 적용될 효과. 값은 effect와 같은 축
+   * kind=undetermined일 때, 지급 자격이 성립하면 적용될 계약 효과
    */
-  conditional_effect?: string;
+  conditional_effect?: ContractEffect;
 }
 
 /**

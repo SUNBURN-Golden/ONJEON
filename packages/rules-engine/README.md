@@ -46,7 +46,7 @@
 | `divide_count` | `[money, int, {rounding, unit}]` → money | 균등 배분·1일 평균. 횟수 0은 모름. 반올림·단위 필수 |
 | `anniversary_band` | `[date_from, date_at, [[years, "rate"]...], {boundary}]` → rate | 경과 만 연수 구간표. 첫 구간은 0년, 시작 연수는 엄격 증가, 값은 요율 문자열(금액에는 `multiply_rate`로 곱한다). `boundary`는 필수: `lower_inclusive`(기념일 당일부터 새 구간) / `upper_inclusive`(기념일 당일까지 이전 구간, 다음 날부터 새 구간; 첫 구간은 항상 적용). 2월 29일 기산의 평년 기념일은 2월 말일(엔진 가정, 원문 관례는 G13). `date_at < date_from`은 오류 |
 | 목록 입력 `class_money_list` + `max_over` | 입력 `[{class, krw}]`, `{"max_over": "<입력 이름>"}` → money | 같은 `class`에서는 최고 금액 하나만, 다른 `class`는 각각 더한다(G04). 입력 단계에서 범위 내 사건 없음이 확인되어 엔진에 `{"confirmed_empty": true}`로 전달되면 0. 근거 없는 `[]`, `null`, 누락, 항목의 `krw: null`은 미확인. 목록은 비교할 수 없고 `max_over` 인자는 선언된 목록 입력의 이름이어야 한다 |
-| `contract_effect` | 최상위 키 `none`/`void_refund_premium`/`terminated_pay_reserve`(기본 `none`) | 결과의 `contract_effect`: 적격이면 `applies{effect}`, 부적격이면 `none`, **적격 미정이면 `undetermined{conditional_effect}`**(규칙이 효과를 선언했는데 `none`으로 바뀌지 않는다). rule-0.1 결과는 항상 `none`. 값은 규칙 내용 해시에 포함된다 |
+| `contract_effect` | 최상위 키 `none`/`void_refund_premium`/`terminated_pay_reserve`(기본 `none`) | 효과를 선언한 규칙은 적격이면 `applies{effect}`, 부적격이면 `none`, 적격 미정이면 `undetermined{conditional_effect}`를 반환한다. 효과가 없는 규칙과 rule-0.1 결과는 항상 `none`이다. 선언값은 규칙 내용 해시에 포함된다. 선언값과 결과 종류는 [공유 어휘](../schemas/vocabulary.json)의 두 축에 각각 등록돼 있다 |
 
 `pro_rata`와 `divide_count`의 0 분모가 금액 계산을 막으면 `amount_issues`에 `zero_denominator`와 trace 경로를 담는다. 누락·null 입력은 `missing_inputs`에 담는다. 시나리오 API의 표시와 목록 확인 출처는 [Audit 7 결정](../../docs/decisions/audit7-unknown-without-blockers.md)을 따른다.
 
@@ -98,7 +98,7 @@
 | `content_hash_scope` | `rule_content_hash`의 범위(키 순서만 정렬): 공백·키 순서·문자열 이스케이프·최상위 `release_id`는 무시하고, 중첩 `release_id`·유니코드 형식(NFC/NFD·한글 자모)·문자열 공백·배열 순서·같은 뜻의 요율 표기·생략/명시 기본값·`example_kind`는 해시를 바꾼다(같은 평가 결과여도). [Audit 2 검증 증거](../../docs/blueprint/audits/2026-10-27_readme_adr_list.md) |
 | `readme_test_table` | 이 표의 첫 열 이름과 `tests/*.rs` 파일의 일치(누락·낡은 행 모두 실패), `real_clauses`·`vocabulary` 행을 각각 또는 동시에 삭제하거나 각각 이름을 바꾸는 음성 대조, `fixture_only`의 합성·실제 조항 검증 범위와 서비스 데이터 제외 설명, 해시 계약 문장에 "정규화" 대신 키 순서·유니코드·`release_id` 범위가 적혀 있는지, 범위 비교 의미·S6 출시 조건이 DEC-O12 S3를 따르고 W3로 미뤄지지 않는지. [Audit 4 재검증 증거](../../docs/blueprint/audits/2026-11-04_engine_readme_test_table.md), [Audit 5 동기화 증거](../../docs/blueprint/audits/2026-11-10_engine_readme_sync.md) |
 | `review_fixes` | 결과의 규칙 버전·릴리스·내용 해시·근거, 재로드 시 동일성, 범위의 연속 계산, 날짜 범위·오버플로(`i64::MIN`·`i64::MAX` 포함) |
-| `vocabulary` | 직렬화 상태와 어휘 정본의 일치. `fixture_only` 정의가 합성·실제 조항 기반 검증을 포함하고 서비스 데이터에서 제외하는지, 합성 1개·실제 조항 규칙 7개가 같은 시험 전용 상태인지 확인한다. 입력 타입 6개·반올림 5개·날짜 기간 단위 3개·연산자 키 28개의 정확한 값 집합, 로더 수용·미지원 값 거부, rule-0.2 전용 입력·연산의 버전 제한 |
+| `vocabulary` | 직렬화 상태와 어휘 정본의 일치. `fixture_only` 정의가 합성·실제 조항 기반 검증을 포함하고 서비스 데이터에서 제외하는지, 합성 1개·실제 조항 규칙 7개가 같은 시험 전용 상태인지 확인한다. 입력 타입 6개·반올림 5개·날짜 기간 단위 3개·연산자 키 28개의 정확한 값 집합, 로더 수용·미지원 값 거부, rule-0.2 전용 입력·연산의 버전 제한. 계약 효과 허용값과 직렬화된 결과 종류도 각 어휘 축과 일치해야 한다 |
 | 문서 테스트·`immutable_rule_doctests` | 로드된 규칙의 필드 수정이 비공개 필드 접근 오류로 컴파일되지 않음(`compile_fail,E0616`)과 같은 준비 코드의 정상 동작. stable rustdoc는 오류 코드 표기를 강제하지 않으므로 통합 테스트가 두 예제의 실제 진단 코드가 모두 `E0616`인지 검사 |
 | 단위 | 진리표(§49.3), 날짜 변환, 요율 파싱 |
 

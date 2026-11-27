@@ -2,7 +2,7 @@
 //! (packages/schemas/vocabulary.json). This stops code and documents drifting apart.
 mod common;
 
-use onjeon_rules_engine::rule::{InputType, PUBLICATION_STATES};
+use onjeon_rules_engine::rule::{InputType, CONTRACT_EFFECTS, PUBLICATION_STATES};
 use onjeon_rules_engine::{AmountOut, Payout, Rule, Tri};
 use serde_json::{json, Value as J};
 use std::collections::BTreeSet;
@@ -137,6 +137,39 @@ fn doc() -> J {
         "unknown_policy": "use_three_valued_logic_never_default_to_zero",
         "evidence_refs": [], "publication_state": "fixture_only"
     })
+}
+
+#[test]
+fn contract_effect_values_are_canonical() {
+    let declared = CONTRACT_EFFECTS.map(str::to_owned).into_iter().collect();
+    assert_eq!(axis("contract_effect"), declared);
+
+    for effect in CONTRACT_EFFECTS {
+        let mut d = doc();
+        d["contract_effect"] = json!(effect);
+        let rule = Rule::from_json(&d).unwrap();
+        assert_eq!(
+            serde_json::to_value(rule.contract_effect()).unwrap(),
+            effect
+        );
+    }
+}
+
+#[test]
+fn contract_effect_result_kinds_are_canonical() {
+    let mut d = doc();
+    d["inputs"]["hit"] = json!("bool");
+    d["eligibility"] = json!("hit");
+    d["contract_effect"] = json!("void_refund_premium");
+    let rule = Rule::from_json(&d).unwrap();
+    let kinds = [json!({"hit": true}), json!({"hit": false}), json!({})]
+        .into_iter()
+        .map(|inputs| {
+            let result = rule.evaluate(&inputs).unwrap();
+            kind(serde_json::to_value(result.contract_effect).unwrap())
+        })
+        .collect();
+    assert_eq!(axis("contract_effect_kind"), kinds);
 }
 
 // Exhaustive so adding an InputType requires updating its canonical spelling here.

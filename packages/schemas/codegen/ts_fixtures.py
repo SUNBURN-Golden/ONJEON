@@ -29,6 +29,15 @@ def main(out_dir: str) -> int:
     missing = {k: v for k, v in base.items() if k != "evidence"}
     lines += ["", "// @ts-expect-error missing required field must not type-check",
               f"export const badMissing: Assertion = {json.dumps(missing, ensure_ascii=False)};", ""]
+    for shape, field in (
+        ("payable", "kind"),
+        ("payable", "effect"),
+        ("undetermined", "conditional_effect"),
+    ):
+        evaluation = json.loads((FIXTURES / f"EvaluationResult.{shape}.fixture.json").read_text(encoding="utf-8"))
+        evaluation["contract_effect"][field] = "cancelled"
+        lines += [f"// @ts-expect-error unknown contract_effect.{field} must not type-check",
+                  f"export const bad_{field}: EvaluationResult = {json.dumps(evaluation, ensure_ascii=False)};"]
     (out / "fixtures_check.ts").write_text("\n".join(lines), encoding="utf-8")
     cfg = json.loads((out / "tsconfig.json").read_text(encoding="utf-8"))
     cfg["files"].append("fixtures_check.ts")

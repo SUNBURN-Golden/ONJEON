@@ -327,6 +327,28 @@ class Fixtures(unittest.TestCase):
         fn(doc)
         return self.v.validate(doc, name.split(".")[0])
 
+    def test_contract_effect_fields_reject_codes_outside_the_vocabulary(self):
+        for shape, field in (
+            ("payable", "kind"),
+            ("payable", "effect"),
+            ("undetermined", "conditional_effect"),
+        ):
+            with self.subTest(field=field):
+                errors = self.broken(
+                    f"EvaluationResult.{shape}.fixture.json",
+                    lambda doc: doc["contract_effect"].update({field: "cancelled"}),
+                )
+                self.assertTrue(
+                    any(f"$.contract_effect.{field}" in error and "vocabulary" in error for error in errors),
+                    errors,
+                )
+
+    def test_legacy_evaluation_result_may_omit_contract_effect(self):
+        self.assertEqual(
+            self.broken("EvaluationResult.payable.fixture.json", lambda doc: doc.pop("contract_effect")),
+            [],
+        )
+
     def test_view_lines_require_nonempty_evidence_refs(self):
         name = "CoverageDetail.fixture.json"
         line = lambda doc: doc["layers"][0]["lines"][0]

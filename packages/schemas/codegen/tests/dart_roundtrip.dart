@@ -84,6 +84,24 @@ void main(List<String> args) {
   } on FormatException {
     print('ok   unknown criticality rejected');
   }
+  for (final (shape, field) in [
+    ('payable', 'kind'),
+    ('payable', 'effect'),
+    ('undetermined', 'conditional_effect'),
+  ]) {
+    final name = 'EvaluationResult.$shape.fixture.json';
+    final evaluation = jsonDecode(File('${dir.path}/$name').readAsStringSync())
+        as Map<String, dynamic>;
+    final effect = evaluation['contract_effect'] as Map<String, dynamic>;
+    effect[field] = 'cancelled';
+    try {
+      EvaluationResult.fromJson(evaluation);
+      print('FAIL unknown contract_effect.$field was accepted');
+      failed++;
+    } on FormatException {
+      print('ok   unknown contract_effect.$field rejected');
+    }
+  }
   final missing = jsonDecode(
           File('${args.first}/Assertion.relation.fixture.json').readAsStringSync())
       as Map<String, dynamic>;

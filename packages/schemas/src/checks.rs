@@ -12,20 +12,15 @@ use crate::evidence_ref::{
 };
 use crate::{
     Amount, AmountKind, AmountOut, Assertion, AssertionOrigin, CompareView, ConfirmParty,
-    ContractSnapshot, CoverageDetail, DisplayStatus, ErrorClass, ErrorResponse, EvaluationResult,
-    EvidenceView, FactSource, NeedReason, NeedResult, Payout, PlanView, PremiumObservation,
-    ReleaseManifest, ReviewStatus, ScenarioResult, Sensitivity, Tri, ValueState,
+    ContractEffectKind, ContractSnapshot, CoverageDetail, DisplayStatus, ErrorClass, ErrorResponse,
+    EvaluationResult, EvidenceView, FactSource, NeedReason, NeedResult, Payout, PlanView,
+    PremiumObservation, ReleaseManifest, ReviewStatus, ScenarioResult, Sensitivity, Tri,
+    ValueState,
 };
 
 /// `origin` value of rows that exist only for tests (02_구현계약 §1.2, §8): vocabulary axis
 /// `assertion_origin` (1.6.0). A fixture row is never accepted and never comparison-eligible.
 pub const ORIGIN_FIXTURE: AssertionOrigin = AssertionOrigin::Fixture;
-
-/// `contract_effect.kind` values (02_구현계약 G23, rule-0.2): the engine's `ContractEffectOut`
-/// tag. Strings until the `contract_effect_kind` axis enters the vocabulary.
-pub const CONTRACT_EFFECT_NONE: &str = "none";
-pub const CONTRACT_EFFECT_APPLIES: &str = "applies";
-pub const CONTRACT_EFFECT_UNDETERMINED: &str = "undetermined";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Violation {
@@ -764,49 +759,32 @@ pub fn check_evaluation_result(e: &EvaluationResult) -> Vec<Violation> {
         ));
     }
     if let Some(ce) = &e.contract_effect {
-        let fields = match ce.kind.as_str() {
-            CONTRACT_EFFECT_NONE => Some((false, false)),
-            CONTRACT_EFFECT_APPLIES => Some((true, false)),
-            CONTRACT_EFFECT_UNDETERMINED => Some((false, true)),
-            _ => None,
+        let (want_effect, want_conditional) = match ce.kind {
+            ContractEffectKind::None => (false, false),
+            ContractEffectKind::Applies => (true, false),
+            ContractEffectKind::Undetermined => (false, true),
         };
-        match fields {
-            None => out.push(v(
-                "contract_effect_kind_known",
+        if ce.effect.is_some() != want_effect || ce.conditional_effect.is_some() != want_conditional
+        {
+            out.push(v(
+                "contract_effect_fields_match_kind",
+                "applies carries effect only, undetermined conditional_effect only, none neither",
+            ));
+        }
+        let allowed = match ce.kind {
+            ContractEffectKind::None => true,
+            ContractEffectKind::Applies => e.eligibility == Tri::True,
+            ContractEffectKind::Undetermined => e.eligibility == Tri::Unknown,
+        };
+        if !allowed {
+            out.push(v(
+                "contract_effect_matches_eligibility",
                 &format!(
-                    "contract_effect.kind {:?} is not none, applies or undetermined",
-                    ce.kind
+                    "eligibility={} cannot have contract_effect.kind={}",
+                    e.eligibility.as_str(),
+                    ce.kind.as_str()
                 ),
-            )),
-            Some((want_effect, want_conditional)) => {
-                if ce.effect.is_some() != want_effect
-                    || ce.conditional_effect.is_some() != want_conditional
-                {
-                    out.push(v(
-                        "contract_effect_fields_match_kind",
-                        "applies carries effect only, undetermined conditional_effect only, none neither",
-                    ));
-                }
-                let allowed = match e.eligibility {
-                    Tri::False => ce.kind == CONTRACT_EFFECT_NONE,
-                    Tri::True => {
-                        ce.kind == CONTRACT_EFFECT_NONE || ce.kind == CONTRACT_EFFECT_APPLIES
-                    }
-                    Tri::Unknown => {
-                        ce.kind == CONTRACT_EFFECT_NONE || ce.kind == CONTRACT_EFFECT_UNDETERMINED
-                    }
-                };
-                if !allowed {
-                    out.push(v(
-                        "contract_effect_matches_eligibility",
-                        &format!(
-                            "eligibility={} cannot have contract_effect.kind={}",
-                            e.eligibility.as_str(),
-                            ce.kind
-                        ),
-                    ));
-                }
-            }
+            ));
         }
     }
     out

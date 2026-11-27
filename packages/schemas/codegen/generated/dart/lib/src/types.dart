@@ -1163,12 +1163,12 @@ class TraceEntry {
 
 /// 계약 효과 결과. kind에 따라 effect(applies) 또는 conditional_effect(undetermined). 엔진 ContractEffectOut과 같은 형태
 class ContractEffectResult {
-  /// none(효과 없음 또는 지급 사유 불성립), applies(성립), undetermined(판정 불가). 어휘 축 승격 대기
-  final String kind;
-  /// kind=applies일 때. none, void_refund_premium(무효·보험료 반환), terminated_pay_reserve(해지·책임준비금 지급). 어휘 축 승격 대기
-  final String? effect;
-  /// kind=undetermined일 때, 지급 사유가 성립하면 적용될 효과. 값은 effect와 같은 축
-  final String? conditionalEffect;
+  /// 계약 효과 적용 여부
+  final ContractEffectKind kind;
+  /// kind=applies일 때 적용되는 계약 효과
+  final ContractEffect? effect;
+  /// kind=undetermined일 때, 지급 자격이 성립하면 적용될 계약 효과
+  final ContractEffect? conditionalEffect;
 
   const ContractEffectResult({
     required this.kind,
@@ -1177,15 +1177,15 @@ class ContractEffectResult {
   });
 
   factory ContractEffectResult.fromJson(Map<String, dynamic> json) => ContractEffectResult(
-        kind: json['kind'] as String,
-        effect: json['effect'] == null ? null : json['effect'] as String,
-        conditionalEffect: json['conditional_effect'] == null ? null : json['conditional_effect'] as String,
+        kind: ContractEffectKind.fromJson(json['kind'] as String),
+        effect: json['effect'] == null ? null : ContractEffect.fromJson(json['effect'] as String),
+        conditionalEffect: json['conditional_effect'] == null ? null : ContractEffect.fromJson(json['conditional_effect'] as String),
       );
 
   Map<String, dynamic> toJson() => {
-        'kind': kind,
-        if (effect != null) 'effect': effect!,
-        if (conditionalEffect != null) 'conditional_effect': conditionalEffect!,
+        'kind': kind.toJson(),
+        if (effect != null) 'effect': effect!.toJson(),
+        if (conditionalEffect != null) 'conditional_effect': conditionalEffect!.toJson(),
       };
 }
 

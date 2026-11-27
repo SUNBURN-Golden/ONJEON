@@ -85,6 +85,26 @@ fn unknown_enum_values_are_errors_not_defaults() {
 }
 
 #[test]
+fn unknown_contract_effect_codes_are_rejected_at_deserialization() {
+    for (fixture, field) in [
+        (fixture!("EvaluationResult.payable"), "kind"),
+        (fixture!("EvaluationResult.payable"), "effect"),
+        (
+            fixture!("EvaluationResult.undetermined"),
+            "conditional_effect",
+        ),
+    ] {
+        let mut e: Value = serde_json::from_str(fixture).unwrap();
+        e["contract_effect"][field] = json!("cancelled");
+        let error = serde_json::from_value::<EvaluationResult>(e).unwrap_err();
+        assert!(
+            error.to_string().contains("unknown variant `cancelled`"),
+            "{field}: {error}"
+        );
+    }
+}
+
+#[test]
 fn missing_required_field_is_an_error() {
     let mut a: Value = serde_json::from_str(fixture!("Assertion.relation")).unwrap();
     a.as_object_mut().unwrap().remove("evidence");
@@ -225,7 +245,8 @@ fn rule_engine_output_deserializes_into_evaluation_result() {
         );
         if let Some(ce) = &typed.contract_effect {
             assert_eq!(
-                ce.kind, CONTRACT_EFFECT_NONE,
+                ce.kind,
+                ContractEffectKind::None,
                 "fixture rules are rule-0.1: no effect declared"
             );
             with_effect += 1;
@@ -238,67 +259,48 @@ fn rule_engine_output_deserializes_into_evaluation_result() {
     );
 }
 
-/// `applies` and `undetermined` effects come only from rule-0.2 rules.
-///
-/// An engine build without rule-0.2 (this branch forked before PR #105 landed on `main`) rejects
-/// the probe rule. The test then checks nothing beyond the reason for the rejection and returns:
-/// it is vacuous on such a build and says so. It runs in full against the engine on `main`, which
-/// CI builds (the PR merged with `main`). `ONJ_REQUIRE_RULE_02=1` turns the skip into a failure.
 #[test]
-fn rule_02_contract_effects_round_trip_when_the_engine_supports_them() {
+fn rule_02_contract_effects_round_trip_for_every_code_and_eligibility() {
     use onjeon_rules_engine::Rule;
-    let rule = json!({
+    let mut rule = json!({
         "rule_id": "contract-effect-probe", "rule_version": "1", "schema_version": "rule-0.2",
         "inputs": {"hit": "bool", "insured_amount_krw": "money_krw"},
         "eligibility": "hit", "amount": "insured_amount_krw",
-        "contract_effect": "void_refund_premium",
         "unknown_policy": "use_three_valued_logic_never_default_to_zero",
         "evidence_refs": [], "publication_state": "fixture_only"
     });
-    let rule = match Rule::from_json(&rule) {
-        Ok(rule) => rule,
-        Err(e) => {
-            // A pre-rule-0.2 engine objects to the `contract_effect` key or to the schema
-            // version. Any other rejection means the probe rule itself is broken.
-            assert!(
-                e.message.contains("contract_effect") || e.path == "schema_version",
-                "probe rule rejected for a reason other than missing rule-0.2 support: {e}"
-            );
-            assert!(
-                std::env::var_os("ONJ_REQUIRE_RULE_02").is_none(),
-                "ONJ_REQUIRE_RULE_02 is set but this engine build has no rule-0.2: {e}"
-            );
-            eprintln!(
-                "VACUOUS: engine without rule-0.2 ({e}); contract_effect shapes were checked from fixtures only"
-            );
-            return;
+    for &effect in ContractEffect::ALL {
+        rule["contract_effect"] = json!(effect);
+        let loaded = Rule::from_json(&rule).unwrap();
+        for (hit, eligibility) in [
+            (json!(true), Tri::True),
+            (json!(false), Tri::False),
+            (Value::Null, Tri::Unknown),
+        ] {
+            let expected = match (eligibility, effect) {
+                (_, ContractEffect::None) | (Tri::False, _) => ContractEffectResult {
+                    kind: ContractEffectKind::None,
+                    effect: None,
+                    conditional_effect: None,
+                },
+                (Tri::True, effect) => ContractEffectResult {
+                    kind: ContractEffectKind::Applies,
+                    effect: Some(effect),
+                    conditional_effect: None,
+                },
+                (Tri::Unknown, effect) => ContractEffectResult {
+                    kind: ContractEffectKind::Undetermined,
+                    effect: None,
+                    conditional_effect: Some(effect),
+                },
+            };
+            let inputs = json!({"hit": hit, "insured_amount_krw": 100});
+            let wire = serde_json::to_string(&loaded.evaluate(&inputs).unwrap()).unwrap();
+            let typed = round_trip::<EvaluationResult>(&wire);
+            assert_eq!(typed.eligibility, eligibility, "{wire}");
+            assert_eq!(typed.contract_effect, Some(expected), "{wire}");
+            assert_eq!(check_evaluation_result(&typed), vec![], "{wire}");
         }
-    };
-    let shapes = [
-        (
-            json!({"hit": true, "insured_amount_krw": 100}),
-            CONTRACT_EFFECT_APPLIES,
-            Some("void_refund_premium"),
-            None,
-        ),
-        (json!({"hit": false}), CONTRACT_EFFECT_NONE, None, None),
-        (
-            json!({"insured_amount_krw": 100}),
-            CONTRACT_EFFECT_UNDETERMINED,
-            None,
-            Some("void_refund_premium"),
-        ),
-    ];
-    for (inputs, kind, effect, conditional) in shapes {
-        let wire = serde_json::to_string(&rule.evaluate(&inputs).unwrap()).unwrap();
-        let typed = round_trip::<EvaluationResult>(&wire);
-        assert_eq!(check_evaluation_result(&typed), vec![], "{wire}");
-        let ce = typed
-            .contract_effect
-            .expect("a rule-0.2 engine reports contract_effect");
-        assert_eq!(ce.kind, kind);
-        assert_eq!(ce.effect.as_deref(), effect);
-        assert_eq!(ce.conditional_effect.as_deref(), conditional);
     }
 }
 
@@ -742,15 +744,11 @@ fn evaluation_result_invariants_catch_mismatched_kinds() {
 
     let mut e = payable.clone();
     let ce = e.contract_effect.as_mut().unwrap();
-    ce.conditional_effect = ce.effect.clone();
+    ce.conditional_effect = ce.effect;
     assert_eq!(rules(&e), vec!["contract_effect_fields_match_kind"]);
 
-    let mut e = payable.clone();
-    e.contract_effect.as_mut().unwrap().kind = "cancelled".into();
-    assert_eq!(rules(&e), vec!["contract_effect_kind_known"]);
-
     let mut e = undetermined.clone();
-    e.contract_effect.as_mut().unwrap().kind = "applies".into();
+    e.contract_effect.as_mut().unwrap().kind = ContractEffectKind::Applies;
     assert_eq!(
         rules(&e),
         vec![
@@ -759,10 +757,12 @@ fn evaluation_result_invariants_catch_mismatched_kinds() {
         ]
     );
 
-    // a result from an engine build before rule-0.2 support carries no contract_effect at all
-    let mut e = payable.clone();
-    e.contract_effect = None;
-    assert!(check_evaluation_result(&e).is_empty());
+    // Historical results from before rule-0.2 can omit the field.
+    let mut wire = serde_json::to_value(&payable).unwrap();
+    wire.as_object_mut().unwrap().remove("contract_effect");
+    let legacy = round_trip::<EvaluationResult>(&wire.to_string());
+    assert!(legacy.contract_effect.is_none());
+    assert!(check_evaluation_result(&legacy).is_empty());
 }
 
 #[test]

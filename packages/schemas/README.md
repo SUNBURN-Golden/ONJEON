@@ -1,6 +1,6 @@
 # packages/schemas: 계약 패키지 (`onjeon-contracts`)
 
-앱·API·엔진·릴리스 빌더가 주고받는 형태의 단일 출처. 어휘 정본(`vocabulary.json`)의 enum과 JSON Schema 열두 문서를 정의하고, 거기서 Rust·TypeScript·Dart 타입을 생성한다. 과제 T-CT-01(골격), 어휘 1.6.0 반영은 T-CT-02, 1.7.0은 Audit 1의 기존 규칙 DSL 축 등록, 1.8.0은 Audit 2의 명시적 문자열 리터럴 `str` 추가다. 근거는 02_구현계약 §1·§5·§6(검토용 묶음, 채택 전)과 화면 설계서 §11이다. 공유 Rust 계약은 한 응답에서 판정할 수 있는 교차 필드 규칙과 근거 참조 문법을 검사한다. 릴리스 구성원 조회·해시 재계산과 실제 서비스 경계의 적용은 각 기능이 담당한다.
+앱·API·엔진·릴리스 빌더가 주고받는 형태의 단일 출처. 어휘 정본(`vocabulary.json`)의 enum과 JSON Schema에서 Rust·TypeScript·Dart 타입을 생성한다. 과제 T-CT-01(골격), 어휘 1.6.0 반영은 T-CT-02, 1.7.0은 Audit 1의 기존 규칙 DSL 축 등록, 1.8.0은 Audit 2의 명시적 문자열 리터럴 `str` 추가다. 1.10.0은 Audit 8의 계약 효과 축 등록이다. 근거는 02_구현계약 §1·§5·§6(검토용 묶음, 채택 전)과 화면 설계서 §11이다. 공유 Rust 계약은 한 응답에서 판정할 수 있는 교차 필드 규칙과 근거 참조 문법을 검사한다. 릴리스 구성원 조회·해시 재계산과 실제 서비스 경계의 적용은 각 기능이 담당한다.
 
 ## 구성
 
@@ -8,7 +8,7 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 
 | 경로 | 내용 |
 |---|---|
-| `vocabulary.json` | 상태 어휘 정본(1.8.0). 변경은 정본 변경을 승인한 과제(T-CT-02, Audit 1 DSL 축 등록, Audit 2 명시적 문자열 리터럴 등)만 한다 |
+| `vocabulary.json` | 상태 어휘 정본(1.10.0). 정본 변경을 승인한 과제에서 갱신한다 |
 | `json/*.schema.json` | 손으로 쓴 JSON Schema(2020-12 부분집합). `common`(ID·근거 참조·금액·결과 상태), `assertion`, `release_manifest`, `evaluation_result`, `scenario_result`, `coverage_detail`, `compare_view`, `plan_view`, `evidence_view`, `need_result`, `premium_observation`, `contract_snapshot`, `error_response` |
 | `json/vocabulary.schema.json` | **생성물.** 어휘의 모든 축이 `enum`으로 들어 있는 유일한 스키마 |
 | `src/generated/` | 생성된 Rust(serde). `src/checks.rs`는 손으로 쓴 교차 필드 검사 |
@@ -57,7 +57,7 @@ bash packages/schemas/codegen/check_compat.sh --selftest # 필드 삭제를 넣�
 - 가격 대상은 `product_ref`, `sales_config_ref`, `components`에 기록한다. 특정 담보 가격은 `coverage_ref`에 해당 담보를 지정하고, 상품·묶음 전체 가격은 구성으로 표현한다. `source_revision`은 원문 바이트의 `raw:sha256` 참조다. 원시 관측의 새 필드는 선택이며, 비교 자격에는 대상·가입금액·원문 판과 `source_as_of`를 포함하는 적용 기간이 필요하다. 적용 기간의 양 끝은 포함하며, 문서가 종료기한 없음을 명시하면 `effective_open_ended=true`를 쓴다.
 - 시각 필드는 어휘 정본의 이름만 쓴다: 02가 쓴 `valid_from`·`valid_to`는 폐기 별칭이라 `effective_from`·`effective_to`, 가격 기준일은 `source_as_of`. 모델 식별자 원문은 싣지 않고 `model_ref_hash`만 싣는다.
 - 교차 필드 불변식은 `src/checks.rs`에서 검사한다: accepted ⇒ 검수 결정, `origin=fixture` ⇒ accepted 불가, 주장은 `object` 또는 `value` 하나, 가격 비교 자격의 조건(K13), 막힌 시나리오는 엔진 결과 없음, 엔진 결과 모양(`payout`·`contract_effect`가 `eligibility`를 따르고 `kind`마다 그 kind의 필드만 있음), 오류 클래스와 코드의 일치. DB 제약(T-CT-05)과 릴리스 빌더(T-KN-07)의 대체가 아니다.
-- 규칙 엔진 직렬화와 `EvaluationResult`가 같은 모양인지는 엔진을 실제로 돌려 확인한다(`rule_engine_output_deserializes_into_evaluation_result`; rule-0.2 규칙의 효과는 `rule_02_contract_effects_round_trip_when_the_engine_supports_them`). 후자는 엔진이 rule-0.2 규칙을 거부하면(이 브랜치가 갈라진 시점의 엔진, PR #105 이전) 거부 이유만 확인하고 `VACUOUS:`를 찍은 채 끝난다. 즉 그 엔진에서는 **아무것도 검증하지 않는다.** `main`(#105 병합 후)의 엔진과 합친 빌드(CI가 시험하는 것)에서만 세 모양(`applies`·`none`·`undetermined`)을 실제로 돌린다. `ONJ_REQUIRE_RULE_02=1 cargo test -p onjeon-contracts`는 그 건너뜀을 실패로 만든다. `contract_effect`(rule-0.2, G23)는 엔진이 rule-0.2를 지원한 뒤(PR #105)로 모든 결과에 실린다. 그 전 엔진 빌드의 결과에는 없으므로 계약에서는 **선택 필드**다. 없음은 '효과 없음'이 아니라 '엔진이 보고하지 않음'이고, 효과 없음은 `kind=none`이다. 필수로 올리는 것은 깨지는 변경(§5)이라 다음 계약 판의 몫이다.
+- 규칙 엔진의 실제 직렬화 결과를 `EvaluationResult`로 왕복한다. rule-0.2의 세 계약 효과 코드와 세 적격 판정을 모두 조합해 `none`·`applies`·`undetermined`와 각 결과의 필드를 검증한다(`rule_02_contract_effects_round_trip_for_every_code_and_eligibility`). 현재 엔진은 항상 `contract_effect`(G23)를 보고한다. 이전 엔진의 결과를 읽을 수 있도록 이 필드는 선택이다. 필드 생략은 엔진이 효과를 보고하지 않았음을, `kind=none`은 적용되는 효과가 없음을 뜻한다.
 
 ## 버전과 호환 검사 (02 §5)
 
@@ -80,15 +80,13 @@ CI는 태그와 전체 이력을 체크아웃해 `ONJ_COMPAT_ALL_CLIENTS=1 bash 
 
 ### 어휘 승격 대기 축 (`x-onjeon-pending-axis`)
 
-값의 출처는 02_구현계약(§1.2·§1.4·§1.5·§1.6·§1.7·§2.4·§4.2·§6.1)과 PREMIUM_DATA_CONTRACT·DATA_PIPELINE_CONTRACT다. 값 집합이 02에 없는 축(`judged_by`, `not_comparable_reason`, `line_kind`, `payment_cycle`)은 형식만 제한한다. 담당 과제는 [tasks.json](../../docs/blueprint/proposals/설계검토_결과/tasks.json)의 `vocabulary_axes`가 지정한다. `codegen/tests/test_schemas.py`(`Readme`)가 필드와 담당 과제를 대조한다. 어휘 1.6.0 이후 남은 대기 축은 18개, 필드 21개다.
+값의 출처는 02_구현계약(§1.2·§1.4·§1.5·§1.6·§1.7·§2.4·§4.2·§6.1)과 PREMIUM_DATA_CONTRACT·DATA_PIPELINE_CONTRACT다. 값 집합이 02에 없는 축(`judged_by`, `not_comparable_reason`, `line_kind`, `payment_cycle`)은 형식만 제한한다. 담당 과제는 [tasks.json](../../docs/blueprint/proposals/설계검토_결과/tasks.json)의 `vocabulary_axes`가 지정한다. `codegen/tests/test_schemas.py`(`Readme`)가 필드와 담당 과제를 대조한다. 어휘 1.10.0 이후 남은 대기 축은 16개, 필드 18개다.
 
 | 축 | 쓰는 필드 | 담당 과제 |
 |---|---|---|
 | `applicability` | `Amount.applicability`, `CompareCell.applicability` | T-CT-08 |
 | `blocked_reason` | `BlockedBy.reason` | T-CT-09 |
 | `chain_level` | `ChainStep.level` | T-CT-09 |
-| `contract_effect` | `ContractEffectResult.conditional_effect`, `ContractEffectResult.effect` | T-CT-09 |
-| `contract_effect_kind` | `ContractEffectResult.kind` | T-CT-09 |
 | `dependency_producer` | `ConclusionDependency.produced_by` | T-CT-09 |
 | `dependency_state` | `DependencyInfo.dependency_state` | T-CT-09 |
 | `detail_layer` | `DetailLayer.layer` | T-CT-09 |
@@ -102,6 +100,10 @@ CI는 태그와 전체 이력을 체크아웃해 `ONJ_COMPAT_ALL_CLIENTS=1 bash 
 | `plan_tab` | `PlanView.tab` | T-CT-09 |
 | `statement_kind` | `NeedReason.statement_kind` | T-CT-09 |
 | `value_kind` | `AssertionValue.value_kind` | T-CT-09 |
+
+### 1.10.0에서 승격된 축 (Audit 8)
+
+`ContractEffectResult.kind`는 `contract_effect_kind`, `effect`와 `conditional_effect`는 `contract_effect`를 참조한다. 기존 엔진 출력은 같은 문자열을 전송한다. 공유 스키마와 생성 타입은 축에 없는 문자열을 거부한다. [검증 및 호환 기록](../../docs/blueprint/audits/2026-11-28_vocab_contract_effect.md).
 
 ### 1.6.0에서 승격된 축 (T-CT-02)
 

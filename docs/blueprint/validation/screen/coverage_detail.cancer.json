@@ -548,7 +548,8 @@
         "already_paid": false,
         "self_harm": false,
         "self_harm_without_free_will": false,
-        "harmed_by_beneficiary_or_contractor": false,
+        "intentional_contractor_harm": false,
+        "beneficiary_harm_excludes_payout": false,
         "insured_amount_krw": 30000000
       },
       "expect": {
@@ -596,7 +597,8 @@
         "already_paid": false,
         "self_harm": false,
         "self_harm_without_free_will": false,
-        "harmed_by_beneficiary_or_contractor": false,
+        "intentional_contractor_harm": false,
+        "beneficiary_harm_excludes_payout": false,
         "insured_amount_krw": 30000000
       },
       "expect": {
@@ -652,7 +654,8 @@
         "already_paid": false,
         "self_harm": false,
         "self_harm_without_free_will": false,
-        "harmed_by_beneficiary_or_contractor": false,
+        "intentional_contractor_harm": false,
+        "beneficiary_harm_excludes_payout": false,
         "insured_amount_krw": 30000000
       },
       "expect": {
@@ -697,7 +700,8 @@
         "already_paid": false,
         "self_harm": false,
         "self_harm_without_free_will": false,
-        "harmed_by_beneficiary_or_contractor": false,
+        "intentional_contractor_harm": false,
+        "beneficiary_harm_excludes_payout": false,
         "insured_amount_krw": 30000000
       },
       "expect": {
@@ -797,7 +801,8 @@
         "already_paid": false,
         "self_harm": false,
         "self_harm_without_free_will": false,
-        "harmed_by_beneficiary_or_contractor": false,
+        "intentional_contractor_harm": false,
+        "beneficiary_harm_excludes_payout": false,
         "insured_amount_krw": 30000000
       },
       "expect": {
@@ -867,6 +872,48 @@
       "refs": [
         "kyobo_cancer#f_sc_amount",
         "kyobo_cancer#f_sc_waiting"
+      ]
+    },
+    {
+      "id": "sc8",
+      "question": "일부 보험수익자가 고의로 피보험자를 해친 경우",
+      "rule_id": "kyobo-cancer-main-dx",
+      "inputs": {
+        "contract_date": "2026-01-01",
+        "is_revived": false,
+        "revival_date": null,
+        "diagnosis_date": "2026-07-20",
+        "policy_end_date": "2086-01-01",
+        "dx_in_cancer_annex_at_dx": true,
+        "already_paid": false,
+        "self_harm": false,
+        "self_harm_without_free_will": false,
+        "intentional_contractor_harm": false,
+        "beneficiary_harm_excludes_payout": null,
+        "insured_amount_krw": 30000000
+      },
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {
+          "kind": "undetermined",
+          "conditional_amount": {
+            "kind": "exact",
+            "krw": 15000000
+          }
+        },
+        "missing_inputs": [
+          "beneficiary_harm_excludes_payout"
+        ]
+      },
+      "display": {
+        "line": "계산 불가 · 다른 수익자가 받을 금액은 이 시나리오에서 확인할 수 없어요",
+        "display_status": "hold",
+        "refs": [
+          "kyobo_cancer#c_main_art9"
+        ]
+      },
+      "refs": [
+        "kyobo_cancer#c_main_art9"
       ]
     }
   ]

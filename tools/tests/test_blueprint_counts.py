@@ -84,6 +84,24 @@ class SourceCounts(unittest.TestCase):
         self.assertEqual(self.collect()["vocabulary_axes"], 3)
         self.assertEqual(self.collect()["real_clause_rules"], 2)
 
+    def test_rule_revision_supersedes_shared_snapshot_in_the_inventory(self):
+        revisions = self.root / "packages/rules-engine/tests/fixtures/real"
+        revisions.mkdir(parents=True)
+        revision = revisions / "one.json"
+        self.write(revision, {"rule_id": "one", "publication_state": "fixture_only"})
+        self.assertEqual(bc.validation_check.real_clause_rule_paths(self.root), [revision])
+        self.assertEqual(self.collect()["real_clause_rules"], 1)
+        self.write(revision, {"rule_id": "one", "publication_state": "released"})
+        with self.assertRaisesRegex(ValueError, "invalid real-clause fixture: one.json"):
+            self.collect()
+
+    def test_rule_revision_must_have_a_shared_snapshot(self):
+        revisions = self.root / "packages/rules-engine/tests/fixtures/real"
+        revisions.mkdir(parents=True)
+        self.write(revisions / "orphan.json", {"rule_id": "orphan", "publication_state": "fixture_only"})
+        with self.assertRaisesRegex(ValueError, "real-clause revision has no shared original"):
+            self.collect()
+
     def test_duplicate_or_publishable_or_missing_rule_ids_fail(self):
         for rule in ({"rule_id": "one", "publication_state": "fixture_only"},
                      {"rule_id": "two", "publication_state": "accepted"},
@@ -202,6 +220,25 @@ class DocumentCounts(unittest.TestCase):
 
 
 class InventoryDocumentation(unittest.TestCase):
+    def test_g11_encodings_must_select_the_current_rule_by_id(self):
+        for family, rule_id in (
+            ("kyobo_cancer", "kyobo-cancer-main-dx"),
+            ("kyobo_wholelife", "kyobo-wholelife-accident-death"),
+            ("kyobo_wholelife", "kyobo-wholelife-disease-death"),
+        ):
+            with self.subTest(rule_id=rule_id):
+                data = bc.validation_check.load()
+                record = next(r for r in data["families"][family]["rules"] if r.get("rule_id") == rule_id)
+                current = record["file"]
+                self.assertEqual(data["rules"][current]["rule_version"], "v2-validation")
+                record["file"] = f"packages/fixtures/rules/real/{rule_id}.json"
+                self.assertIn(f"encoded/{family}.json: rule file {record['file']} missing",
+                              bc.validation_check.check(data)[0])
+                record["file"] = current
+                data["rules"][current]["rule_id"] = "wrong-id"
+                self.assertIn(f"encoded/{family}.json: rule file {current} must declare rule_id {rule_id}",
+                              bc.validation_check.check(data)[0])
+
     def test_adr_0014_real_clause_count_matches_fixture_inventory(self):
         text = (ROOT / "docs/decisions/ADR-0014-V1-검증-결과의-설계-반영.md").read_text(encoding="utf-8")
         counts = re.findall(r"^- 실제 조항 규칙 (\d+)건은 `fixture_only`", text, re.M)

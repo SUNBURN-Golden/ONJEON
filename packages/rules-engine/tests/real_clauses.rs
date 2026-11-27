@@ -4,7 +4,7 @@
 //! `tests/fixtures/cases/real` add boundary cases without editing the shared fixtures.
 mod common;
 use common::*;
-use onjeon_rules_engine::Rule;
+use onjeon_rules_engine::{EvalError, Rule};
 use serde_json::{json, Value as J};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
@@ -95,7 +95,7 @@ fn unexercised(exercised: &BTreeSet<String>, rules: &BTreeMap<String, Rule>) -> 
 
 fn assert_case_coverage(exercised: &BTreeSet<String>, n: usize, rules: &BTreeMap<String, Rule>) {
     assert_eq!(
-        n, EXPECTED_REAL_CLAUSE_CASES,
+        n, REAL_CASE_COUNT,
         "expected the full real-clause case set, ran {n}"
     );
     assert_eq!(
@@ -126,7 +126,7 @@ fn exact_case_count_check_catches_each_missing_file() {
             .collect();
         let (exercised, n, problems) = run_cases(&without, &rules);
         assert!(problems.is_empty(), "{problems:?}");
-        assert!(n < EXPECTED_REAL_CLAUSE_CASES);
+        assert!(n < REAL_CASE_COUNT);
         let failure = std::panic::catch_unwind(|| assert_case_coverage(&exercised, n, &rules))
             .expect_err("a missing cases file must fail the coverage check");
         let message = failure.downcast_ref::<String>().unwrap();
@@ -145,7 +145,7 @@ fn exact_case_count_check_catches_one_missing_case_with_all_rules_still_covered(
     files[0].1["cases"].as_array_mut().unwrap().pop().unwrap();
     let (exercised, n, problems) = run_cases(&files, &rules);
     assert!(problems.is_empty(), "{problems:?}");
-    assert_eq!(n, EXPECTED_REAL_CLAUSE_CASES - 1);
+    assert_eq!(n, REAL_CASE_COUNT - 1);
     assert!(unexercised(&exercised, &rules).is_empty());
     assert_case_coverage(&exercised, n, &rules);
 }
@@ -159,7 +159,7 @@ fn exact_case_count_check_catches_an_unexpected_extra_case() {
     cases.push(cases[0].clone());
     let (exercised, n, problems) = run_cases(&files, &rules);
     assert!(problems.is_empty(), "{problems:?}");
-    assert_eq!(n, EXPECTED_REAL_CLAUSE_CASES + 1);
+    assert_eq!(n, REAL_CASE_COUNT + 1);
     assert_case_coverage(&exercised, n, &rules);
 }
 
@@ -175,7 +175,7 @@ fn rule_coverage_check_catches_an_unexercised_rule_with_the_exact_case_count() {
     );
     let (exercised, n, problems) = run_cases(&case_files(), &rules);
     assert!(problems.is_empty(), "{problems:?}");
-    assert_eq!(n, EXPECTED_REAL_CLAUSE_CASES);
+    assert_eq!(n, REAL_CASE_COUNT);
     assert_case_coverage(&exercised, n, &rules);
 }
 
@@ -301,6 +301,45 @@ fn whole_life_leap_day_self_harm_boundary_is_g13_pending() {
 }
 
 #[test]
+fn partial_beneficiary_harm_keeps_omission_unknown_and_rejects_the_combined_flag() {
+    let rules = rules();
+    let cases = real_cases();
+    for case_id in [
+        "k19_partial_beneficiary_harm",
+        "w35_partial_beneficiary_harm",
+        "w39_partial_beneficiary_harm",
+    ] {
+        let (case, rule_id, mut inputs) = cases
+            .iter()
+            .find(|(case, ..)| case["id"] == case_id)
+            .cloned()
+            .expect(case_id);
+        let rule = &rules[&rule_id];
+        let unknown = rule.evaluate(&inputs).unwrap();
+        assert_eq!(observe(rule, &inputs), case["expect"], "{case_id}");
+
+        let inputs_map = inputs.as_object_mut().unwrap();
+        assert_eq!(
+            inputs_map.remove("beneficiary_harm_excludes_payout"),
+            Some(J::Null)
+        );
+        assert_eq!(
+            serde_json::to_vec(&rule.evaluate(&inputs).unwrap()).unwrap(),
+            serde_json::to_vec(&unknown).unwrap(),
+            "{case_id}: omitting the fact must preserve the undetermined result"
+        );
+
+        let legacy = "harmed_by_beneficiary_or_contractor";
+        for flag in [false, true] {
+            inputs[legacy] = json!(flag);
+            assert!(
+                matches!(rule.evaluate(&inputs), Err(EvalError::UnknownInput(key)) if key == legacy)
+            );
+        }
+    }
+}
+
+#[test]
 fn whole_life_accident_and_disease_death_never_both_pay() {
     // routes_to: the exclusion exceptions in art. 8 send one death to exactly one benefit.
     let rules = rules();
@@ -317,7 +356,7 @@ fn whole_life_accident_and_disease_death_never_both_pay() {
                         "is_revived": false, "revival_application_date": null, "death_date": death,
                         "cause_in_accident_table": cause, "self_harm": harm,
                         "self_harm_without_free_will": no_will,
-                        "harmed_by_beneficiary_or_contractor": false,
+                        "intentional_contractor_harm": false, "beneficiary_harm_excludes_payout": false,
                         "basic_amount_krw": 100000000, "insured_amount_krw": 100000000,
                         "additional_reserve_krw": 0
                     });
@@ -345,7 +384,8 @@ fn waiting_period_units_are_not_interchangeable() {
             "contract_date": "2026-06-01", "is_revived": false, "revival_date": null,
             "diagnosis_date": "2026-08-31", "policy_end_date": "2086-01-01",
             "dx_in_cancer_annex_at_dx": true, "already_paid": false, "self_harm": false,
-            "self_harm_without_free_will": false, "harmed_by_beneficiary_or_contractor": false,
+            "self_harm_without_free_will": false, "intentional_contractor_harm": false,
+            "beneficiary_harm_excludes_payout": false,
             "insured_amount_krw": 30000000
         }))
         .unwrap();
@@ -501,7 +541,7 @@ fn screen_payout_text_and_amounts_come_from_the_engine() {
     // V1-c: payout lines start with text generated from the engine result, and every amount
     // the screen attributes to a scenario equals what the engine computes for it.
     let screen = detail_screen();
-    assert!(screen["scenarios"].as_array().unwrap().len() >= 7);
+    assert_eq!(screen["scenarios"].as_array().unwrap().len(), 8);
     let errors = screen_errors(&screen, &rules());
     assert!(errors.is_empty(), "{}", errors.join("\n"));
 }
@@ -512,7 +552,7 @@ fn screen_check_catches_tampered_numbers() {
     let rules = rules();
     let base = detail_screen();
     type Tamper = fn(&mut J);
-    let tampers: [(&str, Tamper, &str); 5] = [
+    let tampers: [(&str, Tamper, &str); 6] = [
         (
             "display line 1,500만원 -> 9,999만원",
             |s| s["scenarios"][1]["display"]["line"] = json!("9,999만원 · 첫 1년 50%"),
@@ -540,6 +580,11 @@ fn screen_check_catches_tampered_numbers() {
             "scenario points at the wrong rule",
             |s| s["scenarios"][1]["rule_id"] = json!("kyobo-small-cancer-skin"),
             "sc2: evaluation error",
+        ),
+        (
+            "partial beneficiary harm displayed as zero",
+            |s| s["scenarios"][7]["display"]["line"] = json!("0원"),
+            "sc8: line `0원` must start with engine text `계산 불가`",
         ),
     ];
     for (name, tamper, expected) in tampers {

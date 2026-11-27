@@ -52,16 +52,22 @@ def main():
             altered["hashes"][rule_id] = "0" * 64
             pins_path.write_text(json.dumps(altered))
             run(f"changed pin {rule_id}", ["golden"],
-                "real_rule_content_hashes_are_pinned", 101, f"{rule_id}: rule_content_hash changed")
+                "real_rule_content_hashes_are_pinned", 101, f"{rule_id}: shared rule hash")
             del altered["hashes"][rule_id]
             pins_path.write_text(json.dumps(altered))
             run(f"missing pin {rule_id}", ["golden"],
-                "real_rule_content_hashes_are_pinned", 101, "pinned set must equal")
+                "real_rule_content_hashes_are_pinned", 101, "every shared rule must have a pinned hash")
         pins_path.write_bytes(original)
 
         # Removing both a rule and its pin must not make the audited inventory shrink.
         for rule_id in pins["hashes"]:
             rule_path = fixtures / "real" / f"{rule_id}.json"
+            revision_path = engine / "tests/fixtures/real" / rule_path.name
+            # Orphaned revisions fail in the loader before the inventory assertion.
+            diagnostic = (
+                "revision must have a shared original" if revision_path.is_file()
+                else "real rule inventory must stay at seven audited rules"
+            )
             rule_bytes = rule_path.read_bytes()
             rule_path.unlink()
             altered = json.loads(original)
@@ -72,8 +78,7 @@ def main():
                 ("golden", "real_results_are_byte_identical_after_disk_reload_and_key_permutation"),
                 ("soundness", "hiding_an_input_never_changes_a_definite_answer_on_real_rules"),
             ]:
-                run(f"dropped rule {rule_id} / {test}", [suite], test, 101,
-                    "real rule inventory must stay at seven audited rules")
+                run(f"dropped rule {rule_id} / {test}", [suite], test, 101, diagnostic)
             rule_path.write_bytes(rule_bytes)
         pins_path.write_bytes(original)
         print("PASS: baseline + 14 pin mutations + 21 rule-inventory checks")

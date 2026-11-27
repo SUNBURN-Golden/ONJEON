@@ -35,9 +35,44 @@
       }
     },
     {
-      "id": "k18_harmed_by_beneficiary_or_contractor",
+      "id": "k18_sole_beneficiary_harm",
       "set": {
-        "harmed_by_beneficiary_or_contractor": true
+        "beneficiary_harm_excludes_payout": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      },
+      "note": "단독 수익자의 고의가 확인되면 지급 제외"
+    },
+    {
+      "id": "k19_partial_beneficiary_harm",
+      "note": "일부 수익자 고의: 다른 수익자의 몫을 산출할 수 없어 전체 지급 판정을 보류한다",
+      "set": {
+        "beneficiary_harm_excludes_payout": null
+      },
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {
+          "kind": "undetermined",
+          "conditional_amount": {
+            "kind": "exact",
+            "krw": 15000000
+          }
+        },
+        "missing_inputs": [
+          "beneficiary_harm_excludes_payout"
+        ]
+      }
+    },
+    {
+      "id": "k20_intentional_contractor_harm",
+      "note": "계약자 고의가 확인되면 지급 제외",
+      "set": {
+        "intentional_contractor_harm": true
       },
       "expect": {
         "eligibility": "false",
@@ -48,12 +83,42 @@
       }
     },
     {
-      "id": "k19_beneficiary_or_contractor_harm_unknown",
-      "set": {"harmed_by_beneficiary_or_contractor": null},
+      "id": "k21_contractor_harm_with_partial_beneficiary_harm",
+      "note": "일부 수익자 고의로 몫이 불확정이어도 계약자 고의가 독립적으로 지급을 제외한다",
+      "set": {
+        "beneficiary_harm_excludes_payout": null,
+        "intentional_contractor_harm": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "k22_partial_beneficiary_harm_with_independent_exclusion",
+      "note": "일부 수익자 고의로 몫이 불확정이어도 다른 확정 지급 조건은 적용된다",
+      "set": {
+        "beneficiary_harm_excludes_payout": null,
+        "already_paid": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "k23_contractor_harm_unknown",
+      "set": {"intentional_contractor_harm": null},
       "expect": {
         "eligibility": "unknown",
         "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 15000000}},
-        "missing_inputs": ["harmed_by_beneficiary_or_contractor"]
+        "missing_inputs": ["intentional_contractor_harm"]
       }
     }
   ]

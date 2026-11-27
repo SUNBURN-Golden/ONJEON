@@ -36,11 +36,11 @@
       }
     },
     {
-      "id": "w15_accident_harmed_by_beneficiary",
+      "id": "w15_sole_beneficiary_harm",
       "rule": "kyobo-wholelife-accident-death",
       "set": {
         "cause_in_accident_table": true,
-        "harmed_by_beneficiary_or_contractor": true
+        "beneficiary_harm_excludes_payout": true
       },
       "expect": {
         "eligibility": "false",
@@ -48,7 +48,8 @@
           "kind": "not_payable"
         },
         "missing_inputs": []
-      }
+      },
+      "note": "단독 수익자의 고의가 확인되면 지급 제외"
     },
     {
       "id": "w16_accident_self_harm_with_free_will",
@@ -114,10 +115,10 @@
       }
     },
     {
-      "id": "w20_disease_harmed_by_beneficiary",
+      "id": "w20_sole_beneficiary_harm",
       "rule": "kyobo-wholelife-disease-death",
       "set": {
-        "harmed_by_beneficiary_or_contractor": true
+        "beneficiary_harm_excludes_payout": true
       },
       "expect": {
         "eligibility": "false",
@@ -125,7 +126,8 @@
           "kind": "not_payable"
         },
         "missing_inputs": []
-      }
+      },
+      "note": "단독 수익자의 고의가 확인되면 지급 제외"
     },
     {
       "id": "w21_accident_cause_not_paid_as_disease",
@@ -399,23 +401,162 @@
       }
     },
     {
-      "id": "w35_accident_beneficiary_or_contractor_harm_unknown",
+      "id": "w35_partial_beneficiary_harm",
       "rule": "kyobo-wholelife-accident-death",
-      "set": {"cause_in_accident_table": true, "harmed_by_beneficiary_or_contractor": null},
+      "note": "일부 수익자 고의: 다른 수익자의 몫을 산출할 수 없어 전체 지급 판정을 보류한다",
+      "set": {
+        "cause_in_accident_table": true,
+        "beneficiary_harm_excludes_payout": null
+      },
       "expect": {
         "eligibility": "unknown",
-        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 100000000}},
-        "missing_inputs": ["harmed_by_beneficiary_or_contractor"]
+        "payout": {
+          "kind": "undetermined",
+          "conditional_amount": {
+            "kind": "exact",
+            "krw": 100000000
+          }
+        },
+        "missing_inputs": [
+          "beneficiary_harm_excludes_payout"
+        ]
       }
     },
     {
-      "id": "w36_disease_beneficiary_or_contractor_harm_unknown",
+      "id": "w36_intentional_contractor_harm",
+      "rule": "kyobo-wholelife-accident-death",
+      "note": "계약자 고의가 확인되면 지급 제외",
+      "set": {
+        "cause_in_accident_table": true,
+        "intentional_contractor_harm": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w37_contractor_harm_with_partial_beneficiary_harm",
+      "rule": "kyobo-wholelife-accident-death",
+      "note": "일부 수익자 고의로 몫이 불확정이어도 계약자 고의가 독립적으로 지급을 제외한다",
+      "set": {
+        "cause_in_accident_table": true,
+        "beneficiary_harm_excludes_payout": null,
+        "intentional_contractor_harm": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w38_partial_beneficiary_harm_with_independent_exclusion",
+      "rule": "kyobo-wholelife-accident-death",
+      "note": "일부 수익자 고의로 몫이 불확정이어도 다른 확정 지급 조건은 적용된다",
+      "set": {
+        "cause_in_accident_table": false,
+        "beneficiary_harm_excludes_payout": null
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w39_partial_beneficiary_harm",
       "rule": "kyobo-wholelife-disease-death",
-      "set": {"harmed_by_beneficiary_or_contractor": null},
+      "note": "일부 수익자 고의: 다른 수익자의 몫을 산출할 수 없어 전체 지급 판정을 보류한다",
+      "set": {
+        "beneficiary_harm_excludes_payout": null
+      },
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {
+          "kind": "undetermined",
+          "conditional_amount": {
+            "kind": "exact",
+            "krw": 50000000
+          }
+        },
+        "missing_inputs": [
+          "beneficiary_harm_excludes_payout"
+        ]
+      }
+    },
+    {
+      "id": "w40_intentional_contractor_harm",
+      "rule": "kyobo-wholelife-disease-death",
+      "note": "계약자 고의가 확인되면 지급 제외",
+      "set": {
+        "intentional_contractor_harm": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w41_contractor_harm_with_partial_beneficiary_harm",
+      "rule": "kyobo-wholelife-disease-death",
+      "note": "일부 수익자 고의로 몫이 불확정이어도 계약자 고의가 독립적으로 지급을 제외한다",
+      "set": {
+        "beneficiary_harm_excludes_payout": null,
+        "intentional_contractor_harm": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w42_partial_beneficiary_harm_with_independent_exclusion",
+      "rule": "kyobo-wholelife-disease-death",
+      "note": "일부 수익자 고의로 몫이 불확정이어도 다른 확정 지급 조건은 적용된다",
+      "set": {
+        "beneficiary_harm_excludes_payout": null,
+        "cause_in_accident_table": true
+      },
+      "expect": {
+        "eligibility": "false",
+        "payout": {
+          "kind": "not_payable"
+        },
+        "missing_inputs": []
+      }
+    },
+    {
+      "id": "w43_accident_contractor_harm_unknown",
+      "rule": "kyobo-wholelife-accident-death",
+      "set": {"cause_in_accident_table": true, "intentional_contractor_harm": null},
+      "expect": {
+        "eligibility": "unknown",
+        "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 100000000}},
+        "missing_inputs": ["intentional_contractor_harm"]
+      }
+    },
+    {
+      "id": "w44_disease_contractor_harm_unknown",
+      "rule": "kyobo-wholelife-disease-death",
+      "set": {"intentional_contractor_harm": null},
       "expect": {
         "eligibility": "unknown",
         "payout": {"kind": "undetermined", "conditional_amount": {"kind": "exact", "krw": 50000000}},
-        "missing_inputs": ["harmed_by_beneficiary_or_contractor"]
+        "missing_inputs": ["intentional_contractor_harm"]
       }
     }
   ]

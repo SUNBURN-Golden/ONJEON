@@ -1,5 +1,5 @@
-    Blocking waiting for file lock on build directory
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.64s
+    Blocking waiting for file lock on package cache
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
      Running tests/mutation.rs (target/debug/deps/mutation-30bcc153d15232c8)
 
 running 3 tests
@@ -38,7 +38,8 @@ kyobo-cancer-main-dx :: eligibility: drop all child 1 changes k15_after_policy_e
 kyobo-cancer-main-dx :: eligibility: drop all child 2 changes k08_small_cancer_not_main
 kyobo-cancer-main-dx :: eligibility: drop all child 3 changes k10_second_diagnosis
 kyobo-cancer-main-dx :: eligibility: drop all child 4 changes k11_self_harm_excluded
-kyobo-cancer-main-dx :: eligibility: drop all child 5 changes k18_harmed_by_beneficiary_or_contractor
+kyobo-cancer-main-dx :: eligibility: drop all child 5 changes k20_intentional_contractor_harm
+kyobo-cancer-main-dx :: eligibility: drop all child 6 changes k18_sole_beneficiary_harm
 kyobo-cancer-main-dx :: eligibility.all[4].not: drop all child 0 changes k02_next_day_covered_reduced
 kyobo-cancer-main-dx :: eligibility.all[4].not: drop all child 1 changes k12_self_harm_without_free_will_paid
 kyobo-small-cancer-skin :: eligibility: drop all child 0 changes s08_diagnosis_before_first_coverage_start
@@ -51,7 +52,8 @@ kyobo-small-cancer-skin :: eligibility.all[5].not: drop all child 0 changes s15_
 kyobo-small-cancer-skin :: eligibility.all[5].not: drop all child 1 changes s03_renewal_reduction_base_is_first_contract
 kyobo-wholelife-accident-death :: eligibility: drop all child 0 changes w14_accident_first_period_ended
 kyobo-wholelife-accident-death :: eligibility: drop all child 1 changes w02_disease_year1_not_accident
-kyobo-wholelife-accident-death :: eligibility: drop all child 2 changes w15_accident_harmed_by_beneficiary
+kyobo-wholelife-accident-death :: eligibility: drop all child 2 changes w36_intentional_contractor_harm
+kyobo-wholelife-accident-death :: eligibility: drop all child 3 changes w15_sole_beneficiary_harm
 kyobo-wholelife-accident-death :: eligibility.all[1]: drop any child 0 changes w05_accident
 kyobo-wholelife-accident-death :: eligibility.all[1]: drop any child 1 changes w09_incapacity_routes_to_accident
 kyobo-wholelife-accident-death :: eligibility.all[1].any[0]: drop all child 0 changes w02_disease_year1_not_accident
@@ -60,7 +62,8 @@ kyobo-wholelife-accident-death :: eligibility.all[1].any[1]: drop all child 0 ch
 kyobo-wholelife-accident-death :: eligibility.all[1].any[1]: drop all child 1 changes w08_suicide_after_2y_not_accident
 kyobo-wholelife-disease-death :: eligibility: drop all child 0 changes w04_first_period_ends
 kyobo-wholelife-disease-death :: eligibility: drop all child 1 changes w06_suicide_within_2y_nothing
-kyobo-wholelife-disease-death :: eligibility: drop all child 2 changes w20_disease_harmed_by_beneficiary
+kyobo-wholelife-disease-death :: eligibility: drop all child 2 changes w40_intentional_contractor_harm
+kyobo-wholelife-disease-death :: eligibility: drop all child 3 changes w20_sole_beneficiary_harm
 kyobo-wholelife-disease-death :: eligibility.all[1]: drop any child 0 changes w01_disease_year1
 kyobo-wholelife-disease-death :: eligibility.all[1]: drop any child 1 changes w07_suicide_after_2y_routes_to_disease
 kyobo-wholelife-disease-death :: eligibility.all[1].any[0]: drop all child 0 changes w11_cause_unknown
@@ -70,8 +73,8 @@ kyobo-wholelife-disease-death :: eligibility.all[1].any[1]: drop all child 1 cha
 kyobo-wholelife-disease-death :: eligibility.all[1].any[1]: drop all child 2 changes w06_suicide_within_2y_nothing
 ok
 test removing_a_single_logical_child_uses_the_empty_fold_identity ... ok
-test shared_cases_alone_miss_audited_logical_child_removals ... shared cases alone miss 36 child removals
+test shared_cases_alone_miss_audited_logical_child_removals ... shared cases alone miss 39 child removals
 ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.27s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.18s
 

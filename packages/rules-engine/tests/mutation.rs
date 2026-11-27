@@ -2,8 +2,8 @@
 //! A mutant that survives means the golden table cannot detect that kind of error.
 //!
 //! Two layers: `mutants()` are hand-written breaks of the synthetic fixture; `generic` derives
-//! mutants mechanically from the rule JSON, so every rule (synthetic and every real rule in
-//! `fixtures/rules/real`) is covered without writing a mutant per rule.
+//! mutants mechanically from the rule JSON for the synthetic fixture and every current real
+//! rule, including the engine-owned revisions of shared rules.
 mod common;
 use common::*;
 use onjeon_rules_engine::Rule;
@@ -424,10 +424,10 @@ fn every_real_logical_child_removal_changes_a_golden_result() {
         ("kb-driver-fine".to_string(), 8),
         ("kb-driver-lawyer-fee".to_string(), 20),
         ("kyobo-1995-cancer-waiting".to_string(), 2),
-        ("kyobo-cancer-main-dx".to_string(), 8),
+        ("kyobo-cancer-main-dx".to_string(), 9),
         ("kyobo-small-cancer-skin".to_string(), 8),
-        ("kyobo-wholelife-accident-death".to_string(), 9),
-        ("kyobo-wholelife-disease-death".to_string(), 10),
+        ("kyobo-wholelife-accident-death".to_string(), 10),
+        ("kyobo-wholelife-disease-death".to_string(), 11),
     ]);
     let mut generated = BTreeMap::new();
     let mut survivors = Vec::new();
@@ -457,10 +457,12 @@ fn every_real_logical_child_removal_changes_a_golden_result() {
 
 #[test]
 fn shared_cases_alone_miss_audited_logical_child_removals() {
-    let shared = real_cases_from(|path| load_json(&fixtures_dir().join(path)));
+    let shared = real_cases_from(shared_case_file);
     let mut survivors = BTreeSet::new();
     for (id, source, cases) in real_rules_with_cases(shared) {
         assert!(!cases.is_empty(), "{id}: no shared cases");
+        let original = Rule::from_json(&source).unwrap();
+        assert_eq!(mismatched_case(&original, &cases), None, "{id}: baseline");
         for mutant in generic::logical_child_mutants(&source) {
             let rule = Rule::from_json(&mutant.rule).unwrap();
             if mismatched_case(&rule, &cases).is_none() {
@@ -472,9 +474,13 @@ fn shared_cases_alone_miss_audited_logical_child_removals() {
         "kb-driver-fine :: eligibility: drop all child 3", // racing_or_test_use
         "kb-driver-fine :: eligibility: drop all child 6", // intentional_contractor
         "kb-driver-lawyer-fee :: eligibility.all[1]: drop any child 3", // formal_trial_requested
-        "kyobo-cancer-main-dx :: eligibility: drop all child 5", // harmed_by_beneficiary_or_contractor
+        // Contractor harm and beneficiary harm are separate exclusions in each revised rule.
+        "kyobo-cancer-main-dx :: eligibility: drop all child 5",
+        "kyobo-cancer-main-dx :: eligibility: drop all child 6",
         "kyobo-wholelife-accident-death :: eligibility: drop all child 2",
+        "kyobo-wholelife-accident-death :: eligibility: drop all child 3",
         "kyobo-wholelife-disease-death :: eligibility: drop all child 2",
+        "kyobo-wholelife-disease-death :: eligibility: drop all child 3",
     ] {
         assert!(survivors.contains(missed), "shared cases detect {missed}");
     }

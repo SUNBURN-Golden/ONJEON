@@ -14,13 +14,15 @@ pub const REAL_RULE_IDS: [&str; 7] = [
     "kyobo-wholelife-accident-death",
     "kyobo-wholelife-disease-death",
 ];
-
-// 47 shared design-validation cases + 64 engine-owned boundary cases.
-// Update deliberately when adding or removing cases; never derive this from discovered files.
-pub const EXPECTED_REAL_CLAUSE_CASES: usize = 47 + 64;
+// Deliberate inventory of the shared design-validation and engine boundary cases.
+pub const REAL_CASE_COUNT: usize = 47 + 76;
 
 pub fn fixtures_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../fixtures/rules")
+}
+
+pub fn engine_fixtures_dir() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../rules-engine/tests/fixtures")
 }
 
 pub fn rule_json() -> J {
@@ -46,8 +48,36 @@ pub fn cases() -> Vec<J> {
 /// Extend a shared case table with engine-owned boundary cases. Supplements inherit the
 /// shared file's base inputs and rule ID; their expectations remain hand-authored.
 pub fn case_file(relative: &std::path::Path) -> J {
-    let supplement = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/cases");
-    case_file_in(&fixtures_dir(), &supplement, relative)
+    let file = case_file_in(
+        &fixtures_dir(),
+        &engine_fixtures_dir().join("cases"),
+        relative,
+    );
+    with_current_harm_inputs(file, relative)
+}
+
+/// Load the shared cases alone for comparison against the same current rules.
+pub fn shared_case_file(relative: &Path) -> J {
+    let file = load_json(&fixtures_dir().join(relative));
+    with_current_harm_inputs(file, relative)
+}
+
+fn with_current_harm_inputs(mut file: J, relative: &Path) -> J {
+    if let Some(base) = file.get_mut("base").and_then(J::as_object_mut) {
+        if let Some(legacy) = base.remove("harmed_by_beneficiary_or_contractor") {
+            // These two historical base rows explicitly prescribe no intentional harm.
+            // The revised rules themselves require separate facts at the input boundary.
+            assert_eq!(
+                legacy,
+                false,
+                "{}: historical no-harm base",
+                relative.display()
+            );
+            base.insert("intentional_contractor_harm".into(), json!(false));
+            base.insert("beneficiary_harm_excludes_payout".into(), json!(false));
+        }
+    }
+    file
 }
 
 /// The same loader with isolated fixture roots for harness regression tests.
@@ -204,9 +234,17 @@ pub fn load_json(path: &PathBuf) -> J {
     serde_json::from_str(&std::fs::read_to_string(path).expect("readable")).expect("valid json")
 }
 
-/// Every rule in `fixtures/rules/real`, keyed by `rule_id`.
+/// Current fixture rules, keyed by `rule_id`. Engine-owned revisions supersede shared snapshots.
 pub fn real_rules() -> BTreeMap<String, Rule> {
-    real_rules_in(&real_dir())
+    let mut rules = real_rules_in(&real_dir());
+    for (id, revision) in real_rules_in(&engine_fixtures_dir().join("real")) {
+        let original = rules
+            .get_mut(&id)
+            .expect("revision must have a shared original");
+        assert_ne!(original.rule_version(), revision.rule_version(), "{id}");
+        *original = revision;
+    }
+    rules
 }
 
 pub fn real_rules_in(dir: &Path) -> BTreeMap<String, Rule> {

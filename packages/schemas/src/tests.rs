@@ -17,6 +17,9 @@ macro_rules! fixture {
 #[path = "view_model_tests.rs"]
 mod view_model_tests;
 
+#[path = "../../rules-engine/tests/common/mod.rs"]
+mod engine_fixtures;
+
 fn schemas_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }
@@ -194,45 +197,41 @@ fn contracts_version_matches_the_generated_clients() {
 
 #[test]
 fn rule_engine_output_deserializes_into_evaluation_result() {
+    use engine_fixtures::{cases, real_cases, real_rules, rule_json, REAL_CASE_COUNT};
     use onjeon_rules_engine::Rule;
-    let dir = schemas_dir().join("../fixtures/rules");
+
+    let synthetic = Rule::from_json(&rule_json()).unwrap();
+    let rules = real_rules();
+    let synthetic_cases = cases();
+    let real_cases = real_cases();
+    assert_eq!(real_cases.len(), REAL_CASE_COUNT);
     let manifest: ReleaseManifest = serde_json::from_str(fixture!("ReleaseManifest")).unwrap();
-    let mut checked = 0;
     let mut with_effect = 0;
-    for rule_file in [
-        "fixture-rule-001",
-        "real/kyobo-cancer-main-dx",
-        "real/kb-driver-fine",
-    ] {
-        let rule_src = std::fs::read_to_string(dir.join(format!("{rule_file}.json"))).unwrap();
-        let rule = Rule::from_json(&serde_json::from_str(&rule_src).unwrap()).unwrap();
-        let cases: Value = serde_json::from_str(
-            &std::fs::read_to_string(dir.join(format!("{rule_file}.cases.json"))).unwrap(),
-        )
-        .unwrap();
-        for case in cases["cases"].as_array().unwrap() {
-            let Ok(result) = rule.evaluate(&case["inputs"]) else {
-                continue;
-            };
-            let wire = serde_json::to_string(&result).unwrap();
-            let typed = round_trip::<EvaluationResult>(&wire);
-            assert_eq!(typed.engine_version, manifest.engine_version);
+    let synthetic_inputs = synthetic_cases
+        .iter()
+        .map(|case| (&synthetic, &case["inputs"]));
+    let real_inputs = real_cases
+        .iter()
+        .map(|(_, id, inputs)| (&rules[id], inputs));
+    for (rule, inputs) in synthetic_inputs.chain(real_inputs) {
+        let result = rule.evaluate(inputs).unwrap();
+        let wire = serde_json::to_string(&result).unwrap();
+        let typed = round_trip::<EvaluationResult>(&wire);
+        assert_eq!(typed.engine_version, manifest.engine_version);
+        assert_eq!(
+            check_evaluation_result(&typed),
+            vec![],
+            "engine result breaks a contract invariant: {wire}"
+        );
+        if let Some(ce) = &typed.contract_effect {
             assert_eq!(
-                check_evaluation_result(&typed),
-                vec![],
-                "engine result breaks a contract invariant: {wire}"
+                ce.kind, CONTRACT_EFFECT_NONE,
+                "fixture rules are rule-0.1: no effect declared"
             );
-            if let Some(ce) = &typed.contract_effect {
-                assert_eq!(
-                    ce.kind, CONTRACT_EFFECT_NONE,
-                    "fixture rules are rule-0.1: no effect declared"
-                );
-                with_effect += 1;
-            }
-            checked += 1;
+            with_effect += 1;
         }
     }
-    assert!(checked >= 10, "expected many engine results, got {checked}");
+    let checked = synthetic_cases.len() + real_cases.len();
     assert!(
         with_effect == 0 || with_effect == checked,
         "an engine build reports contract_effect on every result or on none ({with_effect}/{checked})"

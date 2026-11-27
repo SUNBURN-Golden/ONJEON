@@ -19,6 +19,8 @@ V1-b에서 인코딩한 같은 자료로 선택한 화면(`docs/design/assets/se
 
 모든 줄은 `refs`로 인코딩된 필드·조항·가격 관측치를 가리키고, 금액이 든 줄은 `amounts`로 금액마다 출처를 선언한다. `tools/validation_check.py`는 문구에 적힌 금액과 선언한 금액이 같은지, 가격·후보 가입금액·조항 문구 출처와 값이 같은지, 가격 칩의 나이·성별·기준일이 가격 관측치와 같은지 검사한다. `cargo test --test real_clauses`는 시나리오를 엔진으로 다시 계산해, 지급액 문구가 엔진 결과에서 생성한 금액 문구로 시작하는지와 `scenario:` 출처 금액이 엔진 값과 같은지 검사한다(`screen_payout_text_and_amounts_come_from_the_engine`, 변조 시험 `screen_check_catches_tampered_numbers`). 이 검사들은 내부 일관성 검사이며 원본 재검증이 아니다.
 
+Audit 8의 암 주계약 시나리오 `sc8`은 일부 수익자 고의에 `계산 불가`를 표시한다. 다른 수익자의 지급액 계산은 G11에 남아 있으며 견본에는 금액을 표시하지 않는다. [회귀 증거](../audits/2026-11-27_beneficiary_partial_harm_unknown.md).
+
 ## 1. 내 설계 탭 (보완안 선택)
 
 보조문은 CONSUMER_FLOW_SPEC §2의 확정 문구를 따른다(BLUEPRINT §3, Audit 1 정정 2026-10-26).

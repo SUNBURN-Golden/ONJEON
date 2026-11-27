@@ -1286,15 +1286,19 @@
   "rules": [
     {
       "rule_id": "kyobo-cancer-main-dx",
-      "status": "expressed",
-      "file": "packages/fixtures/rules/real/kyobo-cancer-main-dx.json",
-      "cases": 15,
+      "status": "partially_expressed",
+      "file": "packages/rules-engine/tests/fixtures/real/kyobo-cancer-main-dx.json",
+      "cases": 22,
       "inputs_from_outside_dsl": [
         "dx_in_cancer_annex_at_dx (진단 코드·진단 시점 KCD 판정)",
-        "policy_end_date (100세 계약해당일 계산)"
+        "policy_end_date (100세 계약해당일 계산)",
+        "intentional_contractor_harm (계약자 고의)",
+        "beneficiary_harm_excludes_payout (일부 수익자 고의 또는 사실 미확인이면 null)"
       ],
+      "reason": "일부 수익자 고의는 전체 지급 판정을 보류한다. 수익자별 몫 산출은 G11에 남는다.",
       "gaps": [
         "G08",
+        "G11",
         "G13"
       ]
     },

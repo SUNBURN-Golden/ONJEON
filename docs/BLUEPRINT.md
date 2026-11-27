@@ -268,7 +268,7 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 
 | ID | 불변식 | 강제 위치 | 상태 |
 |---|---|---|---|
-| I1 | 미확인은 0원·없음·거짓이 되지 않는다 | 엔진 골든·건전성 테스트(실제 조항 7개, `null`·키 누락, [Audit 3 증거](blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md))·온톨로지 금액 표시·비교 자체 시험([Audit 4 증거](blueprint/audits/2026-10-30_ontology_check_unknown_as_zero.md))·공유 보험료 관측 계약 시험([Audit 8 증거](blueprint/audits/2026-11-25_premium_unknown_as_zero.md)) | 구현(엔진·공유 가격 계약) |
+| I1 | 미확인은 0원·없음·거짓이 되지 않는다 | 엔진 골든·건전성 테스트(실제 조항 7개, `null`·키 누락, [Audit 3 증거](blueprint/audits/2026-10-28_engine_invariant_tests_strengthen.md))·온톨로지 금액 표시·비교 자체 시험([Audit 4 증거](blueprint/audits/2026-10-30_ontology_check_unknown_as_zero.md))·공유 보험료 관측 계약 시험([Audit 8 증거](blueprint/audits/2026-11-25_premium_unknown_as_zero.md))·일부 수익자 고의 시 교보 검증 규칙의 지급 판정 보류([Audit 8 G11 증거](blueprint/audits/2026-11-27_beneficiary_partial_harm_unknown.md)) | 구현(엔진·공유 가격 계약) |
 | I2 | 계산 결과는 규칙 버전·릴리스·내용 해시·근거를 갖는다 | 엔진 `review_fixes`·키 삽입 순서를 보존하는 JSON 맵의 규칙 내용 해시 회귀 시험([Audit 8 증거](../tools/evidence/audit8-hash-canonicalization-test/README.md)) | 구현(엔진) |
 | I3 | 로드된 규칙은 바뀌지 않고, 바꾸려면 재검증·재해시 | `compile_fail,E0616` 문서 테스트·`immutable_rule_doctests`의 실제 진단 코드 검사([Audit 6 재검증](blueprint/audits/2026-11-14_engine_loader_tightening.md)) | 구현(엔진) |
 | I4 | 금액은 정수 원, 반올림은 명시 | 엔진 로더 | 구현(엔진) |
@@ -446,9 +446,9 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 | 항목 | 현재 값 | 대조 원천 |
 |---|---:|---|
 | 엔진 빌드 식별자 | `0.2.0+snapshot-json-1` | `packages/rules-engine/src/lib.rs`의 `ENGINE_VERSION` |
-| Rust 단위·통합 시험 | 269 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 270 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
-| 실제 조항 규칙(fixture_only) | 7 | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |
+| 실제 조항 규칙(fixture_only) | 7 | `tools/validation_check.py`의 `real_clause_rule_paths()` |
 | 검증 자료 변조 시험 | 40 | `tools/validation_check.py`의 `mutations()` |
 | 공유 어휘 축 | 50 | `packages/schemas/vocabulary.json`의 `axes` |
 <!-- blueprint-counts:end -->

@@ -2,7 +2,7 @@
 // packages/schemas/json/*.schema.json. Do not edit; run `bash packages/schemas/codegen/gen.sh`.
 
 /// Version of packages/schemas/vocabulary.json these enums were generated from.
-const String vocabularyVersion = '1.9.0';
+const String vocabularyVersion = '1.10.0';
 
 /// 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
 ///
@@ -597,6 +597,56 @@ enum Payout {
       if (v.code == code) return v;
     }
     throw FormatException('unknown payout: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 계약 효과: 지급 판정과 별도로 규칙이 계약 자체에 미치는 효과. rule-0.2의 규칙 선언에서 생략하면 none
+///
+/// Axis `contract_effect`. Unknown values throw (never a default).
+enum ContractEffect {
+  /// 규칙에 선언된 계약 효과 없음
+  none('none'),
+  /// 계약 무효 및 보험료 반환
+  voidRefundPremium('void_refund_premium'),
+  /// 계약 해지 및 책임준비금 지급
+  terminatedPayReserve('terminated_pay_reserve');
+
+  const ContractEffect(this.code);
+
+  final String code;
+
+  static ContractEffect fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown contract_effect: $code');
+  }
+
+  String toJson() => code;
+}
+
+/// 계약 효과 판정: 규칙 평가 결과에서 계약 효과가 적용되는지 나타내는 구분
+///
+/// Axis `contract_effect_kind`. Unknown values throw (never a default).
+enum ContractEffectKind {
+  /// 계약 효과 선언이 없거나 지급 자격이 성립하지 않아 적용되는 효과가 없음
+  none('none'),
+  /// 지급 자격이 성립해 effect에 담긴 계약 효과가 적용됨
+  applies('applies'),
+  /// 지급 자격이 미정이며 성립하면 적용될 계약 효과를 conditional_effect에 보존함
+  undetermined('undetermined');
+
+  const ContractEffectKind(this.code);
+
+  final String code;
+
+  static ContractEffectKind fromJson(String code) {
+    for (final v in values) {
+      if (v.code == code) return v;
+    }
+    throw FormatException('unknown contract_effect_kind: $code');
   }
 
   String toJson() => code;

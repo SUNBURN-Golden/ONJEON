@@ -12,7 +12,7 @@ use std::fmt;
 pub const SCHEMA_VERSION: &str = "rule-0.1";
 /// rule-0.2 adds the operators listed in GAP_REPORT section 5; everything in 0.1 still loads.
 pub const SCHEMA_VERSION_0_2: &str = "rule-0.2";
-/// Allowed `contract_effect` values (rule-0.2).
+/// Allowed `contract_effect` values (rule-0.2). Checked against the shared vocabulary.
 pub const CONTRACT_EFFECTS: [&str; 3] = ["none", "void_refund_premium", "terminated_pay_reserve"];
 pub const UNKNOWN_POLICY: &str = "use_three_valued_logic_never_default_to_zero";
 /// Allowed `publication_state` values; must match `publication_state` in vocabulary.json.

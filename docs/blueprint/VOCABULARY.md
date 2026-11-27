@@ -1,6 +1,6 @@
 # 상태 어휘 (생성 문서)
 
-버전 1.9.0 | 2026-11-18 | 정본: `packages/schemas/vocabulary.json`
+버전 1.10.0 | 2026-11-28 | 정본: `packages/schemas/vocabulary.json`
 
 > 이 문서는 `python3 tools/vocab_check.py --write`로 생성한다. 직접 고치지 않는다.
 
@@ -14,7 +14,7 @@
 
 ## 축 목록
 
-전체 50개 축.
+전체 52개 축.
 
 | 축 | 이름 | 적용 대상 | 계층 |
 |---|---|---|---|
@@ -38,6 +38,8 @@
 | `row_label` | 행 라벨 | 내 설계 담보 행의 우측 라벨(파생) | L8-L9 |
 | `tri` | 3값 | 규칙 엔진의 조건 | L6 |
 | `payout` | 지급 판정 | EvaluationResult | L6-L8 |
+| `contract_effect` | 계약 효과 | Rule.contract_effect, EvaluationResult.contract_effect의 effect·conditional_effect | L6-L8 |
+| `contract_effect_kind` | 계약 효과 판정 | EvaluationResult.contract_effect.kind | L6-L8 |
 | `amount_kind` | 금액 형태 | EvaluationResult의 금액 | L6-L8 |
 | `calculation_issue_code` | 금액 계산 보류 사유 | EvaluationResult.amount_issues | L6-L9 |
 | `price_basis` | 가격 근거 | PremiumObservation | L3-L9 |
@@ -319,6 +321,26 @@ Kleene 3값 논리
 | `not_payable` | 확인된 조건상 지급 대상 아님 | 이 조건에서는 지급 대상이 아니에요 | - |
 | `payable` | 지급 조건 충족(금액은 amount_kind) | 이 조건에서 지급 대상이에요 | - |
 | `undetermined` | 필요한 사실이 없어 판단 불가 | 판단에 필요한 정보가 부족해요 | - |
+
+## `contract_effect` 계약 효과
+
+지급 판정과 별도로 규칙이 계약 자체에 미치는 효과. rule-0.2의 규칙 선언에서 생략하면 none
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `none` | 규칙에 선언된 계약 효과 없음 | (화면에 직접 표시 안 함) | - |
+| `void_refund_premium` | 계약 무효 및 보험료 반환 | (화면에 직접 표시 안 함) | - |
+| `terminated_pay_reserve` | 계약 해지 및 책임준비금 지급 | (화면에 직접 표시 안 함) | - |
+
+## `contract_effect_kind` 계약 효과 판정
+
+규칙 평가 결과에서 계약 효과가 적용되는지 나타내는 구분
+
+| 저장값 | 개념 | 화면 문구 | 폐기된 표기 |
+|---|---|---|---|
+| `none` | 계약 효과 선언이 없거나 지급 자격이 성립하지 않아 적용되는 효과가 없음 | (화면에 직접 표시 안 함) | - |
+| `applies` | 지급 자격이 성립해 effect에 담긴 계약 효과가 적용됨 | (화면에 직접 표시 안 함) | - |
+| `undetermined` | 지급 자격이 미정이며 성립하면 적용될 계약 효과를 conditional_effect에 보존함 | (화면에 직접 표시 안 함) | - |
 
 ## `amount_kind` 금액 형태
 

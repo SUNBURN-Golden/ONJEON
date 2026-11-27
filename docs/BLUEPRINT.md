@@ -209,10 +209,13 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 | `price_basis` / `price_unavailable_reason` / `freshness` | 가격의 근거, 없는 이유, 최신성 | illustrative … / condition_mismatch … / fresh, stale |
 | `policy_holdings_status` / `contract_version_match` | 내 가입내역을 얼마나 아나 / 어느 버전인가 | confirmed, pending_confirmation, none_declared, unknown, skipped / matched, ambiguous, unmatched |
 | `clause_path_basis` / `relation_type` / `amount_form` | 조항 번호를 읽었나 추정했나 / 간선의 종류 / 원문이 금액을 적은 형식 | printed, inferred / attached_to, routes_to, parameter_from … / example_amount, per_unit_krw … |
+| `contract_effect` / `contract_effect_kind` | 어떤 계약 효과를 선언했나 / 평가에서 그 효과가 적용되나 | none, void_refund_premium, terminated_pay_reserve / none, applies, undetermined |
 
 전체 축과 화면 문구, 폐기된 표기의 대응은 VOCABULARY.md에 있다. §11의 자동 생성 표에서 정본의 현재 축 수를 확인할 수 있다. 제3부 §44.3·§56, 화면 설계서 §6의 이전 표기는 이 정본으로 대체된다.
 
 어휘 확장 과제는 정본과 함께 계약 생성물·스키마 README를 갱신한다. 대기 축별 담당 과제는 [계약 패키지의 대기 축 표](../packages/schemas/README.md#어휘-승격-대기-축-x-onjeon-pending-axis)에서 확인한다. T-CT-02의 재생성 경로와 잔여 축 배정은 [Audit 8 검증 기록](blueprint/audits/2026-11-20_t_ct_02_allowed_paths.md)을 따른다.
+
+계약 효과의 두 축은 규칙 로더의 허용 목록과 실제 평가 결과를 정본과 대조한다. 공유 계약은 알 수 없는 코드를 거부하며, 이전 엔진 결과는 `contract_effect`를 생략할 수 있다. [Audit 8 회귀 증거](blueprint/audits/2026-11-28_vocab_contract_effect.md).
 
 ## 7. 현행 결정 요약
 
@@ -446,11 +449,11 @@ ADR-0021의 [검증 기록](../tools/evidence/audit7-accessibility-out-of-scope/
 | 항목 | 현재 값 | 대조 원천 |
 |---|---:|---|
 | 엔진 빌드 식별자 | `0.2.0+snapshot-json-1` | `packages/rules-engine/src/lib.rs`의 `ENGINE_VERSION` |
-| Rust 단위·통합 시험 | 273 | `cargo test -p onjeon-rules-engine -- --list` |
+| Rust 단위·통합 시험 | 275 | `cargo test -p onjeon-rules-engine -- --list` |
 | Rust 문서 시험(doctest) | 3 | 같은 Cargo 목록의 `Doc-tests` |
 | 실제 조항 규칙(fixture_only) | 7 | `tools/validation_check.py`의 `real_clause_rule_paths()` |
 | 검증 자료 변조 시험 | 40 | `tools/validation_check.py`의 `mutations()` |
-| 공유 어휘 축 | 50 | `packages/schemas/vocabulary.json`의 `axes` |
+| 공유 어휘 축 | 52 | `packages/schemas/vocabulary.json`의 `axes` |
 <!-- blueprint-counts:end -->
 
 [Audit 7 엔진 빌드·현황·결정·README 대조](blueprint/audits/2026-11-20_blueprint_drift_refresh.md)에 현재 등록 수와 실행 결과를 기록했다.

@@ -4,8 +4,7 @@
 
 use onjeon_api_types::{EvaluationRequest, ScenarioRequest};
 use onjeon_contracts::{
-    BlockedBy, CalculationIssueCode, DisplayStatus, Explain, InputJudgement, ResultState,
-    ScenarioResult,
+    BlockedBy, DisplayStatus, Explain, InputJudgement, ResultState, ScenarioResult,
 };
 use onjeon_rules_engine::confirmed_empty_class_money_list;
 use onjeon_twin_runtime::{evaluate_request, Chain, Request, Snapshot};
@@ -165,13 +164,8 @@ fn evaluate(
             .as_ref()
             .and_then(|issues| issues.first())
         {
-            let text = match issue.code {
-                CalculationIssueCode::ZeroDenominator => {
-                    "나눌 기준이 0이라 금액을 계산할 수 없어요"
-                }
-            };
             result.display_status = DisplayStatus::Hold;
-            result.explain = Some(Explain {
+            result.explain = issue.code.screen_ko().map(|text| Explain {
                 template_id: issue.code.as_str().to_owned(),
                 text: text.to_owned(),
                 amounts: Vec::new(),

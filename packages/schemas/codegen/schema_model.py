@@ -83,9 +83,13 @@ class Struct:
 @dataclass
 class Axis:
     id: str
-    values: list  # [{"code","concept_ko","screen_ko"}]
+    values: list  # Value records from vocabulary.json, including display and mapping metadata.
     concept_ko: str = ""
     name_ko: str = ""
+
+    @property
+    def has_maps_to(self) -> bool:
+        return any("maps_to" in value for value in self.values)
 
 
 @dataclass

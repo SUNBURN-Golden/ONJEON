@@ -9,21 +9,27 @@ const String vocabularyVersion = '1.9.0';
 /// Axis `acquisition_status`. Unknown values throw (never a default).
 enum AcquisitionStatus {
   /// 아직 조회하지 않음
-  unqueried('unqueried'),
+  unqueried('unqueried', screenKo: "아직 확인하지 않았어요", deprecatedAliases: []),
   /// 소스가 접근을 막음(인증·차단·요청 제한). 우회하지 않음
-  blocked('blocked'),
+  blocked('blocked', screenKo: "접근이 막혀 있어요", deprecatedAliases: []),
   /// 시도했으나 오류로 실패(재시도 상한 도달 포함)
-  failed('failed'),
+  failed('failed', screenKo: "가져오지 못했어요", deprecatedAliases: []),
   /// 조회 증거가 있으나 해당 항목이 없음
-  notFound('not_found'),
+  notFound('not_found', screenKo: "찾지 못했어요", deprecatedAliases: []),
   /// 소스가 공개하지 않는다는 근거가 있음
-  notDisclosed('not_disclosed'),
+  notDisclosed('not_disclosed', screenKo: "공개되지 않았어요", deprecatedAliases: []),
   /// 원문을 받아 무결성 검사 후 불변 보관함
-  archived('archived');
+  archived('archived', screenKo: "원문 확보", deprecatedAliases: ["fetched", "integrity_checked"]);
 
-  const AcquisitionStatus(this.code);
+  const AcquisitionStatus(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static AcquisitionStatus fromJson(String code) {
     for (final v in values) {
@@ -40,25 +46,31 @@ enum AcquisitionStatus {
 /// Axis `archive_reproduction`. Unknown values throw (never a default).
 enum ArchiveReproduction {
   /// 원본 바이트 해시 일치, 인용이 다시 추출한 해당 페이지에 있음, 고정한 파생 명세의 해시·원본 연결·출력 파일 존재와 해시가 맞고, 명세의 출력 전부를 같은 버전 도구로 다시 만들어 바이트 일치
-  reproduced('reproduced'),
+  reproduced('reproduced', screenKo: null, deprecatedAliases: []),
   /// 보관 객체의 바이트가 기록된 해시와 다름(보관소 손상 또는 잘못된 객체)
-  hashMismatch('hash_mismatch'),
+  hashMismatch('hash_mismatch', screenKo: null, deprecatedAliases: []),
   /// 원본은 맞으나 인용을 다시 추출한 페이지에서 찾지 못함
-  quoteMismatch('quote_mismatch'),
+  quoteMismatch('quote_mismatch', screenKo: null, deprecatedAliases: []),
   /// 파생 기록이 깨짐: 고정한 명세가 없거나 해시가 다름, 명세가 다른 원본을 가리킴, 명세의 출력 파일이 없거나 해시가 다름, 명세에 없는 출력이 있음. 실패
-  derivedRecordInvalid('derived_record_invalid'),
+  derivedRecordInvalid('derived_record_invalid', screenKo: null, deprecatedAliases: []),
   /// 원본·인용은 맞으나 보존한 파생 결과와 재생성 결과가 다름. 실패
-  derivedMismatch('derived_mismatch'),
+  derivedMismatch('derived_mismatch', screenKo: null, deprecatedAliases: []),
   /// 원본·인용·파생 기록은 맞으나 출력 일부를 재생성으로 비교하지 못함(재생성 도구 없음, 도구 버전 다름, 재실행 안 함), 또는 검증할 명세가 고정되지 않았거나 파생 저장소가 지정되지 않음. 재현 완료가 아니다
-  derivedUnverified('derived_unverified'),
+  derivedUnverified('derived_unverified', screenKo: null, deprecatedAliases: []),
   /// 보관소에서 원본을 찾지 못함
-  missing('missing'),
+  missing('missing', screenKo: null, deprecatedAliases: []),
   /// 스캔본의 해시는 확인했으나 OCR을 다시 돌리지 않음. 재현 완료가 아니다
-  ocrNotRerun('ocr_not_rerun');
+  ocrNotRerun('ocr_not_rerun', screenKo: null, deprecatedAliases: []);
 
-  const ArchiveReproduction(this.code);
+  const ArchiveReproduction(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static ArchiveReproduction fromJson(String code) {
     for (final v in values) {
@@ -75,17 +87,23 @@ enum ArchiveReproduction {
 /// Axis `source_change`. Unknown values throw (never a default).
 enum SourceChange {
   /// 바이트 해시가 마지막 관측과 같음
-  unchangedBytes('unchanged_bytes'),
+  unchangedBytes('unchanged_bytes', screenKo: null, deprecatedAliases: []),
   /// 바이트는 다르고 정규화 본문 해시(보조 지표)는 같음. 바이트 일치가 아니다. 새 원본으로 보존한다
-  bytesChangedContentSame('bytes_changed_content_same'),
+  bytesChangedContentSame('bytes_changed_content_same', screenKo: null, deprecatedAliases: []),
   /// 내용이 바뀐 새 버전 후보. 새 원본으로 보존하고 검수 대기
-  changed('changed'),
+  changed('changed', screenKo: null, deprecatedAliases: []),
   /// 받지 못함(차단·끊김·오류). 변경 여부 미확인
-  fetchFailed('fetch_failed');
+  fetchFailed('fetch_failed', screenKo: null, deprecatedAliases: []);
 
-  const SourceChange(this.code);
+  const SourceChange(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static SourceChange fromJson(String code) {
     for (final v in values) {
@@ -102,15 +120,21 @@ enum SourceChange {
 /// Axis `entity_evidence`. Unknown values throw (never a default).
 enum EntityEvidence {
   /// 서로 다른 기관 출처 2곳 이상
-  twoOrMoreSources('two_or_more_sources'),
+  twoOrMoreSources('two_or_more_sources', screenKo: null, deprecatedAliases: ["verified_2_sources"]),
   /// 기관 출처 1곳
-  oneSource('one_source'),
+  oneSource('one_source', screenKo: null, deprecatedAliases: ["verified_1_source"]),
   /// 가져온 페이지에 없음. 기억 기반 후보로 분모에 넣지 않음
-  seed('seed');
+  seed('seed', screenKo: null, deprecatedAliases: ["unverified_seed"]);
 
-  const EntityEvidence(this.code);
+  const EntityEvidence(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static EntityEvidence fromJson(String code) {
     for (final v in values) {
@@ -127,35 +151,44 @@ enum EntityEvidence {
 /// Axis `host_access`. Unknown values throw (never a default).
 enum HostAccess {
   /// 요청하지 않음
-  notChecked('not_checked'),
+  notChecked('not_checked', screenKo: null, deprecatedAliases: [], mapsTo: AcquisitionStatus.unqueried),
   /// 정상 응답, 내용 확인
-  reachable('reachable'),
+  reachable('reachable', screenKo: null, deprecatedAliases: [], mapsTo: AcquisitionStatus.archived),
   /// 정상 응답이지만 JS 로더뿐이라 정적 수집 불가
-  jsShell('js_shell'),
+  jsShell('js_shell', screenKo: null, deprecatedAliases: ["200_js_shell"], mapsTo: AcquisitionStatus.failed),
   /// 해외 IP 차단 안내
-  geoBlocked('geo_blocked'),
+  geoBlocked('geo_blocked', screenKo: null, deprecatedAliases: ["200_geoblock_notice"], mapsTo: AcquisitionStatus.blocked),
   /// 점검·장애 안내
-  serviceOutage('service_outage'),
+  serviceOutage('service_outage', screenKo: null, deprecatedAliases: ["200_service_outage_notice"], mapsTo: AcquisitionStatus.failed),
   /// 원 서버가 403 등으로 거부
-  originDenied('origin_denied'),
+  originDenied('origin_denied', screenKo: null, deprecatedAliases: ["403_origin"], mapsTo: AcquisitionStatus.blocked),
   /// 요청 제한(429)
-  rateLimited('rate_limited'),
+  rateLimited('rate_limited', screenKo: null, deprecatedAliases: ["429_rate_limited"], mapsTo: AcquisitionStatus.blocked),
   /// 연결이 끊김
-  connectionReset('connection_reset'),
+  connectionReset('connection_reset', screenKo: null, deprecatedAliases: [], mapsTo: AcquisitionStatus.failed),
   /// TLS 실패(구식 재협상 등). 검증을 끄지 않음
-  tlsError('tls_error'),
+  tlsError('tls_error', screenKo: null, deprecatedAliases: ["ssl_legacy_renegotiation", "tls_handshake_fail"], mapsTo: AcquisitionStatus.failed),
   /// 시간 초과
-  timeout('timeout'),
+  timeout('timeout', screenKo: null, deprecatedAliases: [], mapsTo: AcquisitionStatus.failed),
   /// 빈 응답
-  emptyReply('empty_reply'),
+  emptyReply('empty_reply', screenKo: null, deprecatedAliases: [], mapsTo: AcquisitionStatus.failed),
   /// 리다이렉트 순환
-  redirectLoop('redirect_loop'),
+  redirectLoop('redirect_loop', screenKo: null, deprecatedAliases: [], mapsTo: AcquisitionStatus.failed),
   /// 경유 프록시가 연결하지 못함(502 등)
-  proxyError('proxy_error');
+  proxyError('proxy_error', screenKo: null, deprecatedAliases: ["proxy_502"], mapsTo: AcquisitionStatus.failed);
 
-  const HostAccess(this.code);
+  const HostAccess(this.code, {required this.screenKo, required this.deprecatedAliases, required this.mapsTo});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
+
+  /// Vocabulary mapping to acquisition status. Archival requires separate evidence.
+  final AcquisitionStatus? mapsTo;
 
   static HostAccess fromJson(String code) {
     for (final v in values) {
@@ -172,25 +205,31 @@ enum HostAccess {
 /// Axis `pipeline_stage`. Unknown values throw (never a default).
 enum PipelineStage {
   /// 목록에서 발견함
-  discovered('discovered'),
+  discovered('discovered', screenKo: null, deprecatedAliases: []),
   /// 원문 불변 보관
-  archived('archived'),
+  archived('archived', screenKo: null, deprecatedAliases: ["fetched", "integrity_checked"]),
   /// 구조 복원(페이지·좌표·표)
-  parsed('parsed'),
+  parsed('parsed', screenKo: null, deprecatedAliases: []),
   /// 필드·관계 추출, 참조 해결 포함
-  labeled('labeled'),
+  labeled('labeled', screenKo: null, deprecatedAliases: ["references_resolved"]),
   /// AI 검수와 코드 검사 통과
-  validated('validated'),
+  validated('validated', screenKo: null, deprecatedAliases: []),
   /// 실행 규칙과 설명 템플릿 생성
-  compiled('compiled'),
+  compiled('compiled', screenKo: null, deprecatedAliases: []),
   /// 후보 릴리스에 포함, 그림자 비교 중
-  candidate('candidate'),
+  candidate('candidate', screenKo: null, deprecatedAliases: []),
   /// 불변 공개 릴리스에 포함
-  released('released');
+  released('released', screenKo: null, deprecatedAliases: []);
 
-  const PipelineStage(this.code);
+  const PipelineStage(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static PipelineStage fromJson(String code) {
     for (final v in values) {
@@ -207,15 +246,21 @@ enum PipelineStage {
 /// Axis `pipeline_block`. Unknown values throw (never a default).
 enum PipelineBlock {
   /// 차단 없음
-  none('none'),
+  none('none', screenKo: null, deprecatedAliases: []),
   /// 판단 보류(충돌·반례·검사 실패). 근거가 해소되면 재개
-  hold('hold'),
+  hold('hold', screenKo: "판단 보류", deprecatedAliases: ["quarantined"]),
   /// 처리 오류. 원인 수정 후 재처리
-  failed('failed');
+  failed('failed', screenKo: "처리 실패", deprecatedAliases: []);
 
-  const PipelineBlock(this.code);
+  const PipelineBlock(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static PipelineBlock fromJson(String code) {
     for (final v in values) {
@@ -232,23 +277,29 @@ enum PipelineBlock {
 /// Axis `value_state`. Unknown values throw (never a default).
 enum ValueState {
   /// 원문에서 직접 읽음
-  observed('observed'),
+  observed('observed', screenKo: null, deprecatedAliases: ["verified"]),
   /// 확인된 다른 값에서 정해진 규칙으로 계산
-  derived('derived'),
+  derived('derived', screenKo: null, deprecatedAliases: []),
   /// 조사 범위에서 아직 찾지 못함
-  notFound('not_found'),
+  notFound('not_found', screenKo: "자료 필요", deprecatedAliases: ["unresolved", "missing"]),
   /// 원문은 있으나 판독 실패
-  unreadable('unreadable'),
+  unreadable('unreadable', screenKo: "읽지 못했어요", deprecatedAliases: []),
   /// 근거끼리 충돌
-  conflicting('conflicting'),
+  conflicting('conflicting', screenKo: "근거가 서로 달라요", deprecatedAliases: ["conflict"]),
   /// 확인된 근거로 적용 대상이 아님
-  notApplicable('not_applicable'),
+  notApplicable('not_applicable', screenKo: "해당 없음", deprecatedAliases: []),
   /// 공개되지 않는다는 근거가 있음
-  notDisclosed('not_disclosed');
+  notDisclosed('not_disclosed', screenKo: "공개되지 않았어요", deprecatedAliases: []);
 
-  const ValueState(this.code);
+  const ValueState(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static ValueState fromJson(String code) {
     for (final v in values) {
@@ -265,17 +316,23 @@ enum ValueState {
 /// Axis `review_status`. Unknown values throw (never a default).
 enum ReviewStatus {
   /// 검수 대기
-  pending('pending'),
+  pending('pending', screenKo: "확인 중", deprecatedAliases: ["pending_review"]),
   /// AI 승인 정책 통과
-  accepted('accepted'),
+  accepted('accepted', screenKo: "AI 검증", deprecatedAliases: ["verified"]),
   /// 보류(에이전트 불일치·반례·코드 검사 실패·참조 미해결)
-  hold('hold'),
+  hold('hold', screenKo: "판단 보류", deprecatedAliases: ["conflict", "quarantined"]),
   /// 근거 없음 등으로 기각. 재추출 필요
-  rejected('rejected');
+  rejected('rejected', screenKo: null, deprecatedAliases: []);
 
-  const ReviewStatus(this.code);
+  const ReviewStatus(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static ReviewStatus fromJson(String code) {
     for (final v in values) {
@@ -292,13 +349,19 @@ enum ReviewStatus {
 /// Axis `clause_path_basis`. Unknown values throw (never a default).
 enum ClausePathBasis {
   /// 원문에 인쇄된 번호를 읽음
-  printed('printed'),
+  printed('printed', screenKo: null, deprecatedAliases: []),
   /// 번호 글자가 소실되어 순서 세기·본문 참조로 추정함(예: 원문자가 U+F000으로 추출)
-  inferred('inferred');
+  inferred('inferred', screenKo: null, deprecatedAliases: []);
 
-  const ClausePathBasis(this.code);
+  const ClausePathBasis(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static ClausePathBasis fromJson(String code) {
     for (final v in values) {
@@ -315,29 +378,35 @@ enum ClausePathBasis {
 /// Axis `relation_type`. Unknown values throw (never a default).
 enum RelationType {
   /// 특약이 주계약(기본계약)에 부가되어 성립
-  attachedTo('attached_to'),
+  attachedTo('attached_to', screenKo: null, deprecatedAliases: []),
   /// 기본계약 가입 시 반드시 함께 가입(의무부가)
-  mandatoryWith('mandatory_with'),
+  mandatoryWith('mandatory_with', screenKo: null, deprecatedAliases: []),
   /// 상위 계약이 소멸하면 함께 소멸(예외 조건은 predicate)
-  terminatesWith('terminates_with'),
+  terminatesWith('terminates_with', screenKo: null, deprecatedAliases: []),
   /// 최종 갱신 종료일·종료나이가 상위 계약에 묶임
-  renewalBoundedBy('renewal_bounded_by'),
+  renewalBoundedBy('renewal_bounded_by', screenKo: null, deprecatedAliases: []),
   /// 같은 사건을 서로 보장하지 않음(예: 급여 주계약과 비급여 특약)
-  excludes('excludes'),
+  excludes('excludes', screenKo: null, deprecatedAliases: []),
   /// 한도·지급일수를 함께 소진
-  sharesLimit('shares_limit'),
+  sharesLimit('shares_limit', screenKo: null, deprecatedAliases: []),
   /// 면책 예외가 다른 급부로 지급을 넘김(예: 2년 후 자살 → 질병사망)
-  routesTo('routes_to'),
+  routesTo('routes_to', screenKo: null, deprecatedAliases: []),
   /// 값이 약관 밖 공시 표에서 옴(예: 회사가 정한 간병인지원비용)
-  parameterFrom('parameter_from'),
+  parameterFrom('parameter_from', screenKo: null, deprecatedAliases: []),
   /// 정의·분류표·코드 체계를 참조
-  definedBy('defined_by'),
+  definedBy('defined_by', screenKo: null, deprecatedAliases: []),
   /// 판매 채널 등만 다른 같은 급부(이름 유사도로 만들지 않음)
-  sameBenefitAs('same_benefit_as');
+  sameBenefitAs('same_benefit_as', screenKo: null, deprecatedAliases: []);
 
-  const RelationType(this.code);
+  const RelationType(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static RelationType fromJson(String code) {
     for (final v in values) {
@@ -354,23 +423,29 @@ enum RelationType {
 /// Axis `amount_form`. Unknown values throw (never a default).
 enum AmountForm {
   /// 원 단위 확정 금액
-  fixedKrw('fixed_krw'),
+  fixedKrw('fixed_krw', screenKo: null, deprecatedAliases: []),
   /// 가입금액에 대한 비율이 원문에 있음
-  rateOfInsuredAmount('rate_of_insured_amount'),
+  rateOfInsuredAmount('rate_of_insured_amount', screenKo: null, deprecatedAliases: []),
   /// 기준 가입금액 예시 금액만 있음. 비율 환산은 derived
-  exampleAmount('example_amount'),
+  exampleAmount('example_amount', screenKo: null, deprecatedAliases: []),
   /// 1일·1회 등 단위당 금액. 횟수·일수와 곱해야 함
-  perUnitKrw('per_unit_krw'),
+  perUnitKrw('per_unit_krw', screenKo: null, deprecatedAliases: []),
   /// 실제 부담액 기준(실손형). 공제·비율·한도와 함께 씀
-  indemnity('indemnity'),
+  indemnity('indemnity', screenKo: null, deprecatedAliases: []),
   /// 약관 밖 공시 표 값(시간에 따라 바뀜)
-  externalParameter('external_parameter'),
+  externalParameter('external_parameter', screenKo: null, deprecatedAliases: []),
   /// 여러 금액 중 큰 금액(예: 사망보험금과 납입보험료 중 큰 금액)
-  maxOf('max_of');
+  maxOf('max_of', screenKo: null, deprecatedAliases: []);
 
-  const AmountForm(this.code);
+  const AmountForm(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static AmountForm fromJson(String code) {
     for (final v in values) {
@@ -387,25 +462,31 @@ enum AmountForm {
 /// Axis `hold_reason`. Unknown values throw (never a default).
 enum HoldReason {
   /// 다른 계열 에이전트끼리 불일치
-  agentDisagreement('agent_disagreement'),
+  agentDisagreement('agent_disagreement', screenKo: "판단 보류", deprecatedAliases: []),
   /// 레드팀이 반례를 찾음
-  counterexample('counterexample'),
+  counterexample('counterexample', screenKo: "판단 보류", deprecatedAliases: []),
   /// 정확 인용이 원문 위치와 다름
-  quoteMismatch('quote_mismatch'),
+  quoteMismatch('quote_mismatch', screenKo: "판단 보류", deprecatedAliases: []),
   /// 타입·단위·경계값 등 코드 검사 실패
-  codeCheckFailed('code_check_failed'),
+  codeCheckFailed('code_check_failed', screenKo: "판단 보류", deprecatedAliases: []),
   /// 필수 별표·정의·참조를 못 찾음
-  referenceUnresolved('reference_unresolved'),
+  referenceUnresolved('reference_unresolved', screenKo: "판단 보류", deprecatedAliases: []),
   /// 약관·요약서 등 근거 간 충돌
-  conflictingSources('conflicting_sources'),
+  conflictingSources('conflicting_sources', screenKo: "근거가 서로 달라요", deprecatedAliases: []),
   /// 오류 신고·재추출 불일치 임계 초과로 자동 중단
-  circuitBreaker('circuit_breaker'),
+  circuitBreaker('circuit_breaker', screenKo: "판단 보류", deprecatedAliases: []),
   /// OCR·표 셀·원문자·분수식 등 추출 결과가 원문 의미를 보존했는지 확인 못 함(숫자·부정어·경계어·단위 포함)
-  extractionUncertain('extraction_uncertain');
+  extractionUncertain('extraction_uncertain', screenKo: "판단 보류", deprecatedAliases: []);
 
-  const HoldReason(this.code);
+  const HoldReason(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static HoldReason fromJson(String code) {
     for (final v in values) {
@@ -422,21 +503,27 @@ enum HoldReason {
 /// Axis `capability`. Unknown values throw (never a default).
 enum Capability {
   /// 원문 검색·열람
-  search('search'),
+  search('search', screenKo: "원문 보기", deprecatedAliases: ["indexed", "indexed_only"]),
   /// 검증된 필드로 쉬운 설명
-  explain('explain'),
+  explain('explain', screenKo: null, deprecatedAliases: ["explained", "explanation_enabled"]),
   /// 같은 비교축으로 조건 비교
-  compareConditions('compare_conditions'),
+  compareConditions('compare_conditions', screenKo: "조건 비교 가능", deprecatedAliases: ["comparable", "comparison_enabled"]),
   /// 같은 비교 기준으로 가격 비교
-  comparePrice('compare_price'),
+  comparePrice('compare_price', screenKo: "가격 비교 가능", deprecatedAliases: []),
   /// 규칙 엔진으로 상황 계산
-  simulate('simulate'),
+  simulate('simulate', screenKo: "가정 계산 가능", deprecatedAliases: ["simulatable", "simulation_enabled", "scenario_ready"]),
   /// 개인 견적(스켈레톤)
-  quote('quote');
+  quote('quote', screenKo: null, deprecatedAliases: ["quotable", "quote_verified"]);
 
-  const Capability(this.code);
+  const Capability(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static Capability fromJson(String code) {
     for (final v in values) {
@@ -453,13 +540,19 @@ enum Capability {
 /// Axis `capability_state`. Unknown values throw (never a default).
 enum CapabilityState {
   /// 필요한 필드·근거·검수가 갖춰짐
-  enabled('enabled'),
+  enabled('enabled', screenKo: null, deprecatedAliases: []),
   /// 필요한 것이 빠졌거나 보류. 사유 목록을 함께 저장
-  blocked('blocked');
+  blocked('blocked', screenKo: null, deprecatedAliases: []);
 
-  const CapabilityState(this.code);
+  const CapabilityState(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static CapabilityState fromJson(String code) {
     for (final v in values) {
@@ -476,21 +569,27 @@ enum CapabilityState {
 /// Axis `display_status`. Unknown values throw (never a default).
 enum DisplayStatus {
   /// 값이 observed/derived이고 review_status=accepted
-  confirmed('confirmed'),
+  confirmed('confirmed', screenKo: "조건 확인됨", deprecatedAliases: []),
   /// 판단에 필요한 사용자 입력이 없음
-  inputMissing('input_missing'),
+  inputMissing('input_missing', screenKo: "입력 필요", deprecatedAliases: ["confirm_input"]),
   /// 원문·계약의 필수 근거가 없음. 0원 아님
-  dataMissing('data_missing'),
+  dataMissing('data_missing', screenKo: "자료 필요", deprecatedAliases: ["unverified"]),
   /// 검수 대기 중
-  underReview('under_review'),
+  underReview('under_review', screenKo: "확인 중", deprecatedAliases: []),
   /// 보류
-  hold('hold'),
+  hold('hold', screenKo: "판단 보류", deprecatedAliases: []),
   /// 확인된 조건상 해당 없음
-  notApplicable('not_applicable');
+  notApplicable('not_applicable', screenKo: "해당 없음", deprecatedAliases: []);
 
-  const DisplayStatus(this.code);
+  const DisplayStatus(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static DisplayStatus fromJson(String code) {
     for (final v in values) {
@@ -507,17 +606,23 @@ enum DisplayStatus {
 /// Axis `plan_action`. Unknown values throw (never a default).
 enum PlanAction {
   /// 이번 초안에서 변경하지 않음
-  keep('keep'),
+  keep('keep', screenKo: "유지", deprecatedAliases: []),
   /// 사용자가 고른 추가 후보
-  add('add'),
+  add('add', screenKo: "추가 검토", deprecatedAliases: ["add_review", "review_add"]),
   /// 사용자가 고른 제외 후보
-  remove('remove'),
+  remove('remove', screenKo: "제외 검토", deprecatedAliases: ["review_reduce"]),
   /// 사용자가 고른 금액·구성 변경 후보
-  modify('modify');
+  modify('modify', screenKo: "변경 검토", deprecatedAliases: []);
 
-  const PlanAction(this.code);
+  const PlanAction(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static PlanAction fromJson(String code) {
     for (final v in values) {
@@ -534,13 +639,19 @@ enum PlanAction {
 /// Axis `row_label`. Unknown values throw (never a default).
 enum RowLabel {
   /// 해결할 질문이 있음. 저장값이 아니라 파생
-  needsCondition('needs_condition'),
+  needsCondition('needs_condition', screenKo: "조건 확인", deprecatedAliases: []),
   /// plan_action의 screen_ko를 그대로 표시
-  fromPlanAction('from_plan_action');
+  fromPlanAction('from_plan_action', screenKo: null, deprecatedAliases: []);
 
-  const RowLabel(this.code);
+  const RowLabel(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static RowLabel fromJson(String code) {
     for (final v in values) {
@@ -557,15 +668,21 @@ enum RowLabel {
 /// Axis `tri`. Unknown values throw (never a default).
 enum Tri {
   /// 참
-  trueValue('true'),
+  trueValue('true', screenKo: null, deprecatedAliases: []),
   /// 거짓
-  falseValue('false'),
+  falseValue('false', screenKo: null, deprecatedAliases: []),
   /// 모름. 0이나 거짓으로 바꾸지 않음
-  unknown('unknown');
+  unknown('unknown', screenKo: null, deprecatedAliases: []);
 
-  const Tri(this.code);
+  const Tri(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static Tri fromJson(String code) {
     for (final v in values) {
@@ -582,15 +699,21 @@ enum Tri {
 /// Axis `payout`. Unknown values throw (never a default).
 enum Payout {
   /// 확인된 조건상 지급 대상 아님
-  notPayable('not_payable'),
+  notPayable('not_payable', screenKo: "이 조건에서는 지급 대상이 아니에요", deprecatedAliases: []),
   /// 지급 조건 충족(금액은 amount_kind)
-  payable('payable'),
+  payable('payable', screenKo: "이 조건에서 지급 대상이에요", deprecatedAliases: []),
   /// 필요한 사실이 없어 판단 불가
-  undetermined('undetermined');
+  undetermined('undetermined', screenKo: "판단에 필요한 정보가 부족해요", deprecatedAliases: []);
 
-  const Payout(this.code);
+  const Payout(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static Payout fromJson(String code) {
     for (final v in values) {
@@ -607,15 +730,21 @@ enum Payout {
 /// Axis `amount_kind`. Unknown values throw (never a default).
 enum AmountKind {
   /// 단일 금액
-  exact('exact'),
+  exact('exact', screenKo: null, deprecatedAliases: []),
   /// 반올림 미지정 등으로 하한~상한
-  range('range'),
+  range('range', screenKo: null, deprecatedAliases: []),
   /// 금액을 정할 수 없음
-  unknown('unknown');
+  unknown('unknown', screenKo: "금액 확인 필요", deprecatedAliases: []);
 
-  const AmountKind(this.code);
+  const AmountKind(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static AmountKind fromJson(String code) {
     for (final v in values) {
@@ -632,11 +761,17 @@ enum AmountKind {
 /// Axis `calculation_issue_code`. Unknown values throw (never a default).
 enum CalculationIssueCode {
   /// 분모가 0으로 확인돼 나눗셈의 결과를 정할 수 없음
-  zeroDenominator('zero_denominator');
+  zeroDenominator('zero_denominator', screenKo: "나눌 기준이 0이라 금액을 계산할 수 없어요", deprecatedAliases: []);
 
-  const CalculationIssueCode(this.code);
+  const CalculationIssueCode(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static CalculationIssueCode fromJson(String code) {
     for (final v in values) {
@@ -653,17 +788,23 @@ enum CalculationIssueCode {
 /// Axis `price_basis`. Unknown values throw (never a default).
 enum PriceBasis {
   /// 공시된 명시 조건의 예시 보험료
-  illustrative('illustrative'),
+  illustrative('illustrative', screenKo: "공시 예시", deprecatedAliases: ["public_disclosed"]),
   /// 공개 요율·산식을 모두 확보해 재현
-  tableDerived('table_derived'),
+  tableDerived('table_derived', screenKo: "요율표 재현", deprecatedAliases: []),
   /// 가입내역 PDF에서 확인한 내 계약 납입액
-  contractObserved('contract_observed'),
+  contractObserved('contract_observed', screenKo: "내 계약 납입액", deprecatedAliases: ["contract_actual"]),
   /// 개인 견적(스켈레톤)
-  quoted('quoted');
+  quoted('quoted', screenKo: "내 견적", deprecatedAliases: ["personal_quote"]);
 
-  const PriceBasis(this.code);
+  const PriceBasis(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static PriceBasis fromJson(String code) {
     for (final v in values) {
@@ -680,29 +821,35 @@ enum PriceBasis {
 /// Axis `price_unavailable_reason`. Unknown values throw (never a default).
 enum PriceUnavailableReason {
   /// 아직 조회하지 않음
-  unqueried('unqueried'),
+  unqueried('unqueried', screenKo: "가격 미확인 · 아직 확인 전", deprecatedAliases: []),
   /// 소스 접근 차단
-  blocked('blocked'),
+  blocked('blocked', screenKo: "가격 미확인 · 접근 막힘", deprecatedAliases: []),
   /// 수집 실패
-  failed('failed'),
+  failed('failed', screenKo: "가격 미확인 · 가져오지 못함", deprecatedAliases: []),
   /// 찾지 못함
-  notFound('not_found'),
+  notFound('not_found', screenKo: "가격 미확인 · 찾지 못함", deprecatedAliases: []),
   /// 공개되지 않는다는 근거 있음
-  notDisclosed('not_disclosed'),
+  notDisclosed('not_disclosed', screenKo: "가격 미확인 · 공개되지 않음", deprecatedAliases: []),
   /// 판독 실패
-  unreadable('unreadable'),
+  unreadable('unreadable', screenKo: "가격 미확인 · 읽지 못함", deprecatedAliases: []),
   /// 근거 충돌
-  conflicting('conflicting'),
+  conflicting('conflicting', screenKo: "가격 미확인 · 근거 충돌", deprecatedAliases: ["conflict"]),
   /// 검수 대기
-  underReview('under_review'),
+  underReview('under_review', screenKo: "가격 미확인 · 확인 중", deprecatedAliases: ["pending_review"]),
   /// 보류
-  hold('hold'),
+  hold('hold', screenKo: "가격 미확인 · 판단 보류", deprecatedAliases: []),
   /// 공개된 조건이 비교 기준과 달라 적용 불가
-  conditionMismatch('condition_mismatch');
+  conditionMismatch('condition_mismatch', screenKo: "가격 미확인 · 조건이 달라요", deprecatedAliases: []);
 
-  const PriceUnavailableReason(this.code);
+  const PriceUnavailableReason(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static PriceUnavailableReason fromJson(String code) {
     for (final v in values) {
@@ -719,13 +866,19 @@ enum PriceUnavailableReason {
 /// Axis `freshness`. Unknown values throw (never a default).
 enum Freshness {
   /// 기한 안에 확인
-  fresh('fresh'),
+  fresh('fresh', screenKo: null, deprecatedAliases: []),
   /// 기한을 넘김. 마지막 검증값을 유지하고 경고
-  stale('stale');
+  stale('stale', screenKo: "확인일이 오래됐어요", deprecatedAliases: []);
 
-  const Freshness(this.code);
+  const Freshness(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static Freshness fromJson(String code) {
     for (final v in values) {
@@ -742,19 +895,25 @@ enum Freshness {
 /// Axis `policy_holdings_status`. Unknown values throw (never a default).
 enum PolicyHoldingsStatus {
   /// PDF를 올리고 사용자가 추출 내용을 확인함
-  confirmed('confirmed'),
+  confirmed('confirmed', screenKo: "확인된 가입내역", deprecatedAliases: ["uploaded"]),
   /// PDF를 올렸으나 확인 전. 계산에 쓰지 않음
-  pendingConfirmation('pending_confirmation'),
+  pendingConfirmation('pending_confirmation', screenKo: "확인 전", deprecatedAliases: ["unconfirmed"]),
   /// 사용자가 '보험 없음'이라고 답함
-  noneDeclared('none_declared'),
+  noneDeclared('none_declared', screenKo: "보험 없음(본인 답변)", deprecatedAliases: ["none"]),
   /// 모름(대신 보는 경우 흔함). 0으로 보지 않음
-  unknown('unknown'),
+  unknown('unknown', screenKo: "아직 모름", deprecatedAliases: []),
   /// 지금은 안 올림
-  skipped('skipped');
+  skipped('skipped', screenKo: "아직 안 올렸어요", deprecatedAliases: []);
 
-  const PolicyHoldingsStatus(this.code);
+  const PolicyHoldingsStatus(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static PolicyHoldingsStatus fromJson(String code) {
     for (final v in values) {
@@ -771,15 +930,21 @@ enum PolicyHoldingsStatus {
 /// Axis `contract_version_match`. Unknown values throw (never a default).
 enum ContractVersionMatch {
   /// 하나로 확정
-  matched('matched'),
+  matched('matched', screenKo: null, deprecatedAliases: []),
   /// 후보가 여럿. 개인 계산 차단
-  ambiguous('ambiguous'),
+  ambiguous('ambiguous', screenKo: "상품 버전 확인 필요", deprecatedAliases: []),
   /// 분모에 없음. 분모 누락 신호
-  unmatched('unmatched');
+  unmatched('unmatched', screenKo: "아직 수집하지 않은 상품이에요", deprecatedAliases: []);
 
-  const ContractVersionMatch(this.code);
+  const ContractVersionMatch(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static ContractVersionMatch fromJson(String code) {
     for (final v in values) {
@@ -796,17 +961,23 @@ enum ContractVersionMatch {
 /// Axis `sensitivity`. Unknown values throw (never a default).
 enum Sensitivity {
   /// 공시 상품 데이터
-  publicProduct('public_product'),
+  publicProduct('public_product', screenKo: null, deprecatedAliases: []),
   /// 사용자 계약 정보
-  privatePolicy('private_policy'),
+  privatePolicy('private_policy', screenKo: null, deprecatedAliases: []),
   /// 건강·가족력
-  privateHealth('private_health'),
+  privateHealth('private_health', screenKo: null, deprecatedAliases: []),
   /// DNA와 그 파생정보. 보험사·설계사 전달 금지
-  geneticPrivate('genetic_private');
+  geneticPrivate('genetic_private', screenKo: null, deprecatedAliases: []);
 
-  const Sensitivity(this.code);
+  const Sensitivity(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static Sensitivity fromJson(String code) {
     for (final v in values) {
@@ -823,15 +994,21 @@ enum Sensitivity {
 /// Axis `criticality`. Unknown values throw (never a default).
 enum Criticality {
   /// 지급 여부·금액·기산점·면책·감액·정의·한도·상품 버전·가격 조건
-  c0('c0'),
+  c0('c0', screenKo: null, deprecatedAliases: ["C0"]),
   /// 관계·갱신 등
-  c1('c1'),
+  c1('c1', screenKo: null, deprecatedAliases: ["C1"]),
   /// 검색 태그·서식
-  c2('c2');
+  c2('c2', screenKo: null, deprecatedAliases: ["C2"]);
 
-  const Criticality(this.code);
+  const Criticality(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static Criticality fromJson(String code) {
     for (final v in values) {
@@ -848,17 +1025,23 @@ enum Criticality {
 /// Axis `diff_group`. Unknown values throw (never a default).
 enum DiffGroup {
   /// 새로 생기거나 늘어나는 것
-  added('added'),
+  added('added', screenKo: "추가되는 것", deprecatedAliases: []),
   /// 사라지거나 줄거나 새로 붙는 제한
-  reduced('reduced'),
+  reduced('reduced', screenKo: "줄어드는 것", deprecatedAliases: []),
   /// 그대로인 것
-  unchanged('unchanged'),
+  unchanged('unchanged', screenKo: "그대로인 것", deprecatedAliases: []),
   /// 비용 차이와 미확인
-  costAndUnknown('cost_and_unknown');
+  costAndUnknown('cost_and_unknown', screenKo: "비용과 미확인", deprecatedAliases: []);
 
-  const DiffGroup(this.code);
+  const DiffGroup(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static DiffGroup fromJson(String code) {
     for (final v in values) {
@@ -875,39 +1058,48 @@ enum DiffGroup {
 /// Axis `diff_type`. Unknown values throw (never a default).
 enum DiffType {
   /// 새로 생기는 보장
-  gainCoverage('gain_coverage'),
+  gainCoverage('gain_coverage', screenKo: null, deprecatedAliases: [], group: DiffGroup.added),
   /// 금액 증가
-  gainAmount('gain_amount'),
+  gainAmount('gain_amount', screenKo: null, deprecatedAliases: [], group: DiffGroup.added),
   /// 사라지는 보장
-  loseCoverage('lose_coverage'),
+  loseCoverage('lose_coverage', screenKo: null, deprecatedAliases: [], group: DiffGroup.reduced),
   /// 금액 감소
-  loseAmount('lose_amount'),
+  loseAmount('lose_amount', screenKo: null, deprecatedAliases: [], group: DiffGroup.reduced),
   /// 면책기간 새로 시작·재시작
-  newWaiting('new_waiting'),
+  newWaiting('new_waiting', screenKo: null, deprecatedAliases: [], group: DiffGroup.reduced),
   /// 감액기간·감액률 적용
-  newReduction('new_reduction'),
+  newReduction('new_reduction', screenKo: null, deprecatedAliases: [], group: DiffGroup.reduced),
   /// 새 제외 조건
-  newExclusion('new_exclusion'),
+  newExclusion('new_exclusion', screenKo: null, deprecatedAliases: [], group: DiffGroup.reduced),
   /// 보장 종료가 앞당겨짐
-  termChange('term_change'),
+  termChange('term_change', screenKo: null, deprecatedAliases: [], group: DiffGroup.reduced),
   /// 한도·횟수 축소
-  limitChange('limit_change'),
+  limitChange('limit_change', screenKo: null, deprecatedAliases: [], group: DiffGroup.reduced),
   /// 해지 시 환급금 손실
-  surrenderLoss('surrender_loss'),
+  surrenderLoss('surrender_loss', screenKo: null, deprecatedAliases: [], group: DiffGroup.reduced),
   /// 변하지 않는 보장·조건
-  unchanged('unchanged'),
+  unchanged('unchanged', screenKo: null, deprecatedAliases: [], group: DiffGroup.unchanged),
   /// 갱신 구조 변화, 갱신 시 보험료 변동 가능
-  renewalChange('renewal_change'),
+  renewalChange('renewal_change', screenKo: null, deprecatedAliases: [], group: DiffGroup.costAndUnknown),
   /// 가격 기준이 달라 절감액 계산 불가
-  priceBasisDiff('price_basis_diff'),
+  priceBasisDiff('price_basis_diff', screenKo: null, deprecatedAliases: [], group: DiffGroup.costAndUnknown),
   /// 인수 심사에 따라 달라질 수 있음
-  underwritingUnknown('underwriting_unknown'),
+  underwritingUnknown('underwriting_unknown', screenKo: null, deprecatedAliases: [], group: DiffGroup.costAndUnknown),
   /// 원문·가격 미확인
-  unknown('unknown');
+  unknown('unknown', screenKo: null, deprecatedAliases: [], group: DiffGroup.costAndUnknown);
 
-  const DiffType(this.code);
+  const DiffType(this.code, {required this.screenKo, required this.deprecatedAliases, required this.group});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
+
+  /// The group declared in the vocabulary for this change.
+  final DiffGroup group;
 
   static DiffType fromJson(String code) {
     for (final v in values) {
@@ -924,31 +1116,37 @@ enum DiffType {
 /// Axis `doc_role`. Unknown values throw (never a default).
 enum DocRole {
   /// 보통약관·주계약 약관
-  terms('terms'),
+  terms('terms', screenKo: "약관", deprecatedAliases: ["official_terms"]),
   /// 특약 약관
-  riderTerms('rider_terms'),
+  riderTerms('rider_terms', screenKo: "특약 약관", deprecatedAliases: []),
   /// 별표·부표(질병분류표·수술분류표 등)
-  annex('annex'),
+  annex('annex', screenKo: "별표", deprecatedAliases: []),
   /// 사업방법서
-  businessMethod('business_method'),
+  businessMethod('business_method', screenKo: "사업방법서", deprecatedAliases: []),
   /// 상품요약서
-  summary('summary'),
+  summary('summary', screenKo: "상품요약서", deprecatedAliases: []),
   /// 보험료 예시표·보험료표
-  priceTable('price_table'),
+  priceTable('price_table', screenKo: "보험료표", deprecatedAliases: ["price_example"]),
   /// 감독규정의 표준약관
-  standardTerms('standard_terms'),
+  standardTerms('standard_terms', screenKo: "표준약관", deprecatedAliases: []),
   /// 공시 웹페이지
-  disclosurePage('disclosure_page'),
+  disclosurePage('disclosure_page', screenKo: "공시 페이지", deprecatedAliases: []),
   /// 개정·판매중지 공지
-  notice('notice'),
+  notice('notice', screenKo: "공지", deprecatedAliases: []),
   /// 공시 목록(공시 행·회사 목록처럼 판매 구성과 판의 대응을 관측하는 문서 구획)
-  disclosureList('disclosure_list'),
+  disclosureList('disclosure_list', screenKo: "공시 목록", deprecatedAliases: []),
   /// 상품 안내 쪽(상품안내 표 등 교차 확인에 쓰는 구획)
-  guidePage('guide_page');
+  guidePage('guide_page', screenKo: "안내 쪽", deprecatedAliases: []);
 
-  const DocRole(this.code);
+  const DocRole(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static DocRole fromJson(String code) {
     for (final v in values) {
@@ -965,15 +1163,21 @@ enum DocRole {
 /// Axis `sale_status`. Unknown values throw (never a default).
 enum SaleStatus {
   /// 판매 중
-  onSale('on_sale'),
+  onSale('on_sale', screenKo: "판매 중", deprecatedAliases: []),
   /// 판매 중지(기존 계약 해석에 필요)
-  discontinued('discontinued'),
+  discontinued('discontinued', screenKo: "판매 중지", deprecatedAliases: []),
   /// 판매 상태 미확인
-  unknown('unknown');
+  unknown('unknown', screenKo: "판매 상태 미확인", deprecatedAliases: []);
 
-  const SaleStatus(this.code);
+  const SaleStatus(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static SaleStatus fromJson(String code) {
     for (final v in values) {
@@ -990,15 +1194,21 @@ enum SaleStatus {
 /// Axis `publication_state`. Unknown values throw (never a default).
 enum PublicationState {
   /// 시험·설계 검증 전용 규칙. 합성 규칙과 실제 조항 기반 검증 규칙을 포함하며 서비스 데이터가 아님. 근거·릴리스 없이 허용
-  fixtureOnly('fixture_only'),
+  fixtureOnly('fixture_only', screenKo: null, deprecatedAliases: []),
   /// 후보 릴리스
-  candidate('candidate'),
+  candidate('candidate', screenKo: null, deprecatedAliases: []),
   /// 공개 릴리스
-  released('released');
+  released('released', screenKo: null, deprecatedAliases: ["published"]);
 
-  const PublicationState(this.code);
+  const PublicationState(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static PublicationState fromJson(String code) {
     for (final v in values) {
@@ -1015,15 +1225,21 @@ enum PublicationState {
 /// Axis `evidence_role`. Unknown values throw (never a default).
 enum EvidenceRole {
   /// 약관 구획(보통약관·특약 약관·별표)의 조항으로, 그 구획이 accepted realizes로 약관 본문 판에 이어진 것. C0 내용 주장의 필수 근거
-  basis('basis'),
+  basis('basis', screenKo: "약관 근거", deprecatedAliases: []),
   /// 상품요약서·사업방법서·공시·상품안내 표처럼 교차 확인에만 쓰는 근거. 단독으로는 accepted가 될 수 없음
-  crossCheck('cross_check'),
+  crossCheck('cross_check', screenKo: "교차 확인", deprecatedAliases: []),
   /// 공시 행·회사 목록·문서 구획(본문 지문)처럼 구조 주장(판매 구성과 판의 대응, 구획과 판의 대응)을 세우는 관측 근거
-  observation('observation');
+  observation('observation', screenKo: "관측 기록", deprecatedAliases: []);
 
-  const EvidenceRole(this.code);
+  const EvidenceRole(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static EvidenceRole fromJson(String code) {
     for (final v in values) {
@@ -1040,21 +1256,27 @@ enum EvidenceRole {
 /// Axis `scope_relation`. Unknown values throw (never a default).
 enum ScopeRelation {
   /// 두 범주의 코드 집합이 같음
-  sameScope('same_scope'),
+  sameScope('same_scope', screenKo: "같은 범위", deprecatedAliases: []),
   /// 관계의 주어 범주가 대상 범주보다 좁음(코드 집합이 포함됨)
-  narrower('narrower'),
+  narrower('narrower', screenKo: "더 좁은 범위", deprecatedAliases: []),
   /// 관계의 주어 범주가 대상 범주보다 넓음(코드 집합이 포함함)
-  broader('broader'),
+  broader('broader', screenKo: "더 넓은 범위", deprecatedAliases: []),
   /// 두 코드 집합이 일부만 겹침
-  overlaps('overlaps'),
+  overlaps('overlaps', screenKo: "일부 겹치는 범위", deprecatedAliases: []),
   /// 두 코드 집합이 겹치지 않음
-  disjoint('disjoint'),
+  disjoint('disjoint', screenKo: "겹치지 않는 범위", deprecatedAliases: []),
   /// 정의나 코드 집합을 확정하지 못해 계산할 수 없음. 출처 주장은 hold이고 accepted가 될 수 없음
-  notComparable('not_comparable');
+  notComparable('not_comparable', screenKo: "정의를 확인하지 못해 비교할 수 없어요", deprecatedAliases: []);
 
-  const ScopeRelation(this.code);
+  const ScopeRelation(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static ScopeRelation fromJson(String code) {
     for (final v in values) {
@@ -1071,17 +1293,23 @@ enum ScopeRelation {
 /// Axis `correction_reason`. Unknown values throw (never a default).
 enum CorrectionReason {
   /// 오류 정정: 이전 판이 틀렸음
-  errorCorrection('error_correction'),
+  errorCorrection('error_correction', screenKo: "오류를 바로잡았어요", deprecatedAliases: []),
   /// 출처 변경: 근거로 삼은 출처가 바뀜
-  sourceChanged('source_changed'),
+  sourceChanged('source_changed', screenKo: "출처가 바뀌었어요", deprecatedAliases: []),
   /// 해석 개선: 같은 근거를 더 정확히 해석함
-  interpretationImproved('interpretation_improved'),
+  interpretationImproved('interpretation_improved', screenKo: "해석을 다듬었어요", deprecatedAliases: []),
   /// 규칙 변경: 적용하는 규칙이 바뀜
-  ruleChanged('rule_changed');
+  ruleChanged('rule_changed', screenKo: "규칙이 바뀌었어요", deprecatedAliases: []);
 
-  const CorrectionReason(this.code);
+  const CorrectionReason(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static CorrectionReason fromJson(String code) {
     for (final v in values) {
@@ -1098,13 +1326,19 @@ enum CorrectionReason {
 /// Axis `assertion_origin`. Unknown values throw (never a default).
 enum AssertionOrigin {
   /// 수집·추출 파이프라인이 만든 주장
-  pipeline('pipeline'),
+  pipeline('pipeline', screenKo: "수집한 자료 기반", deprecatedAliases: []),
   /// 시험 전용 자료에서 만든 주장. pending·hold·rejected만 가능
-  fixture('fixture');
+  fixture('fixture', screenKo: "시험용 자료", deprecatedAliases: []);
 
-  const AssertionOrigin(this.code);
+  const AssertionOrigin(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static AssertionOrigin fromJson(String code) {
     for (final v in values) {
@@ -1121,19 +1355,25 @@ enum AssertionOrigin {
 /// Axis `fact_source`. Unknown values throw (never a default).
 enum FactSource {
   /// 사용자가 올린 문서(PDF)에서 추출함
-  pdfExtracted('pdf_extracted'),
+  pdfExtracted('pdf_extracted', screenKo: "올리신 문서에서 읽었어요", deprecatedAliases: []),
   /// 사용자가 직접 입력함
-  userStated('user_stated'),
+  userStated('user_stated', screenKo: "직접 입력하셨어요", deprecatedAliases: []),
   /// 문서에서 추출한 값을 사용자가 확인함
-  userConfirmedExtract('user_confirmed_extract'),
+  userConfirmedExtract('user_confirmed_extract', screenKo: "문서에서 읽고 직접 확인하셨어요", deprecatedAliases: []),
   /// 사용자 가정 등 실제 확인된 값이 아님
-  assumed('assumed'),
+  assumed('assumed', screenKo: "가정한 값이에요", deprecatedAliases: []),
   /// 공개 지식 릴리스에서 가져옴
-  releaseDerived('release_derived');
+  releaseDerived('release_derived', screenKo: "공개된 상품 정보에서 가져왔어요", deprecatedAliases: []);
 
-  const FactSource(this.code);
+  const FactSource(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static FactSource fromJson(String code) {
     for (final v in values) {
@@ -1150,13 +1390,19 @@ enum FactSource {
 /// Axis `fact_kind`. Unknown values throw (never a default).
 enum FactKind {
   /// 실제 계약의 사실
-  actual('actual'),
+  actual('actual', screenKo: "실제 가입 내용", deprecatedAliases: []),
   /// 가정한 값(가입 전 검토·시나리오 등)
-  hypothetical('hypothetical');
+  hypothetical('hypothetical', screenKo: "가정한 내용", deprecatedAliases: []);
 
-  const FactKind(this.code);
+  const FactKind(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static FactKind fromJson(String code) {
     for (final v in values) {
@@ -1173,17 +1419,23 @@ enum FactKind {
 /// Axis `confirm_party`. Unknown values throw (never a default).
 enum ConfirmParty {
   /// 사용자가 확인함
-  user('user'),
+  user('user', screenKo: "직접 확인하셨어요", deprecatedAliases: []),
   /// 보험사가 확인함
-  insurer('insurer'),
+  insurer('insurer', screenKo: "보험사가 확인했어요", deprecatedAliases: []),
   /// 문서(증권·약관 등)가 근거임
-  document('document'),
+  document('document', screenKo: "문서로 확인했어요", deprecatedAliases: []),
   /// 아직 확인한 주체가 없음
-  none('none');
+  none('none', screenKo: "아직 확인되지 않았어요", deprecatedAliases: []);
 
-  const ConfirmParty(this.code);
+  const ConfirmParty(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static ConfirmParty fromJson(String code) {
     for (final v in values) {
@@ -1200,25 +1452,31 @@ enum ConfirmParty {
 /// Axis `error_class`. Unknown values throw (never a default).
 enum ErrorClass {
   /// 입력 검증 실패(V). 예: 알 수 없는 enum 값
-  validation('validation'),
+  validation('validation', screenKo: "입력을 확인해 주세요", deprecatedAliases: []),
   /// 인증·권한 실패(A). 다른 프로필·계정의 자료는 존재 여부도 알리지 않는다(ONJ-PS-A-030)
-  auth('auth'),
+  auth('auth', screenKo: "요청하신 내용을 열 수 없어요", deprecatedAliases: []),
   /// 대상 없음(N). 예: release_id 없음
-  notFound('not_found'),
+  notFound('not_found', screenKo: "찾을 수 없어요", deprecatedAliases: []),
   /// 상태 충돌(S). 예: 멱등 키 재사용, 릴리스 철회
-  stateConflict('state_conflict'),
+  stateConflict('state_conflict', screenKo: "지금 상태와 맞지 않아요", deprecatedAliases: []),
   /// 한도 초과(L). 예: 요청 제한, 비용 상한
-  limit('limit'),
+  limit('limit', screenKo: "잠시 후 다시 시도해 주세요", deprecatedAliases: []),
   /// 미지원(U). 예: 엔진 미지원 의미론, 범위 밖 날짜
-  unsupported('unsupported'),
+  unsupported('unsupported', screenKo: "아직 지원하지 않아요", deprecatedAliases: []),
   /// 내부 오류(X)
-  internal('internal'),
+  internal('internal', screenKo: "일시적인 문제가 생겼어요", deprecatedAliases: []),
   /// 타임아웃(T). 지급 불가로 바꾸지 않고 마지막 성공 결과와 실패 사실을 보임
-  timeout('timeout');
+  timeout('timeout', screenKo: "응답이 늦어지고 있어요", deprecatedAliases: []);
 
-  const ErrorClass(this.code);
+  const ErrorClass(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static ErrorClass fromJson(String code) {
     for (final v in values) {
@@ -1235,15 +1493,21 @@ enum ErrorClass {
 /// Axis `usage_restriction`. Unknown values throw (never a default).
 enum UsageRestriction {
   /// 제한 없음
-  none('none'),
+  none('none', screenKo: "제한 없음", deprecatedAliases: []),
   /// 보류: 기댄 릴리스·판에 사용 제한 공지가 있어 새 계산에는 쓰지 않음. 저장된 결과는 reproducible=true로 재현·표시된다
-  hold('hold'),
+  hold('hold', screenKo: "새 계산에는 쓰지 않아요", deprecatedAliases: []),
   /// 회로 차단: 오류가 반복되어 해당 범위(규칙·회사·개념)의 새 계산을 자동으로 멈춤(ops.circuit_breaker.tripped/reset). 저장된 결과는 재현된다
-  circuitBreaker('circuit_breaker');
+  circuitBreaker('circuit_breaker', screenKo: "일시적으로 새 계산을 멈췄어요", deprecatedAliases: []);
 
-  const UsageRestriction(this.code);
+  const UsageRestriction(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static UsageRestriction fromJson(String code) {
     for (final v in values) {
@@ -1260,15 +1524,21 @@ enum UsageRestriction {
 /// Axis `knowledge_freshness`. Unknown values throw (never a default).
 enum KnowledgeFreshness {
   /// 기댄 지식이 최신임
-  fresh('fresh'),
+  fresh('fresh', screenKo: "최신 정보예요", deprecatedAliases: []),
   /// 기댄 지식(릴리스·주장·기준 판)이 정정됨. 정정된 기준 판에 의존한 결과도 해당. 오래됨(기한 경과)은 입력 최신성 freshness.stale의 몫
-  stale('stale'),
+  stale('stale', screenKo: "기준이 된 정보가 정정됐어요", deprecatedAliases: []),
   /// 기댄 지식이 철회됨
-  withdrawn('withdrawn');
+  withdrawn('withdrawn', screenKo: "철회된 정보예요", deprecatedAliases: []);
 
-  const KnowledgeFreshness(this.code);
+  const KnowledgeFreshness(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static KnowledgeFreshness fromJson(String code) {
     for (final v in values) {
@@ -1285,17 +1555,23 @@ enum KnowledgeFreshness {
 /// Axis `need_verdict`. Unknown values throw (never a default).
 enum NeedVerdict {
   /// 유지
-  keep('keep'),
+  keep('keep', screenKo: "유지", deprecatedAliases: []),
   /// 추가 가입 없음
-  noAdd('no_add'),
+  noAdd('no_add', screenKo: "추가 가입 없음", deprecatedAliases: []),
   /// 보류: 결론을 바꾸는 입력이 비어 있음
-  hold('hold'),
+  hold('hold', screenKo: "판단 보류", deprecatedAliases: []),
   /// 추가 검토
-  reviewAdd('review_add');
+  reviewAdd('review_add', screenKo: "추가 검토", deprecatedAliases: []);
 
-  const NeedVerdict(this.code);
+  const NeedVerdict(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static NeedVerdict fromJson(String code) {
     for (final v in values) {
@@ -1312,19 +1588,25 @@ enum NeedVerdict {
 /// Axis `criterion_source_kind`. Unknown values throw (never a default).
 enum CriterionSourceKind {
   /// 공공 통계
-  publicStatistic('public_statistic'),
+  publicStatistic('public_statistic', screenKo: "공공 통계", deprecatedAliases: []),
   /// 법령
-  statute('statute'),
+  statute('statute', screenKo: "법령", deprecatedAliases: []),
   /// 감독 고시
-  regulatorNotice('regulator_notice'),
+  regulatorNotice('regulator_notice', screenKo: "감독 고시", deprecatedAliases: []),
   /// 약관 사실
-  termsFact('terms_fact'),
+  termsFact('terms_fact', screenKo: "약관 내용", deprecatedAliases: []),
   /// 온전의 편집 판단. 참고 통계로 표시하지 않는다
-  editorial('editorial');
+  editorial('editorial', screenKo: "온전의 판단", deprecatedAliases: []);
 
-  const CriterionSourceKind(this.code);
+  const CriterionSourceKind(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static CriterionSourceKind fromJson(String code) {
     for (final v in values) {
@@ -1341,21 +1623,27 @@ enum CriterionSourceKind {
 /// Axis `input_type`. Unknown values throw (never a default).
 enum InputType {
   /// 참·거짓 입력
-  bool('bool'),
+  bool('bool', screenKo: null, deprecatedAliases: []),
   /// 정수 입력
-  int('int'),
+  int('int', screenKo: null, deprecatedAliases: []),
   /// 정수 원 금액 입력
-  moneyKrw('money_krw'),
+  moneyKrw('money_krw', screenKo: null, deprecatedAliases: []),
   /// 달력 날짜 입력
-  date('date'),
+  date('date', screenKo: null, deprecatedAliases: []),
   /// 문자열 입력
-  string('string'),
+  string('string', screenKo: null, deprecatedAliases: []),
   /// rule-0.2: class별 금액 사건 목록. krw가 null이면 그 항목의 금액은 모름
-  classMoneyList('class_money_list');
+  classMoneyList('class_money_list', screenKo: null, deprecatedAliases: []);
 
-  const InputType(this.code);
+  const InputType(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static InputType fromJson(String code) {
     for (final v in values) {
@@ -1372,19 +1660,25 @@ enum InputType {
 /// Axis `rounding`. Unknown values throw (never a default).
 enum Rounding {
   /// 지정 단위로 내림
-  floor('floor'),
+  floor('floor', screenKo: null, deprecatedAliases: []),
   /// 지정 단위로 올림
-  ceil('ceil'),
+  ceil('ceil', screenKo: null, deprecatedAliases: []),
   /// 가장 가까운 지정 단위로 반올림하며 정확한 절반은 올림
-  halfUp('half_up'),
+  halfUp('half_up', screenKo: null, deprecatedAliases: []),
   /// 가장 가까운 지정 단위로 반올림하며 정확한 절반은 짝수 배수로 반올림
-  halfEven('half_even'),
+  halfEven('half_even', screenKo: null, deprecatedAliases: []),
   /// 원문에 반올림 방식이 없음. 내림~올림 범위를 보존하며 두 값이 같으면 정확한 금액으로 축약
-  unspecified('unspecified');
+  unspecified('unspecified', screenKo: null, deprecatedAliases: []);
 
-  const Rounding(this.code);
+  const Rounding(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static Rounding fromJson(String code) {
     for (final v in values) {
@@ -1401,15 +1695,21 @@ enum Rounding {
 /// Axis `duration_unit`. Unknown values throw (never a default).
 enum DurationUnit {
   /// 일 단위 날짜 이동
-  day('day'),
+  day('day', screenKo: null, deprecatedAliases: []),
   /// 달력 월 단위 날짜 이동. 대상 월에 같은 일이 없으면 말일로 맞춤
-  calendarMonth('calendar_month'),
+  calendarMonth('calendar_month', screenKo: null, deprecatedAliases: []),
   /// 달력 년 단위 날짜 이동. 대상 년에 같은 월일이 없으면 해당 월 말일로 맞춤
-  calendarYear('calendar_year');
+  calendarYear('calendar_year', screenKo: null, deprecatedAliases: []);
 
-  const DurationUnit(this.code);
+  const DurationUnit(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static DurationUnit fromJson(String code) {
     for (final v in values) {
@@ -1426,65 +1726,71 @@ enum DurationUnit {
 /// Axis `rule_operator`. Unknown values throw (never a default).
 enum RuleOperator {
   /// 불리언 식 목록의 3값 논리 AND
-  all('all'),
+  all('all', screenKo: null, deprecatedAliases: []),
   /// 불리언 식 목록의 3값 논리 OR
-  any('any'),
+  any('any', screenKo: null, deprecatedAliases: []),
   /// 불리언 식의 3값 논리 부정
-  not('not'),
+  not('not', screenKo: null, deprecatedAliases: []),
   /// 같은 타입인 두 값의 같음 비교
-  eq('eq'),
+  eq('eq', screenKo: null, deprecatedAliases: []),
   /// 같은 타입인 두 값의 다름 비교
-  ne('ne'),
+  ne('ne', screenKo: null, deprecatedAliases: []),
   /// 같은 타입인 두 값의 미만 비교
-  lt('lt'),
+  lt('lt', screenKo: null, deprecatedAliases: []),
   /// 같은 타입인 두 값의 이하 비교
-  lte('lte'),
+  lte('lte', screenKo: null, deprecatedAliases: []),
   /// 같은 타입인 두 값의 초과 비교
-  gt('gt'),
+  gt('gt', screenKo: null, deprecatedAliases: []),
   /// 같은 타입인 두 값의 이상 비교
-  gte('gte'),
+  gte('gte', screenKo: null, deprecatedAliases: []),
   /// if·then·else 세 키 객체의 조건 분기. 두 가지의 타입이 같아야 한다
-  ifValue('if'),
+  ifValue('if', screenKo: null, deprecatedAliases: []),
   /// 선언된 입력 이름 참조
-  input('input'),
+  input('input', screenKo: null, deprecatedAliases: []),
   /// 명시적 문자열 리터럴. rule-0.1·rule-0.2에서 JSON 문자열만 허용하며 입력 이름 조회·요율 변환·공백 제거·유니코드 정규화를 하지 않는다
-  str('str'),
+  str('str', screenKo: null, deprecatedAliases: []),
   /// 음이 아닌 십진 문자열 요율 리터럴
-  rate('rate'),
+  rate('rate', screenKo: null, deprecatedAliases: []),
   /// 음이 아닌 정수 원 금액 리터럴
-  krw('krw'),
+  krw('krw', screenKo: null, deprecatedAliases: []),
   /// 지원 범위 내 YYYY-MM-DD 날짜 리터럴
-  date('date'),
+  date('date', screenKo: null, deprecatedAliases: []),
   /// 금액에 요율을 곱함. 반올림·원 단위를 명시
-  multiplyRate('multiply_rate'),
+  multiplyRate('multiply_rate', screenKo: null, deprecatedAliases: []),
   /// 금액 목록의 합
-  add('add'),
+  add('add', screenKo: null, deprecatedAliases: []),
   /// 금액 목록의 최솟값
-  min('min'),
+  min('min', screenKo: null, deprecatedAliases: []),
   /// 금액 목록의 최댓값
-  max('max'),
+  max('max', screenKo: null, deprecatedAliases: []),
   /// 금액에 상한 적용
-  applyCap('apply_cap'),
+  applyCap('apply_cap', screenKo: null, deprecatedAliases: []),
   /// 두 날짜 사이 일수. 시작일·종료일 포함 여부를 명시
-  daysBetween('days_between'),
+  daysBetween('days_between', screenKo: null, deprecatedAliases: []),
   /// 날짜에 명시된 단위의 기간을 더함
-  dateAdd('date_add'),
+  dateAdd('date_add', screenKo: null, deprecatedAliases: []),
   /// rule-0.2: 금액에 음이 아닌 정수 횟수를 곱함
-  multiplyCount('multiply_count'),
+  multiplyCount('multiply_count', screenKo: null, deprecatedAliases: []),
   /// rule-0.2: 두 금액의 차를 0 이상으로 제한
-  subtractFloor0('subtract_floor0'),
+  subtractFloor0('subtract_floor0', screenKo: null, deprecatedAliases: []),
   /// rule-0.2: 금액을 부분/전체 비율로 배분. 반올림·원 단위를 명시
-  proRata('pro_rata'),
+  proRata('pro_rata', screenKo: null, deprecatedAliases: []),
   /// rule-0.2: 금액을 정수 횟수로 균등 배분. 반올림·원 단위를 명시
-  divideCount('divide_count'),
+  divideCount('divide_count', screenKo: null, deprecatedAliases: []),
   /// rule-0.2: 두 날짜의 경과 만 연수와 명시적 경계 규칙으로 구간 요율 선택
-  anniversaryBand('anniversary_band'),
+  anniversaryBand('anniversary_band', screenKo: null, deprecatedAliases: []),
   /// rule-0.2: class_money_list에서 같은 class의 최고 금액을 고른 뒤 class 간 합산
-  maxOver('max_over');
+  maxOver('max_over', screenKo: null, deprecatedAliases: []);
 
-  const RuleOperator(this.code);
+  const RuleOperator(this.code, {required this.screenKo, required this.deprecatedAliases});
 
   final String code;
+
+  /// Canonical Korean screen text. Null means no direct display.
+  final String? screenKo;
+
+  /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+  final List<String> deprecatedAliases;
 
   static RuleOperator fromJson(String code) {
     for (final v in values) {

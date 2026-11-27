@@ -43,12 +43,39 @@ def ts_type(t: Type) -> str:
 
 def emit_vocabulary(model: Model) -> str:
     out = [HEADER, f'\n/** Version of packages/schemas/vocabulary.json these unions were generated from. */\nexport const VOCABULARY_VERSION = "{model.vocabulary_version}";\n']
+    out.append('''
+export interface VocabularyValueMetadata {
+  /** Canonical Korean screen text. Null means no direct display. */
+  readonly screenKo: string | null;
+  /** Historical spellings for reference. Wire decoding accepts canonical codes only. */
+  readonly deprecatedAliases: readonly string[];
+}
+''')
     for axis in model.axes.values():
         name = pascal(axis.id)
+        has_maps_to = axis.has_maps_to
+        has_group = axis.id == "diff_type"
         codes = ", ".join(json.dumps(v["code"]) for v in axis.values)
         out.append("\n" + doc(f"{axis.name_ko}: {axis.concept_ko}\n\nAxis `{axis.id}`."))
         out.append(f"export const {name} = [{codes}] as const;\n")
         out.append(f"export type {name} = (typeof {name})[number];\n")
+        metadata_type = "VocabularyValueMetadata"
+        if has_maps_to:
+            out.append("/** Vocabulary mapping to acquisition status. Archival requires separate evidence. */\n")
+            metadata_type += " & { readonly mapsTo: AcquisitionStatus | null }"
+        if has_group:
+            metadata_type += " & { readonly group: DiffGroup }"
+        out.append(f"export const {name}Metadata = {{\n")
+        for v in axis.values:
+            label = json.dumps(v["screen_ko"], ensure_ascii=False)
+            aliases = json.dumps(v["deprecated_aliases"], ensure_ascii=False)
+            metadata = f"screenKo: {label}, deprecatedAliases: {aliases}"
+            if has_maps_to:
+                metadata += f', mapsTo: {json.dumps(v.get("maps_to"))}'
+            if has_group:
+                metadata += f', group: {json.dumps(v["group"])}'
+            out.append(f'  {json.dumps(v["code"])}: {{ {metadata} }},\n')
+        out.append(f"}} as const satisfies Readonly<Record<{name}, {metadata_type}>>;\n")
         out.append(
             f"/** Throws on an unknown value: unknown states are never treated as a success. */\n"
             f"export function parse{name}(value: unknown): {name} {{\n"

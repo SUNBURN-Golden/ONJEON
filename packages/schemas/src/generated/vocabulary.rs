@@ -49,6 +49,26 @@ impl AcquisitionStatus {
             AcquisitionStatus::Archived => "archived",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Unqueried => Some("아직 확인하지 않았어요"),
+            Self::Blocked => Some("접근이 막혀 있어요"),
+            Self::Failed => Some("가져오지 못했어요"),
+            Self::NotFound => Some("찾지 못했어요"),
+            Self::NotDisclosed => Some("공개되지 않았어요"),
+            Self::Archived => Some("원문 확보"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::Archived => &["fetched", "integrity_checked"],
+            _ => &[],
+        }
+    }
 }
 
 /// 보관본 재현 결과: 당시 보존한 원본으로 해시·페이지·인용·추출 결과를 다시 확인한 결과. 현재 출처의 변경과 무관하다
@@ -107,6 +127,16 @@ impl ArchiveReproduction {
             ArchiveReproduction::OcrNotRerun => "ocr_not_rerun",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 현재 출처 변경 감지: 원 URL의 현재 문서가 마지막 관측과 같은가. 바뀌었으면 새 원본으로 추가하고 별도 검수 후 새 릴리스에 반영한다. 과거 원본을 교체하거나 과거 검증을 실패로 바꾸지 않는다
@@ -145,6 +175,16 @@ impl SourceChange {
             SourceChange::FetchFailed => "fetch_failed",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 기관 존재 근거: 이 기관이 대상이라는 근거가 몇 개의 서로 다른 기관 출처에서 나왔는가(같은 기관의 여러 페이지는 하나로 셈)
@@ -176,6 +216,20 @@ impl EntityEvidence {
             EntityEvidence::TwoOrMoreSources => "two_or_more_sources",
             EntityEvidence::OneSource => "one_source",
             EntityEvidence::Seed => "seed",
+        }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::TwoOrMoreSources => &["verified_2_sources"],
+            Self::OneSource => &["verified_1_source"],
+            Self::Seed => &["unverified_seed"],
         }
     }
 }
@@ -261,6 +315,44 @@ impl HostAccess {
             HostAccess::ProxyError => "proxy_error",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::JsShell => &["200_js_shell"],
+            Self::GeoBlocked => &["200_geoblock_notice"],
+            Self::ServiceOutage => &["200_service_outage_notice"],
+            Self::OriginDenied => &["403_origin"],
+            Self::RateLimited => &["429_rate_limited"],
+            Self::TlsError => &["ssl_legacy_renegotiation", "tls_handshake_fail"],
+            Self::ProxyError => &["proxy_502"],
+            _ => &[],
+        }
+    }
+
+    /// Vocabulary mapping to acquisition status. Archival requires separate evidence.
+    pub const fn maps_to(self) -> Option<AcquisitionStatus> {
+        match self {
+            Self::NotChecked => Some(AcquisitionStatus::Unqueried),
+            Self::Reachable => Some(AcquisitionStatus::Archived),
+            Self::JsShell => Some(AcquisitionStatus::Failed),
+            Self::GeoBlocked => Some(AcquisitionStatus::Blocked),
+            Self::ServiceOutage => Some(AcquisitionStatus::Failed),
+            Self::OriginDenied => Some(AcquisitionStatus::Blocked),
+            Self::RateLimited => Some(AcquisitionStatus::Blocked),
+            Self::ConnectionReset => Some(AcquisitionStatus::Failed),
+            Self::TlsError => Some(AcquisitionStatus::Failed),
+            Self::Timeout => Some(AcquisitionStatus::Failed),
+            Self::EmptyReply => Some(AcquisitionStatus::Failed),
+            Self::RedirectLoop => Some(AcquisitionStatus::Failed),
+            Self::ProxyError => Some(AcquisitionStatus::Failed),
+        }
+    }
 }
 
 /// 처리 단계: 마지막으로 완료한 처리 단계. 보류·실패는 pipeline_block 축
@@ -319,6 +411,20 @@ impl PipelineStage {
             PipelineStage::Released => "released",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::Archived => &["fetched", "integrity_checked"],
+            Self::Labeled => &["references_resolved"],
+            _ => &[],
+        }
+    }
 }
 
 /// 처리 차단: 다음 단계로 못 가는 이유
@@ -350,6 +456,23 @@ impl PipelineBlock {
             PipelineBlock::None => "none",
             PipelineBlock::Hold => "hold",
             PipelineBlock::Failed => "failed",
+        }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Hold => Some("판단 보류"),
+            Self::Failed => Some("처리 실패"),
+            _ => None,
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::Hold => &["quarantined"],
+            _ => &[],
         }
     }
 }
@@ -405,6 +528,28 @@ impl ValueState {
             ValueState::NotDisclosed => "not_disclosed",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::NotFound => Some("자료 필요"),
+            Self::Unreadable => Some("읽지 못했어요"),
+            Self::Conflicting => Some("근거가 서로 달라요"),
+            Self::NotApplicable => Some("해당 없음"),
+            Self::NotDisclosed => Some("공개되지 않았어요"),
+            _ => None,
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::Observed => &["verified"],
+            Self::NotFound => &["unresolved", "missing"],
+            Self::Conflicting => &["conflict"],
+            _ => &[],
+        }
+    }
 }
 
 /// 검수 상태: AI 검수 결과(ADR-0006). 사람 검수 아님
@@ -443,6 +588,26 @@ impl ReviewStatus {
             ReviewStatus::Rejected => "rejected",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Pending => Some("확인 중"),
+            Self::Accepted => Some("AI 검증"),
+            Self::Hold => Some("판단 보류"),
+            _ => None,
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::Pending => &["pending_review"],
+            Self::Accepted => &["verified"],
+            Self::Hold => &["conflict", "quarantined"],
+            _ => &[],
+        }
+    }
 }
 
 /// 조항 경로 근거: 조·항·호 번호를 원문 글자에서 읽었는가, 순서·참조로 추정했는가. 추정이면 경로를 근거로 한 자동 매핑을 막는다
@@ -470,6 +635,16 @@ impl ClausePathBasis {
             ClausePathBasis::Printed => "printed",
             ClausePathBasis::Inferred => "inferred",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -539,6 +714,16 @@ impl RelationType {
             RelationType::SameBenefitAs => "same_benefit_as",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 금액 표현 형식: 원문이 금액을 어떤 형식으로 적었는가. 형식이 다른 금액을 같은 것처럼 합산·환산하지 않는다
@@ -591,6 +776,16 @@ impl AmountForm {
             AmountForm::ExternalParameter => "external_parameter",
             AmountForm::MaxOf => "max_of",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -650,6 +845,25 @@ impl HoldReason {
             HoldReason::ExtractionUncertain => "extraction_uncertain",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::AgentDisagreement => Some("판단 보류"),
+            Self::Counterexample => Some("판단 보류"),
+            Self::QuoteMismatch => Some("판단 보류"),
+            Self::CodeCheckFailed => Some("판단 보류"),
+            Self::ReferenceUnresolved => Some("판단 보류"),
+            Self::ConflictingSources => Some("근거가 서로 달라요"),
+            Self::CircuitBreaker => Some("판단 보류"),
+            Self::ExtractionUncertain => Some("판단 보류"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 기능 자격: 무엇을 해도 되는가. 각 기능은 독립이며 하나가 다른 것을 자동으로 켜지 않는다(ADR-0012)
@@ -698,6 +912,29 @@ impl Capability {
             Capability::Quote => "quote",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Search => Some("원문 보기"),
+            Self::CompareConditions => Some("조건 비교 가능"),
+            Self::ComparePrice => Some("가격 비교 가능"),
+            Self::Simulate => Some("가정 계산 가능"),
+            _ => None,
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::Search => &["indexed", "indexed_only"],
+            Self::Explain => &["explained", "explanation_enabled"],
+            Self::CompareConditions => &["comparable", "comparison_enabled"],
+            Self::Simulate => &["simulatable", "simulation_enabled", "scenario_ready"],
+            Self::Quote => &["quotable", "quote_verified"],
+            _ => &[],
+        }
+    }
 }
 
 /// 기능 자격 상태: 켜졌는가. 꺼졌으면 막은 이유를 함께 저장
@@ -725,6 +962,16 @@ impl CapabilityState {
             CapabilityState::Enabled => "enabled",
             CapabilityState::Blocked => "blocked",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -774,6 +1021,27 @@ impl DisplayStatus {
             DisplayStatus::NotApplicable => "not_applicable",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Confirmed => Some("조건 확인됨"),
+            Self::InputMissing => Some("입력 필요"),
+            Self::DataMissing => Some("자료 필요"),
+            Self::UnderReview => Some("확인 중"),
+            Self::Hold => Some("판단 보류"),
+            Self::NotApplicable => Some("해당 없음"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::InputMissing => &["confirm_input"],
+            Self::DataMissing => &["unverified"],
+            _ => &[],
+        }
+    }
 }
 
 /// 초안 행동: 사용자가 이 초안에서 무엇을 하려는가. AI가 정답으로 지정하지 않는다
@@ -812,6 +1080,25 @@ impl PlanAction {
             PlanAction::Modify => "modify",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Keep => Some("유지"),
+            Self::Add => Some("추가 검토"),
+            Self::Remove => Some("제외 검토"),
+            Self::Modify => Some("변경 검토"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::Add => &["add_review", "review_add"],
+            Self::Remove => &["review_reduce"],
+            _ => &[],
+        }
+    }
 }
 
 /// 행 라벨: 미해결 항목(input_missing·data_missing·hold)이 있으면 needs_condition, 없으면 plan_action 문구
@@ -839,6 +1126,19 @@ impl RowLabel {
             RowLabel::NeedsCondition => "needs_condition",
             RowLabel::FromPlanAction => "from_plan_action",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::NeedsCondition => Some("조건 확인"),
+            _ => None,
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -873,6 +1173,16 @@ impl Tri {
             Tri::Unknown => "unknown",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 지급 판정: 규칙을 입력 가정에 적용한 결과. 보험사 지급 결정이 아님
@@ -905,6 +1215,20 @@ impl Payout {
             Payout::Payable => "payable",
             Payout::Undetermined => "undetermined",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::NotPayable => Some("이 조건에서는 지급 대상이 아니에요"),
+            Self::Payable => Some("이 조건에서 지급 대상이에요"),
+            Self::Undetermined => Some("판단에 필요한 정보가 부족해요"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -939,6 +1263,19 @@ impl AmountKind {
             AmountKind::Unknown => "unknown",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Unknown => Some("금액 확인 필요"),
+            _ => None,
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 금액 계산 보류 사유: 값이 주어졌으나 연산의 결과를 정할 수 없는 이유
@@ -961,6 +1298,18 @@ impl CalculationIssueCode {
         match self {
             CalculationIssueCode::ZeroDenominator => "zero_denominator",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::ZeroDenominator => Some("나눌 기준이 0이라 금액을 계산할 수 없어요"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -998,6 +1347,26 @@ impl PriceBasis {
             PriceBasis::TableDerived => "table_derived",
             PriceBasis::ContractObserved => "contract_observed",
             PriceBasis::Quoted => "quoted",
+        }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Illustrative => Some("공시 예시"),
+            Self::TableDerived => Some("요율표 재현"),
+            Self::ContractObserved => Some("내 계약 납입액"),
+            Self::Quoted => Some("내 견적"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::Illustrative => &["public_disclosed"],
+            Self::ContractObserved => &["contract_actual"],
+            Self::Quoted => &["personal_quote"],
+            _ => &[],
         }
     }
 }
@@ -1068,6 +1437,31 @@ impl PriceUnavailableReason {
             PriceUnavailableReason::ConditionMismatch => "condition_mismatch",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Unqueried => Some("가격 미확인 · 아직 확인 전"),
+            Self::Blocked => Some("가격 미확인 · 접근 막힘"),
+            Self::Failed => Some("가격 미확인 · 가져오지 못함"),
+            Self::NotFound => Some("가격 미확인 · 찾지 못함"),
+            Self::NotDisclosed => Some("가격 미확인 · 공개되지 않음"),
+            Self::Unreadable => Some("가격 미확인 · 읽지 못함"),
+            Self::Conflicting => Some("가격 미확인 · 근거 충돌"),
+            Self::UnderReview => Some("가격 미확인 · 확인 중"),
+            Self::Hold => Some("가격 미확인 · 판단 보류"),
+            Self::ConditionMismatch => Some("가격 미확인 · 조건이 달라요"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::Conflicting => &["conflict"],
+            Self::UnderReview => &["pending_review"],
+            _ => &[],
+        }
+    }
 }
 
 /// 최신성: 정책 기한 안에 다시 확인했는가. 값의 존재와 별개 축
@@ -1095,6 +1489,19 @@ impl Freshness {
             Freshness::Fresh => "fresh",
             Freshness::Stale => "stale",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Stale => Some("확인일이 오래됐어요"),
+            _ => None,
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -1139,6 +1546,27 @@ impl PolicyHoldingsStatus {
             PolicyHoldingsStatus::Skipped => "skipped",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Confirmed => Some("확인된 가입내역"),
+            Self::PendingConfirmation => Some("확인 전"),
+            Self::NoneDeclared => Some("보험 없음(본인 답변)"),
+            Self::Unknown => Some("아직 모름"),
+            Self::Skipped => Some("아직 안 올렸어요"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::Confirmed => &["uploaded"],
+            Self::PendingConfirmation => &["unconfirmed"],
+            Self::NoneDeclared => &["none"],
+            _ => &[],
+        }
+    }
 }
 
 /// 계약 버전 매칭: 내 계약이 어느 상품 버전인지
@@ -1171,6 +1599,20 @@ impl ContractVersionMatch {
             ContractVersionMatch::Ambiguous => "ambiguous",
             ContractVersionMatch::Unmatched => "unmatched",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Ambiguous => Some("상품 버전 확인 필요"),
+            Self::Unmatched => Some("아직 수집하지 않은 상품이에요"),
+            _ => None,
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -1210,6 +1652,16 @@ impl Sensitivity {
             Sensitivity::GeneticPrivate => "genetic_private",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 중요도: 결과를 바꾸면 c0로 승격
@@ -1241,6 +1693,20 @@ impl Criticality {
             Criticality::C0 => "c0",
             Criticality::C1 => "c1",
             Criticality::C2 => "c2",
+        }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::C0 => &["C0"],
+            Self::C1 => &["C1"],
+            Self::C2 => &["C2"],
         }
     }
 }
@@ -1280,6 +1746,21 @@ impl DiffGroup {
             DiffGroup::Unchanged => "unchanged",
             DiffGroup::CostAndUnknown => "cost_and_unknown",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Added => Some("추가되는 것"),
+            Self::Reduced => Some("줄어드는 것"),
+            Self::Unchanged => Some("그대로인 것"),
+            Self::CostAndUnknown => Some("비용과 미확인"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -1375,6 +1856,16 @@ impl DiffType {
         }
     }
 
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
+
     /// The group declared in the vocabulary for this change.
     pub fn group(self) -> DiffGroup {
         match self {
@@ -1468,6 +1959,32 @@ impl DocRole {
             DocRole::GuidePage => "guide_page",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Terms => Some("약관"),
+            Self::RiderTerms => Some("특약 약관"),
+            Self::Annex => Some("별표"),
+            Self::BusinessMethod => Some("사업방법서"),
+            Self::Summary => Some("상품요약서"),
+            Self::PriceTable => Some("보험료표"),
+            Self::StandardTerms => Some("표준약관"),
+            Self::DisclosurePage => Some("공시 페이지"),
+            Self::Notice => Some("공지"),
+            Self::DisclosureList => Some("공시 목록"),
+            Self::GuidePage => Some("안내 쪽"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::Terms => &["official_terms"],
+            Self::PriceTable => &["price_example"],
+            _ => &[],
+        }
+    }
 }
 
 /// 판매 상태: 판매 중인가
@@ -1500,6 +2017,20 @@ impl SaleStatus {
             SaleStatus::Discontinued => "discontinued",
             SaleStatus::Unknown => "unknown",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::OnSale => Some("판매 중"),
+            Self::Discontinued => Some("판매 중지"),
+            Self::Unknown => Some("판매 상태 미확인"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -1534,6 +2065,19 @@ impl PublicationState {
             PublicationState::Released => "released",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        match self {
+            Self::Released => &["published"],
+            _ => &[],
+        }
+    }
 }
 
 /// 근거 역할: 주장이 이 근거에 어떻게 기대는가. basis는 약관 조항 근거로 C0 내용 주장이 accepted 되려면 필수다. 요약서·공시·안내 쪽만으로는 accepted가 될 수 없다
@@ -1566,6 +2110,20 @@ impl EvidenceRole {
             EvidenceRole::CrossCheck => "cross_check",
             EvidenceRole::Observation => "observation",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Basis => Some("약관 근거"),
+            Self::CrossCheck => Some("교차 확인"),
+            Self::Observation => Some("관측 기록"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -1615,6 +2173,23 @@ impl ScopeRelation {
             ScopeRelation::NotComparable => "not_comparable",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::SameScope => Some("같은 범위"),
+            Self::Narrower => Some("더 좁은 범위"),
+            Self::Broader => Some("더 넓은 범위"),
+            Self::Overlaps => Some("일부 겹치는 범위"),
+            Self::Disjoint => Some("겹치지 않는 범위"),
+            Self::NotComparable => Some("정의를 확인하지 못해 비교할 수 없어요"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 정정 사유: 이전 판을 대체하는 새 판을 만든 이유. 정정은 고치지 않고 새 판 + supersedes로 남긴다
@@ -1653,6 +2228,21 @@ impl CorrectionReason {
             CorrectionReason::RuleChanged => "rule_changed",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::ErrorCorrection => Some("오류를 바로잡았어요"),
+            Self::SourceChanged => Some("출처가 바뀌었어요"),
+            Self::InterpretationImproved => Some("해석을 다듬었어요"),
+            Self::RuleChanged => Some("규칙이 바뀌었어요"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 주장 출처 구분: 주장을 만든 경로. fixture는 시험 전용이며 accepted가 될 수 없고 서비스 릴리스에 들어갈 수 없다
@@ -1680,6 +2270,19 @@ impl AssertionOrigin {
             AssertionOrigin::Pipeline => "pipeline",
             AssertionOrigin::Fixture => "fixture",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Pipeline => Some("수집한 자료 기반"),
+            Self::Fixture => Some("시험용 자료"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -1724,6 +2327,22 @@ impl FactSource {
             FactSource::ReleaseDerived => "release_derived",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::PdfExtracted => Some("올리신 문서에서 읽었어요"),
+            Self::UserStated => Some("직접 입력하셨어요"),
+            Self::UserConfirmedExtract => Some("문서에서 읽고 직접 확인하셨어요"),
+            Self::Assumed => Some("가정한 값이에요"),
+            Self::ReleaseDerived => Some("공개된 상품 정보에서 가져왔어요"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 실제·가정 구분: 그 값이 실제 계약의 사실인가, 가정인가
@@ -1751,6 +2370,19 @@ impl FactKind {
             FactKind::Actual => "actual",
             FactKind::Hypothetical => "hypothetical",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Actual => Some("실제 가입 내용"),
+            Self::Hypothetical => Some("가정한 내용"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -1789,6 +2421,21 @@ impl ConfirmParty {
             ConfirmParty::Document => "document",
             ConfirmParty::None => "none",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::User => Some("직접 확인하셨어요"),
+            Self::Insurer => Some("보험사가 확인했어요"),
+            Self::Document => Some("문서로 확인했어요"),
+            Self::None => Some("아직 확인되지 않았어요"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -1848,6 +2495,25 @@ impl ErrorClass {
             ErrorClass::Timeout => "timeout",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Validation => Some("입력을 확인해 주세요"),
+            Self::Auth => Some("요청하신 내용을 열 수 없어요"),
+            Self::NotFound => Some("찾을 수 없어요"),
+            Self::StateConflict => Some("지금 상태와 맞지 않아요"),
+            Self::Limit => Some("잠시 후 다시 시도해 주세요"),
+            Self::Unsupported => Some("아직 지원하지 않아요"),
+            Self::Internal => Some("일시적인 문제가 생겼어요"),
+            Self::Timeout => Some("응답이 늦어지고 있어요"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 사용 제한: 오류에 따라 결과를 어디까지 쓸 수 있는가
@@ -1881,6 +2547,20 @@ impl UsageRestriction {
             UsageRestriction::CircuitBreaker => "circuit_breaker",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::None => Some("제한 없음"),
+            Self::Hold => Some("새 계산에는 쓰지 않아요"),
+            Self::CircuitBreaker => Some("일시적으로 새 계산을 멈췄어요"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 지식 최신성: 결과가 기댄 지식(릴리스·주장·기준 판)이 지금도 유효한가. 입력 최신성(freshness)과 다른 축이다
@@ -1913,6 +2593,20 @@ impl KnowledgeFreshness {
             KnowledgeFreshness::Stale => "stale",
             KnowledgeFreshness::Withdrawn => "withdrawn",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Fresh => Some("최신 정보예요"),
+            Self::Stale => Some("기준이 된 정보가 정정됐어요"),
+            Self::Withdrawn => Some("철회된 정보예요"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -1951,6 +2645,21 @@ impl NeedVerdict {
             NeedVerdict::Hold => "hold",
             NeedVerdict::ReviewAdd => "review_add",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::Keep => Some("유지"),
+            Self::NoAdd => Some("추가 가입 없음"),
+            Self::Hold => Some("판단 보류"),
+            Self::ReviewAdd => Some("추가 검토"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -1994,6 +2703,22 @@ impl CriterionSourceKind {
             CriterionSourceKind::TermsFact => "terms_fact",
             CriterionSourceKind::Editorial => "editorial",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        match self {
+            Self::PublicStatistic => Some("공공 통계"),
+            Self::Statute => Some("법령"),
+            Self::RegulatorNotice => Some("감독 고시"),
+            Self::TermsFact => Some("약관 내용"),
+            Self::Editorial => Some("온전의 판단"),
+        }
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -2043,6 +2768,16 @@ impl InputType {
             InputType::ClassMoneyList => "class_money_list",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 규칙 금액 반올림: multiply_rate·pro_rata·divide_count의 명시적 반올림 방식. 양의 정수 원 단위 unit과 함께 필수다. rule-0.1과 rule-0.2에서 같은 값을 쓴다
@@ -2086,6 +2821,16 @@ impl Rounding {
             Rounding::Unspecified => "unspecified",
         }
     }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
+    }
 }
 
 /// 규칙 날짜 기간 단위: date_add의 달력 기간 단위. rule-0.1과 rule-0.2에서 같은 값을 쓴다. calendar_month·calendar_year는 month_end=clamp가 필수이고 day에는 month_end를 허용하지 않는다
@@ -2118,6 +2863,16 @@ impl DurationUnit {
             DurationUnit::CalendarMonth => "calendar_month",
             DurationUnit::CalendarYear => "calendar_year",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 
@@ -2276,6 +3031,16 @@ impl RuleOperator {
             RuleOperator::AnniversaryBand => "anniversary_band",
             RuleOperator::MaxOver => "max_over",
         }
+    }
+
+    /// Canonical Korean screen text. None means no direct display.
+    pub const fn screen_ko(self) -> Option<&'static str> {
+        None
+    }
+
+    /// Historical spellings for reference. Wire decoding accepts canonical codes only.
+    pub const fn deprecated_aliases(self) -> &'static [&'static str] {
+        &[]
     }
 }
 

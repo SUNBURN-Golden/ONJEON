@@ -1,7 +1,7 @@
 """Rust emitter: vocabulary enums and wire structs (serde)."""
 from __future__ import annotations
 
-from schema_model import Model, Type, pascal
+from schema_model import Axis, Model, Type, pascal
 
 KEYWORDS = {
     "as", "break", "const", "continue", "crate", "else", "enum", "extern", "false", "fn", "for", "if",
@@ -59,6 +59,31 @@ def field_ident(name: str) -> tuple[str, bool]:
     return (name + "_", True) if name in KEYWORDS else (name, False)
 
 
+def rust_string(value: str) -> str:
+    escapes = {'"': r'\"', "\\": r"\\"}
+    body = "".join(
+        f"\\u{{{ord(char):x}}}" if ord(char) < 32 or ord(char) == 127 else escapes.get(char, char)
+        for char in value
+    )
+    return f'"{body}"'
+
+
+def emit_metadata_lookup(axis: Axis, field: str, signature: str, describe: str, render, default: str) -> str:
+    out = [f"\n    /// {describe}\n    pub const fn {signature} {{\n"]
+    cases = [v for v in axis.values if v.get(field)]
+    if cases:
+        out.append("        match self {\n")
+        for v in cases:
+            out.append(f"            Self::{variant(v['code'])} => {render(v[field])},\n")
+        if len(cases) < len(axis.values):
+            out.append(f"            _ => {default},\n")
+        out.append("        }\n")
+    else:
+        out.append(f"        {default}\n")
+    out.append("    }\n")
+    return "".join(out)
+
+
 def emit_vocabulary(model: Model) -> str:
     out = [HEADER, "use serde::{Deserialize, Serialize};\n",
            f'/// Version of packages/schemas/vocabulary.json these enums were generated from.\npub const VOCABULARY_VERSION: &str = "{model.vocabulary_version}";\n']
@@ -84,6 +109,22 @@ def emit_vocabulary(model: Model) -> str:
         for v in axis.values:
             out.append(f'            {name}::{variant(v["code"])} => "{v["code"]}",\n')
         out.append("        }\n    }\n")
+        out.append(emit_metadata_lookup(
+            axis, "screen_ko", "screen_ko(self) -> Option<&'static str>",
+            "Canonical Korean screen text. None means no direct display.",
+            lambda label: f"Some({rust_string(label)})", "None",
+        ))
+        out.append(emit_metadata_lookup(
+            axis, "deprecated_aliases", "deprecated_aliases(self) -> &'static [&'static str]",
+            "Historical spellings for reference. Wire decoding accepts canonical codes only.",
+            lambda aliases: "&[" + ", ".join(map(rust_string, aliases)) + "]", "&[]",
+        ))
+        if axis.has_maps_to:
+            out.append(emit_metadata_lookup(
+                axis, "maps_to", "maps_to(self) -> Option<AcquisitionStatus>",
+                "Vocabulary mapping to acquisition status. Archival requires separate evidence.",
+                lambda code: f"Some(AcquisitionStatus::{variant(code)})", "None",
+            ))
         if axis.id == "diff_type":
             groups = {v["code"] for v in model.axes["diff_group"].values}
             out.append("\n    /// The group declared in the vocabulary for this change.\n")

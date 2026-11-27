@@ -185,6 +185,40 @@ class Generated(unittest.TestCase):
     def test_generated_files_are_up_to_date(self):
         self.assertEqual(gen.stale(gen.expected_outputs()), [])
 
+    def test_metadata_changes_update_every_client_without_changing_wire_schemas(self):
+        original = gen.expected_outputs()
+        vocabulary_outputs = {
+            gen.RUST_DIR / "vocabulary.rs",
+            gen.TS_DIR / "vocabulary.ts",
+            gen.DART_DIR / "lib/src/vocabulary.dart",
+        }
+        changes = (
+            ("display_status", "input_missing", "screen_ko", "입력을 확인해 주세요"),
+            ("display_status", "input_missing", "deprecated_aliases", ["legacy_input"]),
+            ("host_access", "not_checked", "maps_to", "failed"),
+            ("host_access", "not_checked", "maps_to", None),
+            ("diff_type", "gain_coverage", "group", "reduced"),
+        )
+        with tempfile.TemporaryDirectory() as scratch:
+            path = Path(scratch) / "vocabulary.json"
+            for axis_id, code, field, replacement in changes:
+                with self.subTest(axis=axis_id, code=code, field=field, replacement=replacement):
+                    vocabulary = sm.load_vocab()
+                    axis = next(axis for axis in vocabulary["axes"] if axis["id"] == axis_id)
+                    value = next(value for value in axis["values"] if value["code"] == code)
+                    if replacement is None:
+                        del value[field]
+                    else:
+                        value[field] = replacement
+                    path.write_text(json.dumps(vocabulary, ensure_ascii=False), encoding="utf-8")
+
+                    updated = gen.expected_outputs(vocab_path=path)
+                    self.assertEqual(updated.keys(), original.keys())
+                    self.assertEqual(
+                        {output for output in updated if updated[output] != original[output]},
+                        vocabulary_outputs,
+                    )
+
     def test_all_three_languages_carry_every_axis_and_type(self):
         model = sm.build_model()
         rust = (sm.SCHEMAS_DIR / "src/generated/vocabulary.rs").read_text(encoding="utf-8")
@@ -205,8 +239,8 @@ class Generated(unittest.TestCase):
 
     def test_dart_reserved_words_and_unknown_values(self):
         dart = (gen.DART_DIR / "lib/src/vocabulary.dart").read_text(encoding="utf-8")
-        self.assertIn("trueValue('true')", dart)
-        self.assertIn("falseValue('false')", dart)
+        self.assertIn("trueValue('true',", dart)
+        self.assertIn("falseValue('false',", dart)
         self.assertIn("throw FormatException('unknown tri: $code')", dart)
         ts = (gen.TS_DIR / "vocabulary.ts").read_text(encoding="utf-8")
         self.assertIn("throw new Error(`unknown tri:", ts)

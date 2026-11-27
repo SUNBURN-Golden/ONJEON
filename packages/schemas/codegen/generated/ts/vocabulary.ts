@@ -4,6 +4,13 @@
 /** Version of packages/schemas/vocabulary.json these unions were generated from. */
 export const VOCABULARY_VERSION = "1.9.0";
 
+export interface VocabularyValueMetadata {
+  /** Canonical Korean screen text. Null means no direct display. */
+  readonly screenKo: string | null;
+  /** Historical spellings for reference. Wire decoding accepts canonical codes only. */
+  readonly deprecatedAliases: readonly string[];
+}
+
 /**
  * 수집 상태: 분모의 한 항목을 확보했는가, 못 했다면 왜인가
  *
@@ -11,6 +18,14 @@ export const VOCABULARY_VERSION = "1.9.0";
  */
 export const AcquisitionStatus = ["unqueried", "blocked", "failed", "not_found", "not_disclosed", "archived"] as const;
 export type AcquisitionStatus = (typeof AcquisitionStatus)[number];
+export const AcquisitionStatusMetadata = {
+  "unqueried": { screenKo: "아직 확인하지 않았어요", deprecatedAliases: [] },
+  "blocked": { screenKo: "접근이 막혀 있어요", deprecatedAliases: [] },
+  "failed": { screenKo: "가져오지 못했어요", deprecatedAliases: [] },
+  "not_found": { screenKo: "찾지 못했어요", deprecatedAliases: [] },
+  "not_disclosed": { screenKo: "공개되지 않았어요", deprecatedAliases: [] },
+  "archived": { screenKo: "원문 확보", deprecatedAliases: ["fetched", "integrity_checked"] },
+} as const satisfies Readonly<Record<AcquisitionStatus, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseAcquisitionStatus(value: unknown): AcquisitionStatus {
   if (typeof value === "string" && (AcquisitionStatus as readonly string[]).includes(value)) {
@@ -26,6 +41,16 @@ export function parseAcquisitionStatus(value: unknown): AcquisitionStatus {
  */
 export const ArchiveReproduction = ["reproduced", "hash_mismatch", "quote_mismatch", "derived_record_invalid", "derived_mismatch", "derived_unverified", "missing", "ocr_not_rerun"] as const;
 export type ArchiveReproduction = (typeof ArchiveReproduction)[number];
+export const ArchiveReproductionMetadata = {
+  "reproduced": { screenKo: null, deprecatedAliases: [] },
+  "hash_mismatch": { screenKo: null, deprecatedAliases: [] },
+  "quote_mismatch": { screenKo: null, deprecatedAliases: [] },
+  "derived_record_invalid": { screenKo: null, deprecatedAliases: [] },
+  "derived_mismatch": { screenKo: null, deprecatedAliases: [] },
+  "derived_unverified": { screenKo: null, deprecatedAliases: [] },
+  "missing": { screenKo: null, deprecatedAliases: [] },
+  "ocr_not_rerun": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<ArchiveReproduction, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseArchiveReproduction(value: unknown): ArchiveReproduction {
   if (typeof value === "string" && (ArchiveReproduction as readonly string[]).includes(value)) {
@@ -41,6 +66,12 @@ export function parseArchiveReproduction(value: unknown): ArchiveReproduction {
  */
 export const SourceChange = ["unchanged_bytes", "bytes_changed_content_same", "changed", "fetch_failed"] as const;
 export type SourceChange = (typeof SourceChange)[number];
+export const SourceChangeMetadata = {
+  "unchanged_bytes": { screenKo: null, deprecatedAliases: [] },
+  "bytes_changed_content_same": { screenKo: null, deprecatedAliases: [] },
+  "changed": { screenKo: null, deprecatedAliases: [] },
+  "fetch_failed": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<SourceChange, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseSourceChange(value: unknown): SourceChange {
   if (typeof value === "string" && (SourceChange as readonly string[]).includes(value)) {
@@ -56,6 +87,11 @@ export function parseSourceChange(value: unknown): SourceChange {
  */
 export const EntityEvidence = ["two_or_more_sources", "one_source", "seed"] as const;
 export type EntityEvidence = (typeof EntityEvidence)[number];
+export const EntityEvidenceMetadata = {
+  "two_or_more_sources": { screenKo: null, deprecatedAliases: ["verified_2_sources"] },
+  "one_source": { screenKo: null, deprecatedAliases: ["verified_1_source"] },
+  "seed": { screenKo: null, deprecatedAliases: ["unverified_seed"] },
+} as const satisfies Readonly<Record<EntityEvidence, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseEntityEvidence(value: unknown): EntityEvidence {
   if (typeof value === "string" && (EntityEvidence as readonly string[]).includes(value)) {
@@ -71,6 +107,22 @@ export function parseEntityEvidence(value: unknown): EntityEvidence {
  */
 export const HostAccess = ["not_checked", "reachable", "js_shell", "geo_blocked", "service_outage", "origin_denied", "rate_limited", "connection_reset", "tls_error", "timeout", "empty_reply", "redirect_loop", "proxy_error"] as const;
 export type HostAccess = (typeof HostAccess)[number];
+/** Vocabulary mapping to acquisition status. Archival requires separate evidence. */
+export const HostAccessMetadata = {
+  "not_checked": { screenKo: null, deprecatedAliases: [], mapsTo: "unqueried" },
+  "reachable": { screenKo: null, deprecatedAliases: [], mapsTo: "archived" },
+  "js_shell": { screenKo: null, deprecatedAliases: ["200_js_shell"], mapsTo: "failed" },
+  "geo_blocked": { screenKo: null, deprecatedAliases: ["200_geoblock_notice"], mapsTo: "blocked" },
+  "service_outage": { screenKo: null, deprecatedAliases: ["200_service_outage_notice"], mapsTo: "failed" },
+  "origin_denied": { screenKo: null, deprecatedAliases: ["403_origin"], mapsTo: "blocked" },
+  "rate_limited": { screenKo: null, deprecatedAliases: ["429_rate_limited"], mapsTo: "blocked" },
+  "connection_reset": { screenKo: null, deprecatedAliases: [], mapsTo: "failed" },
+  "tls_error": { screenKo: null, deprecatedAliases: ["ssl_legacy_renegotiation", "tls_handshake_fail"], mapsTo: "failed" },
+  "timeout": { screenKo: null, deprecatedAliases: [], mapsTo: "failed" },
+  "empty_reply": { screenKo: null, deprecatedAliases: [], mapsTo: "failed" },
+  "redirect_loop": { screenKo: null, deprecatedAliases: [], mapsTo: "failed" },
+  "proxy_error": { screenKo: null, deprecatedAliases: ["proxy_502"], mapsTo: "failed" },
+} as const satisfies Readonly<Record<HostAccess, VocabularyValueMetadata & { readonly mapsTo: AcquisitionStatus | null }>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseHostAccess(value: unknown): HostAccess {
   if (typeof value === "string" && (HostAccess as readonly string[]).includes(value)) {
@@ -86,6 +138,16 @@ export function parseHostAccess(value: unknown): HostAccess {
  */
 export const PipelineStage = ["discovered", "archived", "parsed", "labeled", "validated", "compiled", "candidate", "released"] as const;
 export type PipelineStage = (typeof PipelineStage)[number];
+export const PipelineStageMetadata = {
+  "discovered": { screenKo: null, deprecatedAliases: [] },
+  "archived": { screenKo: null, deprecatedAliases: ["fetched", "integrity_checked"] },
+  "parsed": { screenKo: null, deprecatedAliases: [] },
+  "labeled": { screenKo: null, deprecatedAliases: ["references_resolved"] },
+  "validated": { screenKo: null, deprecatedAliases: [] },
+  "compiled": { screenKo: null, deprecatedAliases: [] },
+  "candidate": { screenKo: null, deprecatedAliases: [] },
+  "released": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<PipelineStage, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parsePipelineStage(value: unknown): PipelineStage {
   if (typeof value === "string" && (PipelineStage as readonly string[]).includes(value)) {
@@ -101,6 +163,11 @@ export function parsePipelineStage(value: unknown): PipelineStage {
  */
 export const PipelineBlock = ["none", "hold", "failed"] as const;
 export type PipelineBlock = (typeof PipelineBlock)[number];
+export const PipelineBlockMetadata = {
+  "none": { screenKo: null, deprecatedAliases: [] },
+  "hold": { screenKo: "판단 보류", deprecatedAliases: ["quarantined"] },
+  "failed": { screenKo: "처리 실패", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<PipelineBlock, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parsePipelineBlock(value: unknown): PipelineBlock {
   if (typeof value === "string" && (PipelineBlock as readonly string[]).includes(value)) {
@@ -116,6 +183,15 @@ export function parsePipelineBlock(value: unknown): PipelineBlock {
  */
 export const ValueState = ["observed", "derived", "not_found", "unreadable", "conflicting", "not_applicable", "not_disclosed"] as const;
 export type ValueState = (typeof ValueState)[number];
+export const ValueStateMetadata = {
+  "observed": { screenKo: null, deprecatedAliases: ["verified"] },
+  "derived": { screenKo: null, deprecatedAliases: [] },
+  "not_found": { screenKo: "자료 필요", deprecatedAliases: ["unresolved", "missing"] },
+  "unreadable": { screenKo: "읽지 못했어요", deprecatedAliases: [] },
+  "conflicting": { screenKo: "근거가 서로 달라요", deprecatedAliases: ["conflict"] },
+  "not_applicable": { screenKo: "해당 없음", deprecatedAliases: [] },
+  "not_disclosed": { screenKo: "공개되지 않았어요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<ValueState, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseValueState(value: unknown): ValueState {
   if (typeof value === "string" && (ValueState as readonly string[]).includes(value)) {
@@ -131,6 +207,12 @@ export function parseValueState(value: unknown): ValueState {
  */
 export const ReviewStatus = ["pending", "accepted", "hold", "rejected"] as const;
 export type ReviewStatus = (typeof ReviewStatus)[number];
+export const ReviewStatusMetadata = {
+  "pending": { screenKo: "확인 중", deprecatedAliases: ["pending_review"] },
+  "accepted": { screenKo: "AI 검증", deprecatedAliases: ["verified"] },
+  "hold": { screenKo: "판단 보류", deprecatedAliases: ["conflict", "quarantined"] },
+  "rejected": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<ReviewStatus, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseReviewStatus(value: unknown): ReviewStatus {
   if (typeof value === "string" && (ReviewStatus as readonly string[]).includes(value)) {
@@ -146,6 +228,10 @@ export function parseReviewStatus(value: unknown): ReviewStatus {
  */
 export const ClausePathBasis = ["printed", "inferred"] as const;
 export type ClausePathBasis = (typeof ClausePathBasis)[number];
+export const ClausePathBasisMetadata = {
+  "printed": { screenKo: null, deprecatedAliases: [] },
+  "inferred": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<ClausePathBasis, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseClausePathBasis(value: unknown): ClausePathBasis {
   if (typeof value === "string" && (ClausePathBasis as readonly string[]).includes(value)) {
@@ -161,6 +247,18 @@ export function parseClausePathBasis(value: unknown): ClausePathBasis {
  */
 export const RelationType = ["attached_to", "mandatory_with", "terminates_with", "renewal_bounded_by", "excludes", "shares_limit", "routes_to", "parameter_from", "defined_by", "same_benefit_as"] as const;
 export type RelationType = (typeof RelationType)[number];
+export const RelationTypeMetadata = {
+  "attached_to": { screenKo: null, deprecatedAliases: [] },
+  "mandatory_with": { screenKo: null, deprecatedAliases: [] },
+  "terminates_with": { screenKo: null, deprecatedAliases: [] },
+  "renewal_bounded_by": { screenKo: null, deprecatedAliases: [] },
+  "excludes": { screenKo: null, deprecatedAliases: [] },
+  "shares_limit": { screenKo: null, deprecatedAliases: [] },
+  "routes_to": { screenKo: null, deprecatedAliases: [] },
+  "parameter_from": { screenKo: null, deprecatedAliases: [] },
+  "defined_by": { screenKo: null, deprecatedAliases: [] },
+  "same_benefit_as": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<RelationType, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseRelationType(value: unknown): RelationType {
   if (typeof value === "string" && (RelationType as readonly string[]).includes(value)) {
@@ -176,6 +274,15 @@ export function parseRelationType(value: unknown): RelationType {
  */
 export const AmountForm = ["fixed_krw", "rate_of_insured_amount", "example_amount", "per_unit_krw", "indemnity", "external_parameter", "max_of"] as const;
 export type AmountForm = (typeof AmountForm)[number];
+export const AmountFormMetadata = {
+  "fixed_krw": { screenKo: null, deprecatedAliases: [] },
+  "rate_of_insured_amount": { screenKo: null, deprecatedAliases: [] },
+  "example_amount": { screenKo: null, deprecatedAliases: [] },
+  "per_unit_krw": { screenKo: null, deprecatedAliases: [] },
+  "indemnity": { screenKo: null, deprecatedAliases: [] },
+  "external_parameter": { screenKo: null, deprecatedAliases: [] },
+  "max_of": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<AmountForm, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseAmountForm(value: unknown): AmountForm {
   if (typeof value === "string" && (AmountForm as readonly string[]).includes(value)) {
@@ -191,6 +298,16 @@ export function parseAmountForm(value: unknown): AmountForm {
  */
 export const HoldReason = ["agent_disagreement", "counterexample", "quote_mismatch", "code_check_failed", "reference_unresolved", "conflicting_sources", "circuit_breaker", "extraction_uncertain"] as const;
 export type HoldReason = (typeof HoldReason)[number];
+export const HoldReasonMetadata = {
+  "agent_disagreement": { screenKo: "판단 보류", deprecatedAliases: [] },
+  "counterexample": { screenKo: "판단 보류", deprecatedAliases: [] },
+  "quote_mismatch": { screenKo: "판단 보류", deprecatedAliases: [] },
+  "code_check_failed": { screenKo: "판단 보류", deprecatedAliases: [] },
+  "reference_unresolved": { screenKo: "판단 보류", deprecatedAliases: [] },
+  "conflicting_sources": { screenKo: "근거가 서로 달라요", deprecatedAliases: [] },
+  "circuit_breaker": { screenKo: "판단 보류", deprecatedAliases: [] },
+  "extraction_uncertain": { screenKo: "판단 보류", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<HoldReason, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseHoldReason(value: unknown): HoldReason {
   if (typeof value === "string" && (HoldReason as readonly string[]).includes(value)) {
@@ -206,6 +323,14 @@ export function parseHoldReason(value: unknown): HoldReason {
  */
 export const Capability = ["search", "explain", "compare_conditions", "compare_price", "simulate", "quote"] as const;
 export type Capability = (typeof Capability)[number];
+export const CapabilityMetadata = {
+  "search": { screenKo: "원문 보기", deprecatedAliases: ["indexed", "indexed_only"] },
+  "explain": { screenKo: null, deprecatedAliases: ["explained", "explanation_enabled"] },
+  "compare_conditions": { screenKo: "조건 비교 가능", deprecatedAliases: ["comparable", "comparison_enabled"] },
+  "compare_price": { screenKo: "가격 비교 가능", deprecatedAliases: [] },
+  "simulate": { screenKo: "가정 계산 가능", deprecatedAliases: ["simulatable", "simulation_enabled", "scenario_ready"] },
+  "quote": { screenKo: null, deprecatedAliases: ["quotable", "quote_verified"] },
+} as const satisfies Readonly<Record<Capability, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseCapability(value: unknown): Capability {
   if (typeof value === "string" && (Capability as readonly string[]).includes(value)) {
@@ -221,6 +346,10 @@ export function parseCapability(value: unknown): Capability {
  */
 export const CapabilityState = ["enabled", "blocked"] as const;
 export type CapabilityState = (typeof CapabilityState)[number];
+export const CapabilityStateMetadata = {
+  "enabled": { screenKo: null, deprecatedAliases: [] },
+  "blocked": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<CapabilityState, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseCapabilityState(value: unknown): CapabilityState {
   if (typeof value === "string" && (CapabilityState as readonly string[]).includes(value)) {
@@ -236,6 +365,14 @@ export function parseCapabilityState(value: unknown): CapabilityState {
  */
 export const DisplayStatus = ["confirmed", "input_missing", "data_missing", "under_review", "hold", "not_applicable"] as const;
 export type DisplayStatus = (typeof DisplayStatus)[number];
+export const DisplayStatusMetadata = {
+  "confirmed": { screenKo: "조건 확인됨", deprecatedAliases: [] },
+  "input_missing": { screenKo: "입력 필요", deprecatedAliases: ["confirm_input"] },
+  "data_missing": { screenKo: "자료 필요", deprecatedAliases: ["unverified"] },
+  "under_review": { screenKo: "확인 중", deprecatedAliases: [] },
+  "hold": { screenKo: "판단 보류", deprecatedAliases: [] },
+  "not_applicable": { screenKo: "해당 없음", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<DisplayStatus, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseDisplayStatus(value: unknown): DisplayStatus {
   if (typeof value === "string" && (DisplayStatus as readonly string[]).includes(value)) {
@@ -251,6 +388,12 @@ export function parseDisplayStatus(value: unknown): DisplayStatus {
  */
 export const PlanAction = ["keep", "add", "remove", "modify"] as const;
 export type PlanAction = (typeof PlanAction)[number];
+export const PlanActionMetadata = {
+  "keep": { screenKo: "유지", deprecatedAliases: [] },
+  "add": { screenKo: "추가 검토", deprecatedAliases: ["add_review", "review_add"] },
+  "remove": { screenKo: "제외 검토", deprecatedAliases: ["review_reduce"] },
+  "modify": { screenKo: "변경 검토", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<PlanAction, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parsePlanAction(value: unknown): PlanAction {
   if (typeof value === "string" && (PlanAction as readonly string[]).includes(value)) {
@@ -266,6 +409,10 @@ export function parsePlanAction(value: unknown): PlanAction {
  */
 export const RowLabel = ["needs_condition", "from_plan_action"] as const;
 export type RowLabel = (typeof RowLabel)[number];
+export const RowLabelMetadata = {
+  "needs_condition": { screenKo: "조건 확인", deprecatedAliases: [] },
+  "from_plan_action": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<RowLabel, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseRowLabel(value: unknown): RowLabel {
   if (typeof value === "string" && (RowLabel as readonly string[]).includes(value)) {
@@ -281,6 +428,11 @@ export function parseRowLabel(value: unknown): RowLabel {
  */
 export const Tri = ["true", "false", "unknown"] as const;
 export type Tri = (typeof Tri)[number];
+export const TriMetadata = {
+  "true": { screenKo: null, deprecatedAliases: [] },
+  "false": { screenKo: null, deprecatedAliases: [] },
+  "unknown": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<Tri, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseTri(value: unknown): Tri {
   if (typeof value === "string" && (Tri as readonly string[]).includes(value)) {
@@ -296,6 +448,11 @@ export function parseTri(value: unknown): Tri {
  */
 export const Payout = ["not_payable", "payable", "undetermined"] as const;
 export type Payout = (typeof Payout)[number];
+export const PayoutMetadata = {
+  "not_payable": { screenKo: "이 조건에서는 지급 대상이 아니에요", deprecatedAliases: [] },
+  "payable": { screenKo: "이 조건에서 지급 대상이에요", deprecatedAliases: [] },
+  "undetermined": { screenKo: "판단에 필요한 정보가 부족해요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<Payout, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parsePayout(value: unknown): Payout {
   if (typeof value === "string" && (Payout as readonly string[]).includes(value)) {
@@ -311,6 +468,11 @@ export function parsePayout(value: unknown): Payout {
  */
 export const AmountKind = ["exact", "range", "unknown"] as const;
 export type AmountKind = (typeof AmountKind)[number];
+export const AmountKindMetadata = {
+  "exact": { screenKo: null, deprecatedAliases: [] },
+  "range": { screenKo: null, deprecatedAliases: [] },
+  "unknown": { screenKo: "금액 확인 필요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<AmountKind, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseAmountKind(value: unknown): AmountKind {
   if (typeof value === "string" && (AmountKind as readonly string[]).includes(value)) {
@@ -326,6 +488,9 @@ export function parseAmountKind(value: unknown): AmountKind {
  */
 export const CalculationIssueCode = ["zero_denominator"] as const;
 export type CalculationIssueCode = (typeof CalculationIssueCode)[number];
+export const CalculationIssueCodeMetadata = {
+  "zero_denominator": { screenKo: "나눌 기준이 0이라 금액을 계산할 수 없어요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<CalculationIssueCode, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseCalculationIssueCode(value: unknown): CalculationIssueCode {
   if (typeof value === "string" && (CalculationIssueCode as readonly string[]).includes(value)) {
@@ -341,6 +506,12 @@ export function parseCalculationIssueCode(value: unknown): CalculationIssueCode 
  */
 export const PriceBasis = ["illustrative", "table_derived", "contract_observed", "quoted"] as const;
 export type PriceBasis = (typeof PriceBasis)[number];
+export const PriceBasisMetadata = {
+  "illustrative": { screenKo: "공시 예시", deprecatedAliases: ["public_disclosed"] },
+  "table_derived": { screenKo: "요율표 재현", deprecatedAliases: [] },
+  "contract_observed": { screenKo: "내 계약 납입액", deprecatedAliases: ["contract_actual"] },
+  "quoted": { screenKo: "내 견적", deprecatedAliases: ["personal_quote"] },
+} as const satisfies Readonly<Record<PriceBasis, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parsePriceBasis(value: unknown): PriceBasis {
   if (typeof value === "string" && (PriceBasis as readonly string[]).includes(value)) {
@@ -356,6 +527,18 @@ export function parsePriceBasis(value: unknown): PriceBasis {
  */
 export const PriceUnavailableReason = ["unqueried", "blocked", "failed", "not_found", "not_disclosed", "unreadable", "conflicting", "under_review", "hold", "condition_mismatch"] as const;
 export type PriceUnavailableReason = (typeof PriceUnavailableReason)[number];
+export const PriceUnavailableReasonMetadata = {
+  "unqueried": { screenKo: "가격 미확인 · 아직 확인 전", deprecatedAliases: [] },
+  "blocked": { screenKo: "가격 미확인 · 접근 막힘", deprecatedAliases: [] },
+  "failed": { screenKo: "가격 미확인 · 가져오지 못함", deprecatedAliases: [] },
+  "not_found": { screenKo: "가격 미확인 · 찾지 못함", deprecatedAliases: [] },
+  "not_disclosed": { screenKo: "가격 미확인 · 공개되지 않음", deprecatedAliases: [] },
+  "unreadable": { screenKo: "가격 미확인 · 읽지 못함", deprecatedAliases: [] },
+  "conflicting": { screenKo: "가격 미확인 · 근거 충돌", deprecatedAliases: ["conflict"] },
+  "under_review": { screenKo: "가격 미확인 · 확인 중", deprecatedAliases: ["pending_review"] },
+  "hold": { screenKo: "가격 미확인 · 판단 보류", deprecatedAliases: [] },
+  "condition_mismatch": { screenKo: "가격 미확인 · 조건이 달라요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<PriceUnavailableReason, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parsePriceUnavailableReason(value: unknown): PriceUnavailableReason {
   if (typeof value === "string" && (PriceUnavailableReason as readonly string[]).includes(value)) {
@@ -371,6 +554,10 @@ export function parsePriceUnavailableReason(value: unknown): PriceUnavailableRea
  */
 export const Freshness = ["fresh", "stale"] as const;
 export type Freshness = (typeof Freshness)[number];
+export const FreshnessMetadata = {
+  "fresh": { screenKo: null, deprecatedAliases: [] },
+  "stale": { screenKo: "확인일이 오래됐어요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<Freshness, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseFreshness(value: unknown): Freshness {
   if (typeof value === "string" && (Freshness as readonly string[]).includes(value)) {
@@ -386,6 +573,13 @@ export function parseFreshness(value: unknown): Freshness {
  */
 export const PolicyHoldingsStatus = ["confirmed", "pending_confirmation", "none_declared", "unknown", "skipped"] as const;
 export type PolicyHoldingsStatus = (typeof PolicyHoldingsStatus)[number];
+export const PolicyHoldingsStatusMetadata = {
+  "confirmed": { screenKo: "확인된 가입내역", deprecatedAliases: ["uploaded"] },
+  "pending_confirmation": { screenKo: "확인 전", deprecatedAliases: ["unconfirmed"] },
+  "none_declared": { screenKo: "보험 없음(본인 답변)", deprecatedAliases: ["none"] },
+  "unknown": { screenKo: "아직 모름", deprecatedAliases: [] },
+  "skipped": { screenKo: "아직 안 올렸어요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<PolicyHoldingsStatus, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parsePolicyHoldingsStatus(value: unknown): PolicyHoldingsStatus {
   if (typeof value === "string" && (PolicyHoldingsStatus as readonly string[]).includes(value)) {
@@ -401,6 +595,11 @@ export function parsePolicyHoldingsStatus(value: unknown): PolicyHoldingsStatus 
  */
 export const ContractVersionMatch = ["matched", "ambiguous", "unmatched"] as const;
 export type ContractVersionMatch = (typeof ContractVersionMatch)[number];
+export const ContractVersionMatchMetadata = {
+  "matched": { screenKo: null, deprecatedAliases: [] },
+  "ambiguous": { screenKo: "상품 버전 확인 필요", deprecatedAliases: [] },
+  "unmatched": { screenKo: "아직 수집하지 않은 상품이에요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<ContractVersionMatch, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseContractVersionMatch(value: unknown): ContractVersionMatch {
   if (typeof value === "string" && (ContractVersionMatch as readonly string[]).includes(value)) {
@@ -416,6 +615,12 @@ export function parseContractVersionMatch(value: unknown): ContractVersionMatch 
  */
 export const Sensitivity = ["public_product", "private_policy", "private_health", "genetic_private"] as const;
 export type Sensitivity = (typeof Sensitivity)[number];
+export const SensitivityMetadata = {
+  "public_product": { screenKo: null, deprecatedAliases: [] },
+  "private_policy": { screenKo: null, deprecatedAliases: [] },
+  "private_health": { screenKo: null, deprecatedAliases: [] },
+  "genetic_private": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<Sensitivity, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseSensitivity(value: unknown): Sensitivity {
   if (typeof value === "string" && (Sensitivity as readonly string[]).includes(value)) {
@@ -431,6 +636,11 @@ export function parseSensitivity(value: unknown): Sensitivity {
  */
 export const Criticality = ["c0", "c1", "c2"] as const;
 export type Criticality = (typeof Criticality)[number];
+export const CriticalityMetadata = {
+  "c0": { screenKo: null, deprecatedAliases: ["C0"] },
+  "c1": { screenKo: null, deprecatedAliases: ["C1"] },
+  "c2": { screenKo: null, deprecatedAliases: ["C2"] },
+} as const satisfies Readonly<Record<Criticality, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseCriticality(value: unknown): Criticality {
   if (typeof value === "string" && (Criticality as readonly string[]).includes(value)) {
@@ -446,6 +656,12 @@ export function parseCriticality(value: unknown): Criticality {
  */
 export const DiffGroup = ["added", "reduced", "unchanged", "cost_and_unknown"] as const;
 export type DiffGroup = (typeof DiffGroup)[number];
+export const DiffGroupMetadata = {
+  "added": { screenKo: "추가되는 것", deprecatedAliases: [] },
+  "reduced": { screenKo: "줄어드는 것", deprecatedAliases: [] },
+  "unchanged": { screenKo: "그대로인 것", deprecatedAliases: [] },
+  "cost_and_unknown": { screenKo: "비용과 미확인", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<DiffGroup, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseDiffGroup(value: unknown): DiffGroup {
   if (typeof value === "string" && (DiffGroup as readonly string[]).includes(value)) {
@@ -461,6 +677,23 @@ export function parseDiffGroup(value: unknown): DiffGroup {
  */
 export const DiffType = ["gain_coverage", "gain_amount", "lose_coverage", "lose_amount", "new_waiting", "new_reduction", "new_exclusion", "term_change", "limit_change", "surrender_loss", "unchanged", "renewal_change", "price_basis_diff", "underwriting_unknown", "unknown"] as const;
 export type DiffType = (typeof DiffType)[number];
+export const DiffTypeMetadata = {
+  "gain_coverage": { screenKo: null, deprecatedAliases: [], group: "added" },
+  "gain_amount": { screenKo: null, deprecatedAliases: [], group: "added" },
+  "lose_coverage": { screenKo: null, deprecatedAliases: [], group: "reduced" },
+  "lose_amount": { screenKo: null, deprecatedAliases: [], group: "reduced" },
+  "new_waiting": { screenKo: null, deprecatedAliases: [], group: "reduced" },
+  "new_reduction": { screenKo: null, deprecatedAliases: [], group: "reduced" },
+  "new_exclusion": { screenKo: null, deprecatedAliases: [], group: "reduced" },
+  "term_change": { screenKo: null, deprecatedAliases: [], group: "reduced" },
+  "limit_change": { screenKo: null, deprecatedAliases: [], group: "reduced" },
+  "surrender_loss": { screenKo: null, deprecatedAliases: [], group: "reduced" },
+  "unchanged": { screenKo: null, deprecatedAliases: [], group: "unchanged" },
+  "renewal_change": { screenKo: null, deprecatedAliases: [], group: "cost_and_unknown" },
+  "price_basis_diff": { screenKo: null, deprecatedAliases: [], group: "cost_and_unknown" },
+  "underwriting_unknown": { screenKo: null, deprecatedAliases: [], group: "cost_and_unknown" },
+  "unknown": { screenKo: null, deprecatedAliases: [], group: "cost_and_unknown" },
+} as const satisfies Readonly<Record<DiffType, VocabularyValueMetadata & { readonly group: DiffGroup }>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseDiffType(value: unknown): DiffType {
   if (typeof value === "string" && (DiffType as readonly string[]).includes(value)) {
@@ -476,6 +709,19 @@ export function parseDiffType(value: unknown): DiffType {
  */
 export const DocRole = ["terms", "rider_terms", "annex", "business_method", "summary", "price_table", "standard_terms", "disclosure_page", "notice", "disclosure_list", "guide_page"] as const;
 export type DocRole = (typeof DocRole)[number];
+export const DocRoleMetadata = {
+  "terms": { screenKo: "약관", deprecatedAliases: ["official_terms"] },
+  "rider_terms": { screenKo: "특약 약관", deprecatedAliases: [] },
+  "annex": { screenKo: "별표", deprecatedAliases: [] },
+  "business_method": { screenKo: "사업방법서", deprecatedAliases: [] },
+  "summary": { screenKo: "상품요약서", deprecatedAliases: [] },
+  "price_table": { screenKo: "보험료표", deprecatedAliases: ["price_example"] },
+  "standard_terms": { screenKo: "표준약관", deprecatedAliases: [] },
+  "disclosure_page": { screenKo: "공시 페이지", deprecatedAliases: [] },
+  "notice": { screenKo: "공지", deprecatedAliases: [] },
+  "disclosure_list": { screenKo: "공시 목록", deprecatedAliases: [] },
+  "guide_page": { screenKo: "안내 쪽", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<DocRole, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseDocRole(value: unknown): DocRole {
   if (typeof value === "string" && (DocRole as readonly string[]).includes(value)) {
@@ -491,6 +737,11 @@ export function parseDocRole(value: unknown): DocRole {
  */
 export const SaleStatus = ["on_sale", "discontinued", "unknown"] as const;
 export type SaleStatus = (typeof SaleStatus)[number];
+export const SaleStatusMetadata = {
+  "on_sale": { screenKo: "판매 중", deprecatedAliases: [] },
+  "discontinued": { screenKo: "판매 중지", deprecatedAliases: [] },
+  "unknown": { screenKo: "판매 상태 미확인", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<SaleStatus, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseSaleStatus(value: unknown): SaleStatus {
   if (typeof value === "string" && (SaleStatus as readonly string[]).includes(value)) {
@@ -506,6 +757,11 @@ export function parseSaleStatus(value: unknown): SaleStatus {
  */
 export const PublicationState = ["fixture_only", "candidate", "released"] as const;
 export type PublicationState = (typeof PublicationState)[number];
+export const PublicationStateMetadata = {
+  "fixture_only": { screenKo: null, deprecatedAliases: [] },
+  "candidate": { screenKo: null, deprecatedAliases: [] },
+  "released": { screenKo: null, deprecatedAliases: ["published"] },
+} as const satisfies Readonly<Record<PublicationState, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parsePublicationState(value: unknown): PublicationState {
   if (typeof value === "string" && (PublicationState as readonly string[]).includes(value)) {
@@ -521,6 +777,11 @@ export function parsePublicationState(value: unknown): PublicationState {
  */
 export const EvidenceRole = ["basis", "cross_check", "observation"] as const;
 export type EvidenceRole = (typeof EvidenceRole)[number];
+export const EvidenceRoleMetadata = {
+  "basis": { screenKo: "약관 근거", deprecatedAliases: [] },
+  "cross_check": { screenKo: "교차 확인", deprecatedAliases: [] },
+  "observation": { screenKo: "관측 기록", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<EvidenceRole, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseEvidenceRole(value: unknown): EvidenceRole {
   if (typeof value === "string" && (EvidenceRole as readonly string[]).includes(value)) {
@@ -536,6 +797,14 @@ export function parseEvidenceRole(value: unknown): EvidenceRole {
  */
 export const ScopeRelation = ["same_scope", "narrower", "broader", "overlaps", "disjoint", "not_comparable"] as const;
 export type ScopeRelation = (typeof ScopeRelation)[number];
+export const ScopeRelationMetadata = {
+  "same_scope": { screenKo: "같은 범위", deprecatedAliases: [] },
+  "narrower": { screenKo: "더 좁은 범위", deprecatedAliases: [] },
+  "broader": { screenKo: "더 넓은 범위", deprecatedAliases: [] },
+  "overlaps": { screenKo: "일부 겹치는 범위", deprecatedAliases: [] },
+  "disjoint": { screenKo: "겹치지 않는 범위", deprecatedAliases: [] },
+  "not_comparable": { screenKo: "정의를 확인하지 못해 비교할 수 없어요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<ScopeRelation, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseScopeRelation(value: unknown): ScopeRelation {
   if (typeof value === "string" && (ScopeRelation as readonly string[]).includes(value)) {
@@ -551,6 +820,12 @@ export function parseScopeRelation(value: unknown): ScopeRelation {
  */
 export const CorrectionReason = ["error_correction", "source_changed", "interpretation_improved", "rule_changed"] as const;
 export type CorrectionReason = (typeof CorrectionReason)[number];
+export const CorrectionReasonMetadata = {
+  "error_correction": { screenKo: "오류를 바로잡았어요", deprecatedAliases: [] },
+  "source_changed": { screenKo: "출처가 바뀌었어요", deprecatedAliases: [] },
+  "interpretation_improved": { screenKo: "해석을 다듬었어요", deprecatedAliases: [] },
+  "rule_changed": { screenKo: "규칙이 바뀌었어요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<CorrectionReason, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseCorrectionReason(value: unknown): CorrectionReason {
   if (typeof value === "string" && (CorrectionReason as readonly string[]).includes(value)) {
@@ -566,6 +841,10 @@ export function parseCorrectionReason(value: unknown): CorrectionReason {
  */
 export const AssertionOrigin = ["pipeline", "fixture"] as const;
 export type AssertionOrigin = (typeof AssertionOrigin)[number];
+export const AssertionOriginMetadata = {
+  "pipeline": { screenKo: "수집한 자료 기반", deprecatedAliases: [] },
+  "fixture": { screenKo: "시험용 자료", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<AssertionOrigin, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseAssertionOrigin(value: unknown): AssertionOrigin {
   if (typeof value === "string" && (AssertionOrigin as readonly string[]).includes(value)) {
@@ -581,6 +860,13 @@ export function parseAssertionOrigin(value: unknown): AssertionOrigin {
  */
 export const FactSource = ["pdf_extracted", "user_stated", "user_confirmed_extract", "assumed", "release_derived"] as const;
 export type FactSource = (typeof FactSource)[number];
+export const FactSourceMetadata = {
+  "pdf_extracted": { screenKo: "올리신 문서에서 읽었어요", deprecatedAliases: [] },
+  "user_stated": { screenKo: "직접 입력하셨어요", deprecatedAliases: [] },
+  "user_confirmed_extract": { screenKo: "문서에서 읽고 직접 확인하셨어요", deprecatedAliases: [] },
+  "assumed": { screenKo: "가정한 값이에요", deprecatedAliases: [] },
+  "release_derived": { screenKo: "공개된 상품 정보에서 가져왔어요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<FactSource, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseFactSource(value: unknown): FactSource {
   if (typeof value === "string" && (FactSource as readonly string[]).includes(value)) {
@@ -596,6 +882,10 @@ export function parseFactSource(value: unknown): FactSource {
  */
 export const FactKind = ["actual", "hypothetical"] as const;
 export type FactKind = (typeof FactKind)[number];
+export const FactKindMetadata = {
+  "actual": { screenKo: "실제 가입 내용", deprecatedAliases: [] },
+  "hypothetical": { screenKo: "가정한 내용", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<FactKind, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseFactKind(value: unknown): FactKind {
   if (typeof value === "string" && (FactKind as readonly string[]).includes(value)) {
@@ -611,6 +901,12 @@ export function parseFactKind(value: unknown): FactKind {
  */
 export const ConfirmParty = ["user", "insurer", "document", "none"] as const;
 export type ConfirmParty = (typeof ConfirmParty)[number];
+export const ConfirmPartyMetadata = {
+  "user": { screenKo: "직접 확인하셨어요", deprecatedAliases: [] },
+  "insurer": { screenKo: "보험사가 확인했어요", deprecatedAliases: [] },
+  "document": { screenKo: "문서로 확인했어요", deprecatedAliases: [] },
+  "none": { screenKo: "아직 확인되지 않았어요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<ConfirmParty, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseConfirmParty(value: unknown): ConfirmParty {
   if (typeof value === "string" && (ConfirmParty as readonly string[]).includes(value)) {
@@ -626,6 +922,16 @@ export function parseConfirmParty(value: unknown): ConfirmParty {
  */
 export const ErrorClass = ["validation", "auth", "not_found", "state_conflict", "limit", "unsupported", "internal", "timeout"] as const;
 export type ErrorClass = (typeof ErrorClass)[number];
+export const ErrorClassMetadata = {
+  "validation": { screenKo: "입력을 확인해 주세요", deprecatedAliases: [] },
+  "auth": { screenKo: "요청하신 내용을 열 수 없어요", deprecatedAliases: [] },
+  "not_found": { screenKo: "찾을 수 없어요", deprecatedAliases: [] },
+  "state_conflict": { screenKo: "지금 상태와 맞지 않아요", deprecatedAliases: [] },
+  "limit": { screenKo: "잠시 후 다시 시도해 주세요", deprecatedAliases: [] },
+  "unsupported": { screenKo: "아직 지원하지 않아요", deprecatedAliases: [] },
+  "internal": { screenKo: "일시적인 문제가 생겼어요", deprecatedAliases: [] },
+  "timeout": { screenKo: "응답이 늦어지고 있어요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<ErrorClass, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseErrorClass(value: unknown): ErrorClass {
   if (typeof value === "string" && (ErrorClass as readonly string[]).includes(value)) {
@@ -641,6 +947,11 @@ export function parseErrorClass(value: unknown): ErrorClass {
  */
 export const UsageRestriction = ["none", "hold", "circuit_breaker"] as const;
 export type UsageRestriction = (typeof UsageRestriction)[number];
+export const UsageRestrictionMetadata = {
+  "none": { screenKo: "제한 없음", deprecatedAliases: [] },
+  "hold": { screenKo: "새 계산에는 쓰지 않아요", deprecatedAliases: [] },
+  "circuit_breaker": { screenKo: "일시적으로 새 계산을 멈췄어요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<UsageRestriction, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseUsageRestriction(value: unknown): UsageRestriction {
   if (typeof value === "string" && (UsageRestriction as readonly string[]).includes(value)) {
@@ -656,6 +967,11 @@ export function parseUsageRestriction(value: unknown): UsageRestriction {
  */
 export const KnowledgeFreshness = ["fresh", "stale", "withdrawn"] as const;
 export type KnowledgeFreshness = (typeof KnowledgeFreshness)[number];
+export const KnowledgeFreshnessMetadata = {
+  "fresh": { screenKo: "최신 정보예요", deprecatedAliases: [] },
+  "stale": { screenKo: "기준이 된 정보가 정정됐어요", deprecatedAliases: [] },
+  "withdrawn": { screenKo: "철회된 정보예요", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<KnowledgeFreshness, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseKnowledgeFreshness(value: unknown): KnowledgeFreshness {
   if (typeof value === "string" && (KnowledgeFreshness as readonly string[]).includes(value)) {
@@ -671,6 +987,12 @@ export function parseKnowledgeFreshness(value: unknown): KnowledgeFreshness {
  */
 export const NeedVerdict = ["keep", "no_add", "hold", "review_add"] as const;
 export type NeedVerdict = (typeof NeedVerdict)[number];
+export const NeedVerdictMetadata = {
+  "keep": { screenKo: "유지", deprecatedAliases: [] },
+  "no_add": { screenKo: "추가 가입 없음", deprecatedAliases: [] },
+  "hold": { screenKo: "판단 보류", deprecatedAliases: [] },
+  "review_add": { screenKo: "추가 검토", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<NeedVerdict, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseNeedVerdict(value: unknown): NeedVerdict {
   if (typeof value === "string" && (NeedVerdict as readonly string[]).includes(value)) {
@@ -686,6 +1008,13 @@ export function parseNeedVerdict(value: unknown): NeedVerdict {
  */
 export const CriterionSourceKind = ["public_statistic", "statute", "regulator_notice", "terms_fact", "editorial"] as const;
 export type CriterionSourceKind = (typeof CriterionSourceKind)[number];
+export const CriterionSourceKindMetadata = {
+  "public_statistic": { screenKo: "공공 통계", deprecatedAliases: [] },
+  "statute": { screenKo: "법령", deprecatedAliases: [] },
+  "regulator_notice": { screenKo: "감독 고시", deprecatedAliases: [] },
+  "terms_fact": { screenKo: "약관 내용", deprecatedAliases: [] },
+  "editorial": { screenKo: "온전의 판단", deprecatedAliases: [] },
+} as const satisfies Readonly<Record<CriterionSourceKind, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseCriterionSourceKind(value: unknown): CriterionSourceKind {
   if (typeof value === "string" && (CriterionSourceKind as readonly string[]).includes(value)) {
@@ -701,6 +1030,14 @@ export function parseCriterionSourceKind(value: unknown): CriterionSourceKind {
  */
 export const InputType = ["bool", "int", "money_krw", "date", "string", "class_money_list"] as const;
 export type InputType = (typeof InputType)[number];
+export const InputTypeMetadata = {
+  "bool": { screenKo: null, deprecatedAliases: [] },
+  "int": { screenKo: null, deprecatedAliases: [] },
+  "money_krw": { screenKo: null, deprecatedAliases: [] },
+  "date": { screenKo: null, deprecatedAliases: [] },
+  "string": { screenKo: null, deprecatedAliases: [] },
+  "class_money_list": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<InputType, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseInputType(value: unknown): InputType {
   if (typeof value === "string" && (InputType as readonly string[]).includes(value)) {
@@ -716,6 +1053,13 @@ export function parseInputType(value: unknown): InputType {
  */
 export const Rounding = ["floor", "ceil", "half_up", "half_even", "unspecified"] as const;
 export type Rounding = (typeof Rounding)[number];
+export const RoundingMetadata = {
+  "floor": { screenKo: null, deprecatedAliases: [] },
+  "ceil": { screenKo: null, deprecatedAliases: [] },
+  "half_up": { screenKo: null, deprecatedAliases: [] },
+  "half_even": { screenKo: null, deprecatedAliases: [] },
+  "unspecified": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<Rounding, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseRounding(value: unknown): Rounding {
   if (typeof value === "string" && (Rounding as readonly string[]).includes(value)) {
@@ -731,6 +1075,11 @@ export function parseRounding(value: unknown): Rounding {
  */
 export const DurationUnit = ["day", "calendar_month", "calendar_year"] as const;
 export type DurationUnit = (typeof DurationUnit)[number];
+export const DurationUnitMetadata = {
+  "day": { screenKo: null, deprecatedAliases: [] },
+  "calendar_month": { screenKo: null, deprecatedAliases: [] },
+  "calendar_year": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<DurationUnit, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseDurationUnit(value: unknown): DurationUnit {
   if (typeof value === "string" && (DurationUnit as readonly string[]).includes(value)) {
@@ -746,6 +1095,36 @@ export function parseDurationUnit(value: unknown): DurationUnit {
  */
 export const RuleOperator = ["all", "any", "not", "eq", "ne", "lt", "lte", "gt", "gte", "if", "input", "str", "rate", "krw", "date", "multiply_rate", "add", "min", "max", "apply_cap", "days_between", "date_add", "multiply_count", "subtract_floor0", "pro_rata", "divide_count", "anniversary_band", "max_over"] as const;
 export type RuleOperator = (typeof RuleOperator)[number];
+export const RuleOperatorMetadata = {
+  "all": { screenKo: null, deprecatedAliases: [] },
+  "any": { screenKo: null, deprecatedAliases: [] },
+  "not": { screenKo: null, deprecatedAliases: [] },
+  "eq": { screenKo: null, deprecatedAliases: [] },
+  "ne": { screenKo: null, deprecatedAliases: [] },
+  "lt": { screenKo: null, deprecatedAliases: [] },
+  "lte": { screenKo: null, deprecatedAliases: [] },
+  "gt": { screenKo: null, deprecatedAliases: [] },
+  "gte": { screenKo: null, deprecatedAliases: [] },
+  "if": { screenKo: null, deprecatedAliases: [] },
+  "input": { screenKo: null, deprecatedAliases: [] },
+  "str": { screenKo: null, deprecatedAliases: [] },
+  "rate": { screenKo: null, deprecatedAliases: [] },
+  "krw": { screenKo: null, deprecatedAliases: [] },
+  "date": { screenKo: null, deprecatedAliases: [] },
+  "multiply_rate": { screenKo: null, deprecatedAliases: [] },
+  "add": { screenKo: null, deprecatedAliases: [] },
+  "min": { screenKo: null, deprecatedAliases: [] },
+  "max": { screenKo: null, deprecatedAliases: [] },
+  "apply_cap": { screenKo: null, deprecatedAliases: [] },
+  "days_between": { screenKo: null, deprecatedAliases: [] },
+  "date_add": { screenKo: null, deprecatedAliases: [] },
+  "multiply_count": { screenKo: null, deprecatedAliases: [] },
+  "subtract_floor0": { screenKo: null, deprecatedAliases: [] },
+  "pro_rata": { screenKo: null, deprecatedAliases: [] },
+  "divide_count": { screenKo: null, deprecatedAliases: [] },
+  "anniversary_band": { screenKo: null, deprecatedAliases: [] },
+  "max_over": { screenKo: null, deprecatedAliases: [] },
+} as const satisfies Readonly<Record<RuleOperator, VocabularyValueMetadata>>;
 /** Throws on an unknown value: unknown states are never treated as a success. */
 export function parseRuleOperator(value: unknown): RuleOperator {
   if (typeof value === "string" && (RuleOperator as readonly string[]).includes(value)) {

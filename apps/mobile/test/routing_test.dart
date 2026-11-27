@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:onjeon_contracts/onjeon_contracts.dart';
 import 'package:onjeon_mobile/app/routes.dart';
 import 'package:onjeon_mobile/session/app_session.dart';
 
@@ -52,7 +53,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(s.entry, EntryPoint.pdf);
       expect(find.text('내 정보'), findsWidgets);
-      expect(find.text('가입내역을 아직 올리지 않았어요'), findsOneWidget);
+      expect(find.text(PolicyHoldingsStatus.skipped.screenKo!), findsOneWidget);
     });
 
     testWidgets('홈 offers the entry points when none was chosen, and hides them after', (tester) async {
@@ -97,7 +98,7 @@ void main() {
     testWidgets('내 설계 and 홈 start in the empty state with the holdings status', (tester) async {
       await pumpApp(tester, location: AppPaths.myDesign);
       expect(find.byKey(const Key('state-empty')), findsOneWidget);
-      expect(find.text('가입내역을 아직 올리지 않았어요'), findsOneWidget);
+      expect(find.text(PolicyHoldingsStatus.skipped.screenKo!), findsOneWidget);
       expect(find.text('가입내역 없이 보기'), findsOneWidget);
     });
 

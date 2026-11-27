@@ -40,8 +40,8 @@ else
       echo "TypeScript runtime: SKIPPED (no node)"; skipped=1
     elif "${tsc_cmd[@]}" -p "$ts_scratch/ts/tsconfig.json" --noEmit false \
         --module Node16 --moduleResolution Node16 --outDir "$ts_scratch/ts-runtime" \
-        && node "$here/tests/ts_roundtrip.cjs" "$ts_scratch/ts-runtime/index.js" "$here/tests/fixtures"; then
-      echo "TypeScript runtime: fixture decoding and rejection tests passed"
+        && node "$here/tests/ts_roundtrip.cjs" "$ts_scratch/ts-runtime/index.js" "$here/tests/fixtures" "$here/../vocabulary.json"; then
+      echo "TypeScript runtime: fixture decoding, vocabulary parity and rejection tests passed"
     else
       echo "TypeScript runtime: FAILED"; failed=1
     fi
@@ -57,8 +57,10 @@ if command -v dart >/dev/null 2>&1; then
   scratch="$(mktemp -d)"
   cp -R "$here/generated/dart/." "$scratch/"   # pub writes .dart_tool/pubspec.lock; keep them out of the repo
   mkdir -p "$scratch/bin" && cp "$here/tests/dart_roundtrip.dart" "$scratch/bin/roundtrip.dart"
-  if (cd "$scratch" && dart pub get --offline >/dev/null 2>&1; dart analyze --fatal-infos --fatal-warnings . && dart run bin/roundtrip.dart "$here/tests/fixtures"); then
-    echo "Dart: analyzed and round-tripped ($(dart --version 2>&1))"
+  if (cd "$scratch" && dart pub get --offline >/dev/null 2>&1 \
+      && dart analyze --fatal-infos --fatal-warnings . \
+      && dart run bin/roundtrip.dart "$here/tests/fixtures" "$here/../vocabulary.json"); then
+    echo "Dart: analyzed, round-tripped and checked vocabulary ($(dart --version 2>&1))"
   else echo "Dart: FAILED"; failed=1; fi
   rm -rf "$scratch"
   api_scratch="$(mktemp -d)"

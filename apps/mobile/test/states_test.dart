@@ -60,16 +60,30 @@ void main() {
         holdings: PolicyHoldingsStatus.skipped,
         onBrowseWithoutHoldings: () => taps++,
       )));
-      expect(find.text('가입내역을 아직 올리지 않았어요'), findsOneWidget);
+      expect(find.text(PolicyHoldingsStatus.skipped.screenKo!), findsOneWidget);
       await tester.tap(find.text('가입내역 없이 보기'));
       expect(taps, 1);
     });
 
-    test('every holdings status has its own sentence (none is read as zero insurance)', () {
-      final lines = PolicyHoldingsStatus.values.map(holdingsLine).toSet();
-      expect(lines.length, PolicyHoldingsStatus.values.length);
-      expect(holdingsLine(PolicyHoldingsStatus.unknown), contains('없는 것으로 보지 않아요'));
-      expect(holdingsLine(PolicyHoldingsStatus.noneDeclared), contains('본인 답변'));
+    testWidgets('every holdings status renders the exact vocabulary label', (tester) async {
+      const labels = {
+        PolicyHoldingsStatus.confirmed: '확인된 가입내역',
+        PolicyHoldingsStatus.pendingConfirmation: '확인 전',
+        PolicyHoldingsStatus.noneDeclared: '보험 없음(본인 답변)',
+        PolicyHoldingsStatus.unknown: '아직 모름',
+        PolicyHoldingsStatus.skipped: '아직 안 올렸어요',
+      };
+      expect(labels.keys, PolicyHoldingsStatus.values);
+      for (final entry in labels.entries) {
+        await tester.pumpWidget(framed(EmptyFrame(
+          holdings: entry.key,
+          onBrowseWithoutHoldings: null,
+        )));
+        expect(find.text(entry.value), findsOneWidget);
+        if (entry.key != PolicyHoldingsStatus.noneDeclared) {
+          expect(find.text(labels[PolicyHoldingsStatus.noneDeclared]!), findsNothing);
+        }
+      }
     });
   });
 

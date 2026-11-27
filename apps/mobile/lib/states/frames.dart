@@ -115,21 +115,6 @@ class _LoadingFrameState extends State<LoadingFrame> {
   }
 }
 
-String holdingsLine(PolicyHoldingsStatus status) {
-  switch (status) {
-    case PolicyHoldingsStatus.confirmed:
-      return '확인한 가입내역이 있어요';
-    case PolicyHoldingsStatus.pendingConfirmation:
-      return '올린 가입내역을 아직 확인하지 않았어요. 계산에는 쓰지 않아요';
-    case PolicyHoldingsStatus.noneDeclared:
-      return '보험이 없다고 답하셨어요 (본인 답변 기준)';
-    case PolicyHoldingsStatus.unknown:
-      return '가입내역을 모른다고 답하셨어요. 없는 것으로 보지 않아요';
-    case PolicyHoldingsStatus.skipped:
-      return '가입내역을 아직 올리지 않았어요';
-  }
-}
-
 /// 비어 있음: no holdings (skipped, none, unknown). Shows the holdings status and keeps the
 /// screen usable through 가입내역 없이 보기.
 class EmptyFrame extends StatelessWidget {
@@ -148,11 +133,12 @@ class EmptyFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final label = holdings.screenKo;
     return Column(
       key: const Key('state-empty'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _Band(text: holdingsLine(holdings)),
+        if (label != null) _Band(text: label),
         if (message != null) ...[
           const SizedBox(height: OnjeonSpace.lg),
           Text(message!, style: OnjeonText.subhead),

@@ -12,6 +12,7 @@
   "files": [
     "index.ts",
     "vocabulary.ts",
-    "types.ts"
+    "types.ts",
+    "parsers.ts"
   ]
 }

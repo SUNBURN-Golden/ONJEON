@@ -1,4 +1,4 @@
-"""TypeScript emitter: vocabulary unions + parsers, wire interfaces."""
+"""TypeScript emitter: vocabulary unions, wire interfaces and document parsers."""
 from __future__ import annotations
 
 import json
@@ -92,8 +92,133 @@ def emit_types(model: Model, structs=None, imports: str | None = None, header: s
     return "".join(out)
 
 
+PARSER_HELPERS = '''
+type Reader<T> = (value: unknown, path: string) => T;
+
+function readObject(value: unknown, path: string): Record<string, unknown> {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError(`${path}: expected an object`);
+  }
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype !== Object.prototype && prototype !== null) {
+    throw new TypeError(`${path}: expected a plain object`);
+  }
+  return value as Record<string, unknown>;
+}
+
+function hasField(fields: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(fields, key);
+}
+
+function readField<T>(fields: Record<string, unknown>, key: string, path: string, read: Reader<T>): T {
+  const fieldPath = `${path}.${key}`;
+  if (!hasField(fields, key)) {
+    throw new TypeError(`${fieldPath}: missing required field`);
+  }
+  return read(fields[key], fieldPath);
+}
+
+function readString(value: unknown, path: string): string {
+  if (typeof value !== "string") throw new TypeError(`${path}: expected a string`);
+  return value;
+}
+
+function readInteger(value: unknown, path: string): number {
+  if (typeof value !== "number" || !Number.isInteger(value)) {
+    throw new TypeError(`${path}: expected an integer`);
+  }
+  return value;
+}
+
+function readNumber(value: unknown, path: string): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new TypeError(`${path}: expected a finite number`);
+  }
+  return value;
+}
+
+function readBoolean(value: unknown, path: string): boolean {
+  if (typeof value !== "boolean") throw new TypeError(`${path}: expected a boolean`);
+  return value;
+}
+
+const readAny: Reader<unknown> = (value) => value;
+
+function arrayOf<T>(read: Reader<T>): Reader<T[]> {
+  return (value, path) => {
+    if (!Array.isArray(value)) throw new TypeError(`${path}: expected an array`);
+    return Array.from(value, (item, index) => read(item, `${path}[${index}]`));
+  };
+}
+
+function mapOf<T>(read: Reader<T>): Reader<Record<string, T>> {
+  return (value, path) => Object.fromEntries(
+    Object.entries(readObject(value, path)).map(([key, item]) => [key, read(item, `${path}[${JSON.stringify(key)}]`)]),
+  );
+}
+
+function nullable<T>(read: Reader<T>): Reader<T | null> {
+  return (value, path) => value === null ? null : read(value, path);
+}
+
+function vocabulary<T>(parse: (value: unknown) => T): Reader<T> {
+  return (value, path) => {
+    try {
+      return parse(value);
+    } catch {
+      throw new TypeError(`${path}: unknown vocabulary value`);
+    }
+  };
+}
+'''
+
+
+def reader(t: Type) -> str:
+    if t.kind == "enum":
+        expr = f"vocabulary(parse{pascal(t.name)})"
+    elif t.kind == "ref":
+        expr = f"parse{t.name}"
+    elif t.kind == "array":
+        expr = f"arrayOf({reader(t.item)})"
+    elif t.kind == "map":
+        expr = f"mapOf({reader(t.item)})"
+    else:
+        expr = f"read{pascal(t.kind)}"
+    return f"nullable({expr})" if t.nullable and t.kind != "any" else expr
+
+
+def emit_parsers(model: Model) -> str:
+    types = "".join(f"  {name},\n" for name in sorted(model.structs))
+    enums = "".join(f"  parse{name},\n" for name in sorted(pascal(a) for a in used_axes(model)))
+    out = [HEADER, f'\nimport type {{\n{types}}} from "./types";\n']
+    if enums:
+        out.append(f'import {{\n{enums}}} from "./vocabulary";\n')
+    out.append(PARSER_HELPERS)
+    for st in model.structs.values():
+        out.append(f'\n/** Decode a JSON value as {st.name}. Throws on invalid field types or enum values. */\n')
+        out.append(f'export function parse{st.name}(value: unknown, path = "{st.name}"): {st.name} {{\n')
+        if not st.fields:
+            out.append("  readObject(value, path);\n  return {};\n}\n")
+            continue
+        out.append("  const fields = readObject(value, path);\n")
+        has_optional = any(not f.required for f in st.fields)
+        out.append(f"  const result: {st.name} = {{\n" if has_optional else "  return {\n")
+        for f in st.fields:
+            if f.required:
+                out.append(f'    {f.name}: readField(fields, "{f.name}", path, {reader(f.type)}),\n')
+        out.append("  };\n")
+        for f in st.fields:
+            if not f.required:
+                out.append(f'  if (hasField(fields, "{f.name}")) {{\n')
+                out.append(f'    result.{f.name} = {reader(f.type)}(fields.{f.name}, `${{path}}.{f.name}`);\n  }}\n')
+        if has_optional:
+            out.append("  return result;\n")
+        out.append("}\n")
+    return "".join(out)
+
+
 def emit_index() -> str:
-    return HEADER + 'export * from "./vocabulary";\nexport * from "./types";\n'
+    return HEADER + 'export * from "./vocabulary";\nexport * from "./types";\nexport * from "./parsers";\n'
 
 
 def emit_tsconfig() -> str:
@@ -102,13 +227,14 @@ def emit_tsconfig() -> str:
             "target": "ES2020", "module": "ES2020", "moduleResolution": "Bundler", "strict": True,
             "noUnusedLocals": True, "noEmit": True, "skipLibCheck": False, "types": [],
         },
-        "files": ["index.ts", "vocabulary.ts", "types.ts"],
+        "files": ["index.ts", "vocabulary.ts", "types.ts", "parsers.ts"],
     }
     return json.dumps(cfg, indent=2) + "\n"
 
 
 def emit_package_json(version: str) -> str:
-    pkg = {"name": "onjeon-contracts", "version": version, "private": True, "description": "Generated ONJEON contract types", "types": "index.ts"}
+    pkg = {"name": "onjeon-contracts", "version": version, "private": True,
+           "description": "Generated ONJEON contract types and parsers", "types": "index.ts"}
     return json.dumps(pkg, indent=2) + "\n"
 
 
@@ -116,6 +242,7 @@ def emit(model: Model, version: str) -> dict:
     return {
         "vocabulary.ts": emit_vocabulary(model),
         "types.ts": emit_types(model),
+        "parsers.ts": emit_parsers(model),
         "index.ts": emit_index(),
         "tsconfig.json": emit_tsconfig(),
         "package.json": emit_package_json(version),

@@ -2,6 +2,6 @@
   "name": "onjeon-contracts",
   "version": "0.1.0",
   "private": true,
-  "description": "Generated ONJEON contract types",
+  "description": "Generated ONJEON contract types and parsers",
   "types": "index.ts"
 }

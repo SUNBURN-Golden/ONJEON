@@ -214,6 +214,8 @@ M1의 RawAsset·SourceObservation·ClauseOccurrence·CodeSet·ParameterTable 공
 
 어휘 확장 과제는 정본과 함께 계약 생성물·스키마 README를 갱신한다. 대기 축별 담당 과제는 [계약 패키지의 대기 축 표](../packages/schemas/README.md#어휘-승격-대기-축-x-onjeon-pending-axis)에서 확인한다. T-CT-02의 재생성 경로와 잔여 축 배정은 [Audit 8 검증 기록](blueprint/audits/2026-11-20_t_ct_02_allowed_paths.md)을 따른다.
 
+TypeScript 공유 계약의 생성 문서 파서는 읽는 시점에 중첩 필드까지 어휘 값을 검사하고, 미등록 값은 필드 경로와 함께 거부한다. [Audit 8 런타임 회귀 증거](blueprint/audits/2026-11-28_ts_runtime_enum_reject.md).
+
 ## 7. 현행 결정 요약
 
 ### 7.1 범위

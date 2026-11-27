@@ -67,9 +67,10 @@ jobs:
         run: cargo test --all --locked
       - name: Rule content hash with insertion-ordered JSON
         run: cargo test --manifest-path packages/rules-engine/order-tests/Cargo.toml --locked --target-dir target/order-tests
-      - name: JSON Schema compatibility with the previous tagged clients
+      - name: Generated contract builds and previous tagged client compatibility
         env:
           ONJ_COMPAT_ALL_CLIENTS: "1"
+          ONJ_REQUIRE_TOOLCHAINS: "1"
         run: |
           contract_tools="$RUNNER_TEMP/contract-tools"
           mkdir -p "$contract_tools"
@@ -80,6 +81,7 @@ jobs:
           echo "ea864bc64df30a6b8bdf30b2e32550f7717d9a890de8f40293aeabb924fe232b  $dart_zip" | sha256sum --check
           unzip -q "$dart_zip" -d "$contract_tools"
           export PATH="$contract_tools/node_modules/.bin:$contract_tools/dart-sdk/bin:$PATH"
+          bash packages/schemas/codegen/build_check.sh
           bash packages/schemas/codegen/check_compat.sh --latest
           python3 -I -m unittest discover -s packages/schemas/codegen/tests -p test_compat.py -k all_clients -v
       - name: Scenario API input and result regressions

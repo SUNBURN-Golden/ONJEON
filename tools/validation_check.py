@@ -140,6 +140,19 @@ def walk_vocab(obj, where, errors):
             walk_vocab(x, where, errors)
 
 
+def real_clause_rule_paths(root):
+    shared = root / "packages/fixtures/rules/real"
+    revisions = root / "packages/rules-engine/tests/fixtures/real"
+    paths = {p.name: p for p in shared.glob("*.json") if not p.name.endswith(".cases.json")}
+    for path in revisions.glob("*.json"):
+        if path.name.endswith(".cases.json"):
+            continue
+        if path.name not in paths:
+            raise ValueError(f"real-clause revision has no shared original: {path.name}")
+        paths[path.name] = path
+    return sorted(paths.values())
+
+
 def load():
     data = {"samples": [], "gaps": set(), "families": {}, "screens": {}, "extracts": {}, "rules": {}}
     with (VAL / "samples.csv").open(encoding="utf-8", newline="") as f:
@@ -153,9 +166,8 @@ def load():
         data["screens"][p.name] = json.loads(p.read_text(encoding="utf-8"))
     for p in sorted((VAL / "extracts").glob("*.md")):
         data["extracts"][f"extracts/{p.name}"] = p.read_text(encoding="utf-8")
-    for p in sorted((ROOT / "packages/fixtures/rules/real").glob("*.json")):
-        if not p.name.endswith(".cases.json"):
-            data["rules"][str(p.relative_to(ROOT))] = json.loads(p.read_text(encoding="utf-8"))
+    for p in real_clause_rule_paths(ROOT):
+        data["rules"][p.relative_to(ROOT).as_posix()] = json.loads(p.read_text(encoding="utf-8"))
     return data
 
 
@@ -266,6 +278,8 @@ def check_family(fam, d, data, samples, errors, index):
         if rule is None:
             errors.append(f"{where}: rule file {r['file']} missing")
             continue
+        if rule.get("rule_id") != r["rule_id"]:
+            errors.append(f"{where}: rule file {r['file']} must declare rule_id {r['rule_id']}")
         ids[r["rule_id"]] = "rule"
         if rule.get("publication_state") != "fixture_only":
             errors.append(f"{where}: {r['rule_id']} must stay fixture_only")

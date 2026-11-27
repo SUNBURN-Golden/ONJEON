@@ -15,7 +15,7 @@
 | `REVERIFY_AUDIT1_STORAGE_DOCS.md` | BLUEPRINT의 R2 보존 완료·남은 조건·코드 목록 수정과 회귀 시험, 기존 R2 기록 대조 |
 | `REVERIFY_AUDIT1_DEC_RECORDS.md` | BLUEPRINT §0.1의 DEC 결정 게이트 기록 정의와 결정 원장 §3의 세 기록·상태 등록, 회귀 시험과 프로젝트 검사 결과 |
 
-실제 조항에서 만든 규칙은 `packages/fixtures/rules/real/`에 있고 `publication_state=fixture_only`로 고정된다.
+실제 조항에서 만든 규칙은 `publication_state=fixture_only`로 고정된다. `encoded/*.json`의 `rules[].file`이 현행 규칙 위치를 가리킨다. 교보 암 주계약·종신 재해사망·질병사망의 개정 규칙은 `packages/rules-engine/tests/fixtures/real/`에 있고, 해당 규칙의 이전 판과 나머지 규칙은 `packages/fixtures/rules/real/`에 있다.
 
 V1 종료의 담당·순서·필수 증거와 미재생성 6건 목록은 [Audit 2 V1 종료 결정](../../decisions/audit2-v1-gate-closure.md)을 따른다. 현재 관문은 미통과이며, 로컬 시험 통과와 DEC-D-02 기록만으로 재현·교차 검수 완료로 바꾸지 않는다.
 
@@ -25,7 +25,7 @@ V1 종료의 담당·순서·필수 증거와 미재생성 6건 목록은 [Audit
 
 | 검사 | 무엇을 보나 | 어디서 실행되나 |
 |---|---|---|
-| 내부 일관성 | 조항 인용이 지정한 문서·페이지의 인용 구간에 있는지, 필드 원문값·가격 금액이 근거 조항 구간 안에 있는지, 화면 금액이 선언한 출처와 같은지, 화면의 퍼센트·기간 숫자가 근거 문구에 있는지, 지급액 문구가 엔진 결과에서 생성된 것과 같은지, 가격 조건의 일치·불일치·원문 미기재 구분, 상태값·참조, 교차 검수 없는 `accepted` 금지. 표본 SHA-256의 64자리 16진수·HTTPS 출처 URL 형식을 검사하며 해시 일치는 적힌 문자열끼리만 비교 | CI 매 푸시 (`validation_check.py`, `--selftest` 40종, `cargo test --test real_clauses` 변조 5종 포함, Python 단위 시험) |
+| 내부 일관성 | 조항 인용이 지정한 문서·페이지의 인용 구간에 있는지, 필드 원문값·가격 금액이 근거 조항 구간 안에 있는지, 화면 금액이 선언한 출처와 같은지, 화면의 퍼센트·기간 숫자가 근거 문구에 있는지, 지급액 문구가 엔진 결과에서 생성된 것과 같은지, 가격 조건의 일치·불일치·원문 미기재 구분, 상태값·참조, 교차 검수 없는 `accepted` 금지. 표본 SHA-256의 64자리 16진수·HTTPS 출처 URL 형식을 검사하며 해시 일치는 적힌 문자열끼리만 비교 | CI 매 푸시 (`validation_check.py`, `--selftest` 40종, `cargo test --test real_clauses` 변조 6종 포함, Python 단위 시험) |
 | 보관본 재현 | 보존한 원본의 바이트 SHA-256, 인용 페이지 재추출, 스캔본 OCR 재실행, `samples.csv`에 고정한 파생 명세(해시·원본 연결·출력 파일 존재와 해시·명세 밖 출력 없음), 명세 출력 전부의 재생성 바이트 일치. 기록이 깨지면 `derived_record_invalid`, 재생성이 다르면 `derived_mismatch`(둘 다 실패), 비교 못 한 것이 있으면 `derived_unverified`(미검증) | 수동: `tools/verify_sources.py reproduce`. CI 아님(판정 로직의 단위 시험만 CI) |
 | 현재 출처 변경 감지 | 원 URL의 현재 문서가 마지막 관측과 같은가. 바뀌면 새 원본으로 보존하고 검수 대기 | 수동: `tools/verify_sources.py detect`. CI 아님. GitHub `sources` 워크플로 detect 작업(수동). main 첫 실행(2026-10-09, run 38005507041)은 추출기를 찾지 못해 출처를 받기 전에 멈췄다(`pip --user` 설치를 `python3 -I`가 보지 못함, venv로 고침). 받지 못한 출처가 하나라도 있으면 종료 코드 1이며, 출처별 결과를 작업 요약에 쓴다. 워크플로 성공은 모든 출처를 받았다는 뜻이다 |
 

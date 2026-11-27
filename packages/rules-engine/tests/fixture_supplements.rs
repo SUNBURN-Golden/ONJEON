@@ -18,7 +18,7 @@ fn every_supplement_extends_an_existing_table_without_changing_shared_cases() {
             let original = load_json(&fixtures_dir().join(relative));
             let extra = load_json(&path);
             assert_eq!(extra.as_object().unwrap().len(), 1, "cases only");
-            let mut combined = case_file(relative);
+            let mut combined = case_file_in(&fixtures_dir(), &root, relative);
             let cases = combined["cases"].as_array_mut().unwrap();
             let original_cases = original["cases"].as_array().unwrap();
             assert_eq!(&cases[..original_cases.len()], original_cases);
@@ -34,7 +34,7 @@ fn every_supplement_extends_an_existing_table_without_changing_shared_cases() {
             );
         }
     }
-    assert_eq!(added, 60, "all engine boundary cases must remain loaded");
+    assert_eq!(added, 72, "all engine boundary cases must remain loaded");
 }
 
 #[test]

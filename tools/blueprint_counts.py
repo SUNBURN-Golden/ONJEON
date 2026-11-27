@@ -57,9 +57,7 @@ def collect(root, listing):
         raise ValueError(f"expected one ENGINE_VERSION literal in {ENGINE_SOURCE}")
     axes = json.loads((root / "packages/schemas/vocabulary.json").read_text(encoding="utf-8"))["axes"]
     rules = []
-    for path in sorted((root / "packages/fixtures/rules/real").glob("*.json")):
-        if path.name.endswith(".cases.json"):
-            continue
+    for path in validation_check.real_clause_rule_paths(root):
         rule = json.loads(path.read_text(encoding="utf-8"))
         if not rule.get("rule_id") or rule.get("publication_state") != "fixture_only":
             raise ValueError(f"invalid real-clause fixture: {path.name}")
@@ -87,7 +85,7 @@ def render(counts):
         f"| 엔진 빌드 식별자 | `{counts['engine_version']}` | `{ENGINE_SOURCE}`의 `ENGINE_VERSION` |",
         f"| Rust 단위·통합 시험 | {counts['rust_tests']} | `cargo test -p onjeon-rules-engine -- --list` |",
         f"| Rust 문서 시험(doctest) | {counts['rust_doctests']} | 같은 Cargo 목록의 `Doc-tests` |",
-        f"| 실제 조항 규칙(fixture_only) | {counts['real_clause_rules']} | `packages/fixtures/rules/real/*.json` (`*.cases.json` 제외) |",
+        f"| 실제 조항 규칙(fixture_only) | {counts['real_clause_rules']} | `tools/validation_check.py`의 `real_clause_rule_paths()` |",
         f"| 검증 자료 변조 시험 | {counts['tamper_tests']} | `tools/validation_check.py`의 `mutations()` |",
         f"| 공유 어휘 축 | {counts['vocabulary_axes']} | `packages/schemas/vocabulary.json`의 `axes` |",
         END,

@@ -97,8 +97,7 @@ class S11Refresh(unittest.TestCase):
 
     def test_generated_table_cheap_sources_match_live_inventory(self):
         block = self.text.split(counts.START, 1)[1].split(counts.END, 1)[0]
-        rules = [path for path in (ROOT / "packages/fixtures/rules/real").glob("*.json")
-                 if not path.name.endswith(".cases.json")]
+        rules = validation_check.real_clause_rule_paths(ROOT)
         vocabulary = json.loads((ROOT / "packages/schemas/vocabulary.json").read_text(encoding="utf-8"))
         for label, expected in (
             ("실제 조항 규칙(fixture_only)", len(rules)),

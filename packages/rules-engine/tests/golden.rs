@@ -159,7 +159,7 @@ fn real_results_are_byte_identical_after_disk_reload_and_key_permutation() {
     );
     assert_eq!(
         per_rule.values().sum::<usize>(),
-        106,
+        REAL_CASE_COUNT,
         "all real cases must execute"
     );
     println!("I18 reloaded/key-permuted cases by rule: {per_rule:?}; 4 independent order combinations per case");
@@ -297,28 +297,51 @@ fn pinned_input_snapshot_hashes_are_distinct_per_distinct_input() {
     }
 }
 
-/// Every real rule's `rule_content_hash` is pinned in `real.content_hashes.json`, so an edit to
-/// a published-style rule cannot change what a result claims to have run without a visible diff.
+/// Pin the shared snapshots and their engine-owned revisions independently.
 #[test]
 fn real_rule_content_hashes_are_pinned() {
-    let pinned = load_json(&fixtures_dir().join("real.content_hashes.json"));
-    let pinned = pinned["hashes"].as_object().expect("hashes object");
+    let shared_pins = load_json(&fixtures_dir().join("real.content_hashes.json"));
+    let revision_pins = load_json(&engine_fixtures_dir().join("real.content_hashes.json"));
+    let shared_pins = shared_pins["hashes"]
+        .as_object()
+        .expect("shared hashes object");
+    let revision_pins = revision_pins["hashes"]
+        .as_object()
+        .expect("revision hashes object");
+    let originals = real_rules_in(&real_dir());
     let rules = real_rules();
     assert_eq!(
         rules.keys().map(String::as_str).collect::<Vec<_>>(),
         REAL_RULE_IDS,
         "real rule inventory must stay at seven audited rules"
     );
-    let have: Vec<&String> = rules.keys().collect();
-    let want: Vec<&String> = pinned.keys().collect();
     assert_eq!(
-        have, want,
-        "pinned set must equal the rules in fixtures/rules/real"
+        originals.keys().collect::<Vec<_>>(),
+        shared_pins.keys().collect::<Vec<_>>(),
+        "every shared rule must have a pinned hash"
     );
+    assert_eq!(
+        rules
+            .iter()
+            .filter_map(|(id, rule)| {
+                (rule.rule_version() != originals[id].rule_version()).then_some(id)
+            })
+            .collect::<Vec<_>>(),
+        revision_pins.keys().collect::<Vec<_>>(),
+        "every revised rule must have a pinned hash"
+    );
+    for (id, original) in &originals {
+        assert_eq!(
+            Some(original.content_hash()),
+            shared_pins[id].as_str(),
+            "{id}: shared rule hash"
+        );
+    }
+    let pinned = |id: &str| revision_pins.get(id).unwrap_or(&shared_pins[id]).as_str();
     for (id, rule) in &rules {
         assert_eq!(
             Some(rule.content_hash()),
-            pinned[id].as_str(),
+            pinned(id),
             "{id}: rule_content_hash changed; update real.content_hashes.json only if intended"
         );
     }
@@ -329,7 +352,7 @@ fn real_rule_content_hashes_are_pinned() {
         let got = rules[&id].evaluate(&inputs).unwrap();
         assert_eq!(
             Some(got.rule_content_hash.as_str()),
-            pinned[&id].as_str(),
+            pinned(&id),
             "{id}/{}: result hash",
             case["id"]
         );
@@ -341,7 +364,7 @@ fn real_rule_content_hashes_are_pinned() {
     );
     assert_eq!(
         per_rule.values().sum::<usize>(),
-        106,
+        REAL_CASE_COUNT,
         "all real cases must execute"
     );
     println!("Pinned content hashes checked on every result: {per_rule:?}");

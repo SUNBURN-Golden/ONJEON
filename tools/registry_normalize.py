@@ -73,11 +73,13 @@ def disclosure(row):
         # Do not infer archived from host_access.maps_to or a legacy status claim.
         return "unqueried", "공시 URL 접근 확인(reachable). 원문 무결성 검사·불변 보관 전"
     home = row.get("home_access", "not_checked")
-    maps_to = HOST_CODES[home]["maps_to"]
     if home in ("reachable", "js_shell"):
         return "failed", "홈페이지는 열리나 정적 HTML에서 공시실 진입점을 찾지 못함(JS 메뉴 등)"
+    maps_to = HOST_CODES[home].get("maps_to")
     if maps_to == "unqueried":
         return "unqueried", "아직 홈페이지·공시실을 조회하지 않음"
+    if maps_to not in ("blocked", "failed"):
+        raise SystemExit(f"unsupported acquisition mapping: {home} -> {maps_to}")
     return maps_to, f"홈페이지 접근 결과: {home}"
 
 

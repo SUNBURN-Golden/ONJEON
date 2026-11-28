@@ -37,7 +37,7 @@ jobs:
         run: python3 -I tools/release_readiness/progress.py 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Registry normalization regressions
         run: python3 -m unittest discover -s tools/tests -p test_registry_normalize.py -v
-      - name: Registry CSV references and access evidence
+      - name: Registry CSV integrity and access digests
         run: python3 -I tools/registry_check.py
       - name: Vocabulary (canonical states, generated doc, deprecated names, registry CSVs)
         run: python3 tools/vocab_check.py

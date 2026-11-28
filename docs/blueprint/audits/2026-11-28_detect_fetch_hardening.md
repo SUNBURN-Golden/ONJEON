@@ -8,9 +8,11 @@
 
 변경 판정은 `status`에, 프래그먼트를 제외한 문서 응답 URL과 숫자 HTTP 상태는 `final_url`과 `http_status`에 기록한다. 문서 응답 헤더가 도착하면 바로 메타데이터를 기록해 본문 읽기에서 120초 제한을 넘겨도 보존한다. 문서 응답 전에 실패하면 두 값은 `null`이다. 성공한 새 보관 관측에는 `requested_url`, `final_url`, `http_status`를 함께 기록한다. 본문 상한은 공용 전송 계층의 64 MiB를 적용한다.
 
-robots 조회에서 호스트를 보류하면 작업 프로세스가 보류 사유와 만료 시각을 부모에 전달한다. 같은 실행에서 해당 호스트의 이후 표본은 UTC 자정까지 요청 없이 같은 사유를 기록한다. 대소문자와 관계없이 제품 토큰과 일치하는 모든 그룹의 경로 규칙을 합치고, 일치 그룹이 없으면 `*` 그룹의 규칙을 합친다. 해당 그룹들의 `Crawl-delay` 중 가장 긴 값을 적용한다. [RFC 9309 §2.2.1](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.1).
+robots 조회에서 호스트를 보류하면 작업 프로세스가 보류 사유와 만료 시각을 부모에 전달한다. 같은 실행에서 해당 호스트의 이후 표본은 보류 기간에 요청 없이 같은 사유를 기록한다. robots 429·503의 보류 만료는 응답을 받은 시점의 다음 UTC 자정과 유효한 `Retry-After` 중 더 늦은 시각이다. 대소문자와 관계없이 제품 토큰과 일치하는 모든 그룹의 경로 규칙을 합치고, 일치 그룹이 없으면 `*` 그룹의 규칙을 합친다. [RFC 9309 §2.2.1](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.1) · [RFC 9110 §10.2.3](https://www.rfc-editor.org/rfc/rfc9110.html#section-10.2.3).
 
-경로와 쿼리를 비교할 때 비예약 ASCII의 퍼센트 인코딩은 해제하고, `%2F` 같은 예약 문자 이스케이프는 보존한다. `Crawl-delay` 등 확장 레코드 사이에 놓인 `User-agent` 행들도 규칙이 시작되기 전까지 같은 그룹에 속한다. [RFC 9309 §2.2.2](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.2) · [RFC 9309 §2.2.4](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.4).
+해당 그룹들의 `Crawl-delay` 중 가장 긴 값을 적용한다. 같은 실행에서 호스트별로 확인한 최댓값을 유지해 작업 프로세스 종료 뒤 다음 표본의 robots 요청까지 간격을 둔다. 이 대기도 해당 표본의 120초 제한에 포함된다.
+
+경로와 쿼리를 비교할 때 비예약 ASCII의 퍼센트 인코딩은 해제하고, `%2F` 같은 예약 문자 이스케이프는 보존한다. URL의 리터럴 `*`와 `$`는 각각 `%2A`와 `%24` 규칙에 일치한다. 규칙에 직접 쓰인 `*`와 끝의 `$`는 와일드카드와 끝 표시로 해석한다. `Crawl-delay` 등 확장 레코드 사이에 놓인 `User-agent` 행들도 규칙이 시작되기 전까지 같은 그룹에 속한다. [RFC 9309 §2.2.2](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.2) · [§2.2.3](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.3) · [§2.2.4](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.4).
 
 공용 전송 계층은 `Content-Length`가 반복되면 같은 숫자 값만 허용하고, 선언 길이와 읽은 본문의 길이가 다르면 실패 처리한다. 불완전하게 전송된 robots 응답은 `robots_unreachable`로 호스트를 보류하며, 본문 길이가 일치하지 않는 문서는 `length_mismatch`로 거부한다. robots의 206 또는 `Content-Range`가 있는 다른 2xx도 본문을 읽기 전에 `robots_unreachable`로 호스트를 보류한다. [RFC 9112 §6.3](https://www.rfc-editor.org/rfc/rfc9112.html#section-6.3) · [RFC 9110 §15.3.7](https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.7).
 
@@ -63,5 +65,22 @@ ONJEON_CRAWLER_CONTACT= ONJEON_CRAWLER_ALLOW_NETWORK=1 \
 | `cargo test --all --locked --offline` | 566개 통과, 기존 1개 무시. 삽입 순서·시나리오 API·온톨로지 실행기의 추가 시험은 2·4·4개 통과 |
 
 공시 원장, 워크플로 권한·고정 검사, 검증 자료 검사와 변조 자체 시험 40건, 제품 목적 대응표·설계 묶음·온톨로지 검사도 통과했다.
+
+## 3차 검토 수정 검증
+
+- 검토 기준 `d5294ced2`에서 새 회귀 시험 5개를 실행했다. 리터럴 `*` 경로와 `$` 쿼리에 대한 금지 규칙 위반, 두 표본 사이 약 0.11초의 요청 간격, UTC 자정에 만료되는 robots 429·503 보류를 재현했다.
+- 수정 후 루프백 HTTPS 시험은 두 리터럴 URL에서 `/robots.txt` 이후 문서 요청·캐시·보관 쓰기가 없음을 확인했다. 같은 호스트의 두 표본은 `/robots.txt`와 문서 요청을 번갈아 보냈고, 세 요청 간격 모두 서버가 지정한 1초 이상이었다.
+- 작업 프로세스 시간 초과 뒤에도 이미 보고된 `Crawl-delay`가 같은 호스트의 다른 포트에 적용됐다. 이전 대기를 마치기 전에 시간 초과로 종료된 작업은 대기 만료 시각을 뒤로 미루지 않았다. 다른 호스트는 해당 대기의 영향을 받지 않았다.
+- 모의 시계로 robots 429의 초 형식과 503의 HTTP 날짜 형식을 검사했다. 자정 뒤에도 같은 호스트에 새 요청을 보내지 않았고, 지정 시각에 조회를 재개했다. 헤더가 없거나 유효한 대기가 자정보다 먼저 끝나면 자정까지 보류했다.
+
+| 명령 | 결과 |
+|---|---|
+| `python3 -B -m unittest discover -s tools/tests -p 'test_verify_sources*.py' -v` | 76개 통과, 3개 건너뜀 |
+| `python3 -B -m unittest discover -s tools/tests -p 'test_crawler*.py' -v` | 311개 통과 |
+| `python3 -B -m unittest discover -s tools/tests -v` | 1,835개 통과, 6개 건너뜀 |
+| `python3 -B -m unittest discover -s tools/daemon/runner_verify/tests -v` | 81개 통과 |
+| `cargo test --all --locked --offline` | 566개 통과, 기존 1개 무시. 삽입 순서·시나리오 API·온톨로지 실행기의 추가 시험은 2·4·4개 통과 |
+
+Rust 형식·린트, 워크플로 정책, 검증 자료·원장·제품 목적·설계 묶음·온톨로지 검사와 설계도 §11 수량 대조도 통과했다.
 
 로컬 시험은 출처 변경 감지의 전송 경계와 보고서 기록을 검증했다. 실제 공시 확보율, R2 관측 대조와 변경 후 재처리는 각 행에서 증거를 요구한다. [09 제품 목적 대응표](../proposals/설계검토_결과/09_제품목적_대응표.md).

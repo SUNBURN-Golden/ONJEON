@@ -15,6 +15,7 @@ import unittest
 import urllib.error
 import urllib.request
 from email.message import Message
+from email.utils import formatdate
 from pathlib import Path
 from unittest import mock
 
@@ -257,10 +258,11 @@ class RobotsTest(unittest.TestCase):
         body = ("User-agent: *\nDisallow: /교재/~intro$\nDisallow: /escaped%2A/end%24$\n"
                 "Disallow: /empty?$\n").encode()
         c, _, _ = make({ROBOTS: (200, {}, body)})
-        for path in ("/교재/~intro", "/%ea%b5%90%EC%9E%AC/%7Eintro", "/escaped%2a/end%24", "/empty?"):
+        for path in ("/교재/~intro", "/%ea%b5%90%EC%9E%AC/%7Eintro", "/escaped%2a/end%24",
+                     "/escaped*/end$", "/empty?"):
             with self.subTest(path=path):
                 self.assertFalse(c.check("https://a.example" + path).allowed)
-        for path in ("/escaped-other/end", "/escaped*/end$", "/empty"):
+        for path in ("/escaped-other/end", "/escaped*/end$more", "/empty"):
             with self.subTest(path=path):
                 self.assertTrue(c.check("https://a.example" + path).allowed)
 
@@ -463,6 +465,38 @@ class RobotsTest(unittest.TestCase):
         self.assertEqual(d.reason, "robots_rate_limited")
         c.check("https://a.example/y")
         self.assertEqual(len(t.requests), 1)
+
+    def test_retry_after_extends_robots_hold_from_response_time_across_utc_midnight(self):
+        for status, header, reason in (
+            (429, "600", "robots_rate_limited"),
+            (503, formatdate(86_900, usegmt=True), "robots_server_error"),
+        ):
+            with self.subTest(status=status):
+                def respond(url):
+                    clock.advance(50)
+                    return status, {"Retry-After": header}, b""
+
+                c, t, clock = make({ROBOTS: respond})
+                clock.now = 86_250
+                decision = c.check("https://a.example/x")
+                self.assertEqual((decision.reason, decision.deferred_until), (reason, 86_900))
+
+                clock.now = 86_401
+                self.assertEqual(c.check("https://a.example:8443/y"), decision)
+                self.assertEqual(t.urls, [ROBOTS])
+
+                clock.now = 86_900
+                t.routes[ROBOTS] = (200, {}, b"")
+                self.assertTrue(c.check("https://a.example/x").allowed)
+                self.assertEqual(t.urls, [ROBOTS, ROBOTS])
+
+    def test_missing_invalid_or_short_retry_after_preserves_the_day_end_hold(self):
+        for header in (None, "invalid", "0", "30", formatdate(86_299, usegmt=True)):
+            with self.subTest(header=header):
+                headers = {} if header is None else {"Retry-After": header}
+                c, _, clock = make({ROBOTS: (503, headers, b"")})
+                clock.now = 86_300
+                self.assertEqual(c.check("https://a.example/x").deferred_until, 86_400)
 
     def test_same_host_redirect_followed_cross_host_refused(self):
         c, t, _ = make({ROBOTS: (301, {"Location": "https://a.example/new-robots.txt"}, b""),

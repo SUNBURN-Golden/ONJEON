@@ -128,7 +128,7 @@ class URLAdmission(unittest.TestCase):
         command = [sys.executable, "-I", str(Path(vs.__file__).resolve()), "--fetch-worker"]
         for url in ("file:///must-not-read", "ftp://www.kyobo.com/file", "data:text/plain,body", "https://localhost/"):
             with self.subTest(url=url):
-                proc = subprocess.run(command, input=json.dumps([url, 1, 1024, "html"]).encode(),
+                proc = subprocess.run(command, input=json.dumps([url, 1, 1024, "html", [0, 0]]).encode(),
                                       capture_output=True, check=True, timeout=5)
                 metadata = json.loads(proc.stdout)
                 self.assertEqual(metadata["error"], "FetchRejected")
@@ -327,6 +327,19 @@ class ResponseAdmission(unittest.TestCase):
                             for c in opener.open.call_args_list[1:]))
         self.assertEqual(sleep.call_args_list, [mock.call(5), mock.call(5)])
 
+    def test_previous_crawl_delay_is_used_even_when_another_origin_has_no_policy(self):
+        opener = mock.Mock()
+        opener.open.side_effect = [Response(b"", status=404), Response(PDF)]
+        url = "https://www.kyobo.com:8443/document"
+        calls = mock.Mock()
+        calls.attach_mock(opener.open, "open")
+        with mock.patch.object(transport, "_build_opener", return_value=opener), \
+                mock.patch.object(vs.time, "monotonic", return_value=10), \
+                mock.patch.object(vs.time, "sleep", calls.sleep):
+            self.assertEqual(vs._fetch_https(url, pacing=(5, 12))[0], PDF)
+        self.assertEqual([call[0] for call in calls.mock_calls], ["sleep", "open", "sleep", "open"])
+        self.assertEqual(calls.sleep.call_args_list, [mock.call(2), mock.call(5)])
+
 
 class HostDeferrals(unittest.TestCase):
     def test_deferral_is_host_scoped_and_expires_at_the_recorded_time(self):
@@ -366,6 +379,66 @@ class HostDeferrals(unittest.TestCase):
             self.assertIsNone(suppressed.exception.http_status)
             run.assert_called_once()
 
+    def test_robots_retry_after_survives_in_the_parent_across_utc_midnight(self):
+        def worker(command, *, input, stdout, **kwargs):
+            vs._fetch_worker(io.BytesIO(input), stdout)
+
+        robots_cache = functools.partial(vs.RobotsCache, clock=lambda: vs.time.time())
+        for status, value, reason in (
+            (429, "600", "robots_rate_limited"),
+            (503, formatdate(86_900, usegmt=True), "robots_server_error"),
+        ):
+            robots = Response(b"wait", "text/plain", status)
+            robots.headers["Retry-After"] = value
+            opener = mock.Mock()
+            opener.open.side_effect = [robots, Response(b"", status=404), Response(PDF)]
+            deferrals = {}
+            with self.subTest(status=status), mock.patch.object(vs.subprocess, "run", side_effect=worker) as run, \
+                    mock.patch.object(vs.time, "time", return_value=86_300) as clock, \
+                    mock.patch.object(vs, "RobotsCache", robots_cache), \
+                    mock.patch.object(transport, "_build_opener", return_value=opener), \
+                    mock.patch.dict(os.environ, {vs.CONTACT_ENV: CONTACT, transport.ENV_ALLOW_NETWORK: "1"}):
+                with self.assertRaisesRegex(vs.FetchRejected, reason) as error:
+                    vs.fetch(SOURCE_URL, robots_deferrals=deferrals)
+                self.assertEqual(error.exception.deferred_until, 86_900)
+                self.assertEqual(robots.read_sizes, [])
+
+                clock.return_value = 86_401
+                with self.assertRaisesRegex(vs.FetchRejected, reason):
+                    vs.fetch("https://www.kyobo.com:8443/later", robots_deferrals=deferrals)
+                run.assert_called_once()
+                opener.open.assert_called_once()
+
+                clock.return_value = 86_900
+                self.assertEqual(vs.fetch(SOURCE_URL, robots_deferrals=deferrals)[0], PDF)
+                self.assertEqual(run.call_count, 2)
+
+    def test_crawl_delay_survives_worker_timeout_and_only_applies_to_that_host(self):
+        url_other = "https://www.kbinsure.co.kr/document"
+        url_same = "https://www.kyobo.com:8443/later"
+
+        def worker(command, *, input, stdout, timeout, **kwargs):
+            url, _, _, _, pacing = json.loads(input)
+            self.assertEqual(pacing, [5, 105] if url == url_same else [0, 0])
+            if url == SOURCE_URL:
+                stdout.write(b'{"crawl_delay": 5}\n')
+            elif url == url_other:
+                result = {"content_type": "application/pdf", "final_url": url, "http_status": 200}
+                stdout.write(json.dumps(result).encode() + b"\n" + PDF)
+                return
+            raise subprocess.TimeoutExpired(command, timeout)
+
+        host_pacing = {}
+        with mock.patch.object(vs.subprocess, "run", side_effect=worker), \
+                mock.patch.object(vs.time, "monotonic", return_value=100) as clock:
+            with self.assertRaisesRegex(vs.FetchRejected, "deadline_exceeded"):
+                vs.fetch(SOURCE_URL, host_pacing=host_pacing)
+            clock.return_value = 102
+            self.assertEqual(vs.fetch(url_other, host_pacing=host_pacing)[0], PDF)
+            with self.assertRaisesRegex(vs.FetchRejected, "deadline_exceeded"):
+                vs.fetch(url_same, host_pacing=host_pacing)
+            self.assertEqual(host_pacing, {"www.kyobo.com": (5, 105)})
+
 
 class DetectLocalHTTPS(unittest.TestCase):
     def setUp(self):
@@ -387,12 +460,14 @@ class DetectLocalHTTPS(unittest.TestCase):
     def setUpClass(cls):
         cls.requests = []
         cls.request_headers = []
+        cls.request_times = []
 
         class Handler(BaseHTTPRequestHandler):
             def log_message(self, *args):
                 pass
 
             def do_GET(self):
+                cls.request_times.append(time.monotonic())
                 cls.requests.append(self.path)
                 cls.request_headers.append(self.headers)
                 if self.path == "/robots.txt":
@@ -602,6 +677,20 @@ class DetectLocalHTTPS(unittest.TestCase):
             self.assertEqual((code, result["http_status"]), (0, 200))
             self.assertEqual(self.requests[before:], ["/robots.txt", "/document"])
 
+    def test_crawl_delay_spaces_all_requests_across_same_host_samples(self):
+        self.robots_body = b"User-agent: *\nCrawl-delay: 1\n"
+        rows = [{"sample_id": f"source_{i}", "url": f"{self.origin}/document-{i}", "format": "text_pdf",
+                 "cache_path": f"source/document-{i}", "sha256": "0" * 64}
+                for i in range(2)]
+        with tempfile.TemporaryDirectory() as d:
+            before = len(self.requests)
+            code, results = self.run_detect_rows(Path(d), rows)
+            self.assertEqual((code, [r["http_status"] for r in results]), (0, [200, 200]))
+            self.assertEqual(self.requests[before:], ["/robots.txt", "/document-0", "/robots.txt", "/document-1"])
+            times = self.request_times[before:]
+            for previous, current in zip(times, times[1:]):
+                self.assertGreaterEqual(current - previous, 1)
+
     def test_robots_rate_limit_defers_all_later_samples_on_the_host(self):
         self.robots_status = 429
         origins = (self.origin, self.origin, "https://127.0.0.1:1")
@@ -674,6 +763,8 @@ class DetectLocalHTTPS(unittest.TestCase):
             ("/document", b"User-agent: ONJEON-SourceArchiver\nAllow: /\n\n"
              b"User-agent: onjeon-sourcearchiver\nDisallow: /document\n"),
             ("/parts%2fmanual", b"User-agent: *\nDisallow: /parts%2Fmanual\nAllow: /parts/manual\n"),
+            ("/file-with-a-*.pdf", b"User-agent: *\nDisallow: /file-with-a-%2A.pdf\n"),
+            ("/document?price=$", b"User-agent: *\nDisallow: /document?price=%24$\n"),
             ("/document", b"User-agent: ONJEON-SourceArchiver\nCrawl-delay: 0\n"
              b"User-agent: OtherBot\nDisallow: /document\n"),
         ):

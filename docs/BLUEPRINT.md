@@ -133,12 +133,12 @@ L1 보관 도구는 마지막 허용 입장에서 월별 마감을 기록하고,
 출처 변경 감지는 HTTPS와 `data/registry/source_fetch_hosts.json`의 정확한 호스트만 허용한다.
 공용 크롤러 전송 계층으로 봇 식별자와 공개 연락처를 보내고, 문서 요청 전에 `robots.txt` 정책을 확인한다.
 문서와 `robots.txt`의 리다이렉트는 따라가지 않는다. 문서 응답의 `final_url`과 `http_status`를 변경 판정과 별도로 기록한다.
-부분 robots 응답은 호스트를 보류한다. 문서의 429 또는 `Retry-After`를 포함한 503도 같은 실행의 이후 표본에 호스트 단위로 적용한다.
+같은 실행의 이후 표본에도 호스트별 `Crawl-delay`를 적용한다. 부분 robots 응답은 호스트를 보류하며, robots의 429·503 보류는 UTC 자정과 `Retry-After` 중 더 늦은 시각까지 지속한다. 문서의 429 또는 `Retry-After`를 포함한 503도 같은 실행의 이후 표본에 호스트 단위로 적용한다.
 [Audit 8 출처 변경 감지 검증](blueprint/audits/2026-11-28_detect_fetch_hardening.md).
 
 동적 HTML의 현재 본문 해시 규칙은 `html-visible-text-v3`이다. `DATA_PIPELINE_CONTRACT` §3·§3.1의 규칙 버전 표기에는 이 기준을 적용한다. 본문 해시는 같은 규칙으로 계산한 기준값과 비교하는 보조 지표다. 바이트 SHA-256이 다르고 본문 해시가 같으면 `bytes_changed_content_same`으로 기록하고, 수집한 바이트와 그 SHA-256은 별도로 보존한다. 표본 기준값 갱신과 실측 상태는 [V1 검증 자료](blueprint/validation/README.md#html-본문-해시)를 따르며, 갱신에 필요한 원본 사본 제공은 [위임 결정](decisions/audit7-pipeline-contract-hash-rule.md)으로 기록했다.
 
-출처 하나의 robots 조회·문서 연결·본문 읽기·재시도에는 120초를 함께 적용한다. 보관본 재현은
+출처 하나의 요청 간 대기·robots 조회·문서 연결·본문 읽기·재시도에는 120초를 함께 적용한다. 보관본 재현은
 추출·OCR 명령당 120초, 도구 버전 조회당 10초를 적용하고 임시 원본과 OCR 이미지를 정리한다.
 [Audit 7 다운로드·재현 시간 제한](blueprint/audits/2026-11-20_verify_sources_deadlines.md)은 P02·P03의 수집·재현 도구 로컬 증거다.
 

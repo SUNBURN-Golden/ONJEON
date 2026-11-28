@@ -24,8 +24,8 @@ The document response URL and HTTP status are recorded separately from change st
 MIME/signature and known HTML block-page checks run before any write. Redirect response bodies
 are closed unread. Final bodies over MAX_FETCH_BYTES are refused
 (streaming stops at cap + 1 byte). TLS verification stays on; only network errors are retried.
-Each fetch has one wall-clock deadline across robots.txt, body reads and retries. Rejections are
-`fetch_failed`. Document rate limits defer later samples on the same host in the current run.
+Each fetch has one wall-clock deadline across crawl delays, robots.txt, body reads and retries.
+Rejections are `fetch_failed`. Crawl delays and holds apply across samples on the same host in the current run.
 Reproduction bounds extractor subprocesses and removes its temporary files.
 
 Usage:
@@ -476,8 +476,9 @@ def _validate_fetch_request(url, attempts, max_bytes, expected_format):
     return kind
 
 
-def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf", robots_deferrals=None):
-    """Return (bytes, MIME, final URL, HTTP status), sharing robots and document holds by host."""
+def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf",
+          robots_deferrals=None, host_pacing=None):
+    """Return (bytes, MIME, final URL, HTTP status), sharing holds and crawl delays by host."""
     kind = _validate_fetch_request(url, attempts, max_bytes, expected_format)
     if robots_deferrals is None:
         robots_deferrals = {}
@@ -488,7 +489,8 @@ def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf", 
         if time.time() < until:
             raise FetchRejected(reason, deferred_until=until)
     command = [sys.executable, "-I", str(Path(__file__).resolve()), "--fetch-worker"]
-    request = json.dumps([url, attempts, max_bytes, kind]).encode()
+    pacing = host_pacing.get(host, (0, 0)) if host_pacing is not None else (0, 0)
+    request = json.dumps([url, attempts, max_bytes, kind, pacing]).encode()
     # A socket timeout only caps individual operations. A separate process can be
     # killed and reaped even during DNS resolution or a slowly streamed response.
     # Its temporary output contains response metadata as soon as headers arrive,
@@ -499,25 +501,33 @@ def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf", 
             subprocess.run(command, input=request, stdout=output, check=True, timeout=FETCH_DEADLINE_SECONDS)
         except subprocess.TimeoutExpired as e:
             deadline = e
+        stopped_at = time.monotonic()
         output.seek(0)
         observed = {}
         result = None
         for line in output:
             try:
-                result = json.loads(line)
+                event = json.loads(line)
             except ValueError:
                 if deadline is None:
                     raise
                 break  # The worker may have been killed mid-write.
-            if "response" not in result:
+            if "crawl_delay" in event:
+                if host_pacing is not None:
+                    delay = event["crawl_delay"]
+                    # A killed worker may have been in flight. Measure from its exit.
+                    host_pacing[host] = (delay, stopped_at + delay)
+                continue
+            if "response" not in event:
+                result = event
                 break
-            observed = result["response"]
-            if "deferral" in result:
-                robots_deferrals[host] = tuple(result["deferral"])
+            observed = event["response"]
+            if "deferral" in event:
+                robots_deferrals[host] = tuple(event["deferral"])
         if deadline is not None:
             raise FetchRejected(f"deadline_exceeded: source fetch exceeded {FETCH_DEADLINE_SECONDS:g}s",
                                 **observed) from deadline
-        if result is None or "response" in result:
+        if result is None:
             raise FetchRejected("worker_failed: missing fetch result", **observed)
         if "error" in result:
             deferred_until = result.get("deferred_until")
@@ -530,19 +540,16 @@ def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf", 
 
 
 def _fetch_worker(input_stream, output_stream):
-    url, attempts, max_bytes, kind = json.load(input_stream)
+    url, attempts, max_bytes, kind, pacing = json.load(input_stream)
 
-    def record_response(final_url, http_status, deferral):
-        metadata = {"response": {"final_url": final_url, "http_status": http_status}}
-        if deferral is not None:
-            metadata["deferral"] = deferral
+    def record_progress(**metadata):
         output_stream.write(json.dumps(metadata).encode() + b"\n")
         output_stream.flush()
 
     body = b""
     try:
         body, ctype, final_url, http_status = _fetch_https(url, attempts, max_bytes, expected_format=kind,
-                                                        record_response=record_response)
+                                                          pacing=pacing, record_progress=record_progress)
         result = {"content_type": ctype, "final_url": final_url, "http_status": http_status}
     except FetchRejected as e:
         result = {"error": "FetchRejected", "detail": str(e),
@@ -553,7 +560,8 @@ def _fetch_worker(input_stream, output_stream):
     output_stream.write(body)
 
 
-def _fetch_https(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf", record_response=None):
+def _fetch_https(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf",
+                 pacing=(0, 0), record_progress=None):
     kind = _validate_fetch_request(url, attempts, max_bytes, expected_format)
     url, _ = urllib.parse.urldefrag(url)  # fragments are client-side and are never sent on the wire
     try:
@@ -567,11 +575,21 @@ def _fetch_https(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format=
     except (ConfigError, UserAgentError) as e:
         raise FetchRejected(f"crawler_contact: set {CONTACT_ENV} to a valid public email or URL") from e
 
+    crawl_delay, ready_at = pacing
+    wait = ready_at - time.monotonic()
+    if wait > 0:
+        time.sleep(wait)
+    if crawl_delay and record_progress is not None:
+        record_progress(crawl_delay=crawl_delay)
     robots = RobotsCache(transport, transport.user_agent, follow_redirects=False).check(url)
+    if (robots.crawl_delay or 0) > crawl_delay:
+        crawl_delay = robots.crawl_delay
+        if record_progress is not None:
+            record_progress(crawl_delay=crawl_delay)
     if not robots.allowed:
         raise FetchRejected(robots.reason, deferred_until=robots.deferred_until)
-    if robots.crawl_delay:
-        time.sleep(robots.crawl_delay)
+    if crawl_delay:
+        time.sleep(crawl_delay)
 
     final_url = http_status = None
     for i in range(attempts):
@@ -586,8 +604,11 @@ def _fetch_https(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format=
                     if until is None or until <= received_at:
                         until = (int(received_at // DAY_S) + 1) * DAY_S
                     deferral = (until, f"rate_limited: {http_status}")
-                if record_response is not None:
-                    record_response(final_url, http_status, deferral)
+                if record_progress is not None:
+                    metadata = {"response": {"final_url": final_url, "http_status": http_status}}
+                    if deferral is not None:
+                        metadata["deferral"] = deferral
+                    record_progress(**metadata)
                 if deferral is not None:
                     until, detail = deferral
                     raise FetchRejected(detail, deferred_until=until)
@@ -613,7 +634,7 @@ def _fetch_https(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format=
         except TransportError as e:
             if i == attempts - 1:
                 raise FetchRejected(f"transport_error: {e}", final_url=final_url, http_status=http_status) from e
-            time.sleep(max(2 * 2**i, robots.crawl_delay or 0))
+            time.sleep(max(2 * 2**i, crawl_delay))
 
 
 def cmd_detect(args):
@@ -621,6 +642,7 @@ def cmd_detect(args):
     out = Path(args.out)
     results = []
     host_deferrals = {}  # Host-wide decisions survive each sample's deadline-bounded worker.
+    host_pacing = {}
     for r in rows():
         sid = r["sample_id"]
         res = {"sample_id": sid, "url": r["url"], "requested_url": r["url"], "final_url": None, "http_status": None,
@@ -639,7 +661,7 @@ def cmd_detect(args):
             continue
         try:
             body, ctype, final_url, http_status = fetch(r["url"], expected_format=r["format"],
-                                                      robots_deferrals=host_deferrals)
+                                                      robots_deferrals=host_deferrals, host_pacing=host_pacing)
         except FetchRejected as e:
             res.update(status="fetch_failed", detail=str(e)[:200], http_status=e.http_status, final_url=e.final_url)
             if e.final_url is not None:

@@ -302,7 +302,8 @@ class CliDependencies(unittest.TestCase):
                         mock.patch.object(vs, "fetch", fetch):
                     code, _ = self.run_main(["detect", "--out", str(out), "--report", str(report)])
                 self.assertEqual(code, expected_code)
-                fetch.assert_called_once_with(row["url"], expected_format=row["format"], robots_deferrals={})
+                fetch.assert_called_once_with(row["url"], expected_format=row["format"],
+                                              robots_deferrals={}, host_pacing={})
                 doc = json.loads(report.read_text())
                 self.assertEqual(doc["check"], "detect")
                 self.assertEqual(doc["summary"], {status: 1})

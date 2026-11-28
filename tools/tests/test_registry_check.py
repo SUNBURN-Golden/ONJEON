@@ -1,5 +1,7 @@
 """Registry integrity: live snapshot, disposable regressions and the real CI command."""
 import csv
+import hashlib
+import json
 import re
 import shutil
 import subprocess
@@ -26,14 +28,17 @@ class RegistryCheck(unittest.TestCase):
         vocab = self.root / "packages/schemas/vocabulary.json"
         vocab.parent.mkdir(parents=True)
         shutil.copy2(ROOT / "packages/schemas/vocabulary.json", vocab)
+        self.manifest = self.root / rc.SUPERVISORY_REQUESTS
+        self.manifest.parent.mkdir(parents=True)
+        shutil.copy2(ROOT / rc.SUPERVISORY_REQUESTS, self.manifest)
 
-    def rows(self, name):
+    def rows(self, name, delimiter=","):
         with (self.reg / name).open(encoding="utf-8", newline="") as f:
-            return list(csv.DictReader(f))
+            return list(csv.DictReader(f, delimiter=delimiter))
 
-    def write(self, name, rows):
+    def write(self, name, rows, delimiter=","):
         with (self.reg / name).open("w", encoding="utf-8", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+            writer = csv.DictWriter(f, fieldnames=list(rows[0]), delimiter=delimiter)
             writer.writeheader()
             writer.writerows(rows)
 
@@ -52,7 +57,7 @@ class RegistryCheck(unittest.TestCase):
 
     def copy_scripts(self):
         scripts = self.root / "tools"
-        scripts.mkdir()
+        scripts.mkdir(exist_ok=True)
         for name in ("registry_check.py", "registry_normalize.py", "vocab_check.py"):
             shutil.copy2(ROOT / "tools" / name, scripts / name)
 
@@ -119,6 +124,134 @@ class RegistryCheck(unittest.TestCase):
             self.assertFinding("listed_in references unknown source_id 'absent_source'")
             rows[0]["listed_in"] = original
             self.write(name, rows)
+
+    def test_listed_in_cannot_be_cleared_for_a_non_seed(self):
+        self.change("insurers.csv", "insurer_id", "life-hanwha", listed_in="")
+        self.assertFinding("insurers.csv:2: listed_in is empty for non-seed 'life-hanwha'")
+
+    def test_snapshot_row_counts_reject_a_missing_record_in_each_table_and_survey(self):
+        for name, column, date, expected in (
+            ("insurers.csv", None, None, 53),
+            ("cooperatives_and_others.csv", None, None, 16),
+            ("excluded_or_historical.csv", None, None, 49),
+            ("sources.csv", "retrieved_at", "2026-10-09", 66),
+            ("access_log.csv", "attempted_at", "2026-10-09", 98),
+            ("sources.csv", "retrieved_at", "2026-11-10", 9),
+            ("access_log.csv", "attempted_at", "2026-11-10", 14),
+        ):
+            with self.subTest(name=name, date=date):
+                original = (self.reg / name).read_bytes()
+                rows = self.rows(name)
+                i = next(i for i, row in enumerate(rows) if date is None or row[column].startswith(date))
+                del rows[i]
+                self.write(name, rows)
+                date_label = f"{date!r}: " if date else ""
+                self.assertFinding(f"{name}:1: {date_label}expected {expected} data rows, got {expected - 1}")
+                (self.reg / name).write_bytes(original)
+
+    def test_snapshot_count_rejects_date_drift_even_with_the_same_total(self):
+        self.change("access_log.csv", "purpose", "source:klia_home.html", attempted_at="2026-10-10T04:21:35Z")
+        self.assertFinding("'2026-10-09': expected 98 data rows, got 97")
+        self.assertFinding("'2026-10-10': expected 0 data rows, got 1")
+
+    def test_access_digest_cli_maps_each_reachable_200_to_its_exact_evidence(self):
+        self.copy_scripts()
+        command = [sys.executable, "-I", "tools/registry_check.py", "--access-digests"]
+        before = self.snapshot()
+        manifest_before = self.manifest.read_bytes()
+        result = subprocess.run(command, cwd=self.root, capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.stderr, "")
+        report = list(csv.DictReader(result.stdout.splitlines()))
+        access = {str(i): r for i, r in enumerate(self.rows("access_log.csv"), 2)
+                  if r["http_code"] == "200" and r["host_access"] == "reachable"}
+        sources = {r["source_id"]: r for r in self.rows("sources.csv")}
+        requests = {str(i): r for i, r in enumerate(self.rows(self.manifest, delimiter="\t"), 2)}
+        self.assertEqual([r["line"] for r in report], list(access))
+        self.assertEqual(Counter(r["digest_kind"] for r in report),
+                         Counter(response_body=63, access_record_only=5))
+        self.assertEqual([r["line"] for r in report if r["digest_kind"] == "access_record_only"],
+                         ["10", "14", "15", "20", "27"])
+        self.assertEqual(sum(r["evidence"].startswith(rc.SUPERVISORY_REQUESTS) for r in report), 14)
+        for record in report:
+            with self.subTest(line=record["line"], purpose=record["purpose"]):
+                row = access[record["line"]]
+                for field in ("attempted_at", "purpose", "url", "final_url"):
+                    self.assertEqual(record[field], row[field])
+                evidence = record["evidence"]
+                self.assertRegex(record["sha256"], r"^[0-9a-f]{64}$")
+                if record["digest_kind"] == "access_record_only":
+                    self.assertEqual(evidence, f"data/registry/access_log.csv:{record['line']}")
+                    payload = json.dumps(row, ensure_ascii=False, sort_keys=True,
+                                         separators=(",", ":")).encode("utf-8")
+                    self.assertEqual(record["sha256"], hashlib.sha256(payload).hexdigest())
+                elif evidence.startswith("data/registry/sources.csv#"):
+                    source = sources[evidence.split("#", 1)[1]]
+                    self.assertEqual((row["attempted_at"], row["url"]), (source["retrieved_at"], source["url"]))
+                    self.assertEqual(source["sha256"], record["sha256"])
+                else:
+                    request = requests[evidence.rsplit(":", 1)[1]]
+                    self.assertEqual((row["attempted_at"], row["url"]), (request["started_at"], request["url"]))
+                    self.assertEqual(request["sha256"], record["sha256"])
+        self.assertEqual(self.snapshot(), before)
+        self.assertEqual(self.manifest.read_bytes(), manifest_before)
+
+        self.change("sources.csv", "source_id", "klia_home", retrieved_at="2026-10-09T04:21:36Z")
+        result = subprocess.run(command, cwd=self.root, capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("access_log.csv:2: no matching response SHA-256", result.stderr)
+
+    def test_access_digest_check_rejects_invalid_source_hashes_and_ambiguous_observations(self):
+        original = (self.reg / "sources.csv").read_bytes()
+        for bad in ("", "a" * 63, "g" * 64):
+            with self.subTest(hash=bad):
+                self.change("sources.csv", "source_id", "klia_member", sha256=bad)
+                self.assertFinding("sources.csv:2: invalid SHA-256 for source_id 'klia_member'")
+                (self.reg / "sources.csv").write_bytes(original)
+
+        sources = self.rows("sources.csv")
+        source = dict(sources[0], source_id="conflicting_klia_member", sha256="a" * 64)
+        self.write("sources.csv", [source, *sources[:-1]])
+        self.assertFinding("duplicate HTTP 200 source observation")
+        (self.reg / "sources.csv").write_bytes(original)
+        attempts = self.rows("access_log.csv")
+        attempts[1] = dict(attempts[0])
+        self.write("access_log.csv", attempts)
+        self.assertFinding("access_log.csv:3: duplicate access observation")
+
+    def test_access_record_digest_applies_only_to_the_original_probes(self):
+        self.change("access_log.csv", "purpose", "source:dart_dsae001.html",
+                    detail="changed historical request evidence")
+        self.assertFinding("access_log.csv:27: no matching response SHA-256 for 'source:dart_dsae001.html'")
+
+    def test_success_cannot_be_hidden_by_changing_http_code_or_curl_result(self):
+        original = (self.reg / "access_log.csv").read_bytes()
+        for changes in (dict(http_code="302"), dict(curl_exit="28"), dict(result="302")):
+            with self.subTest(changes=changes):
+                self.change("access_log.csv", "purpose", "source:klia_home.html", **changes)
+                self.assertFinding("access_log.csv:2: inconsistent reachable HTTP 200 observation")
+                (self.reg / "access_log.csv").write_bytes(original)
+
+    def test_supervisory_digests_require_the_original_request_and_agreement_with_sources(self):
+        manifest = self.rows(self.manifest, delimiter="\t")
+        self.write(self.manifest, manifest[1:], delimiter="\t")
+        self.assertFinding("no matching supervisory request for 'probe:fisis_home.html'")
+        for index, changes, expected in (
+            (0, dict(final_url="https://fisis.fss.or.kr/"), "no matching supervisory request"),
+            (0, dict(sha256="g" * 64), "invalid response SHA-256"),
+            (2, dict(method="GET"), "no matching supervisory request"),
+            (4, dict(post_data="partDiv=I&baseMonth=202606"), "no matching supervisory request"),
+            (4, dict(sha256="a" * 64), "conflicting response SHA-256"),
+            (1, manifest[0], "duplicate request"),
+        ):
+            with self.subTest(index=index, changes=changes):
+                modified = list(manifest)
+                modified[index] = dict(manifest[index], **changes)
+                self.write(self.manifest, modified, delimiter="\t")
+                self.assertFinding(expected)
+        self.manifest.unlink()
+        self.assertFinding(f"{rc.SUPERVISORY_REQUESTS}:1: cannot read TSV")
 
     def test_seed_and_artifact_purposes_are_not_dangling_entity_references(self):
         self.assertTrue(any(not r["listed_in"] and r["entity_evidence"] == "seed"
@@ -357,6 +490,7 @@ class RegistryCheck(unittest.TestCase):
             (b"source_id,source_id\n", "missing or duplicate CSV header"),
             (b"source_id\n", "missing required columns"),
             (b"source_id,url,retrieved_at,http_status,sha256\na,b\n", ":2: expected 5 cells, got 2"),
+            (b"source_id,url,retrieved_at,http_status,sha256\na,b,c,d,e,f\n", ":2: expected 5 cells, got 6"),
             (b'source_id,url,retrieved_at,http_status,sha256\na,"unterminated\n', "invalid CSV"),
         ):
             with self.subTest(contents=contents):
@@ -376,7 +510,7 @@ class RegistryCheck(unittest.TestCase):
 
     def test_declared_ci_command_passes_and_rejects_original_findings_read_only(self):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-        match = re.search(r"^      - name: Registry CSV references and access evidence\n"
+        match = re.search(r"^      - name: Registry CSV integrity and access digests\n"
                           r"        run: (.+)$", workflow, re.MULTILINE)
         self.assertIsNotNone(match)
         command = match[1]
@@ -386,6 +520,7 @@ class RegistryCheck(unittest.TestCase):
         self.copy_scripts()
         baseline = self.snapshot()
         aia_row = next(row for row in baseline["insurers.csv"].splitlines() if row.startswith(b"life-aia,"))
+        hanwha_row = baseline["insurers.csv"].splitlines()[1]
         cases = (
             (None, None, None, "registry check passed"),
             ("insurers.csv", aia_row, aia_row.replace(b",unqueried,", b",archived,", 1),
@@ -396,6 +531,16 @@ class RegistryCheck(unittest.TestCase):
              "purpose references unknown insurer_id 'nonlife-mitsuisumitomo'"),
             ("sources.csv", b"homepage_nonlife-mitsuisumitomo-kr,", b"homepage_nonlife-mitsuisumitomo,",
              "source_id references unknown insurer_id 'nonlife-mitsuisumitomo'"),
+            ("access_log.csv", b"source:klia_home.html,200,0,200,,,reachable", b"source:klia_home.html,200,0,200,,,reachable,",
+             "expected 10 cells, got 11"),
+            ("sources.csv", b"\nklia_pub_mngtdis,", b"\nklia_member,", "duplicate source_id"),
+            ("insurers.csv", aia_row + b"\r\n", b"", "expected 53 data rows, got 52"),
+            ("insurers.csv", hanwha_row, hanwha_row.replace(b"klia_member;", b"absent_source;", 1),
+             "listed_in references unknown source_id 'absent_source'"),
+            ("insurers.csv", aia_row, aia_row.replace(b",unqueried,", b",invented_code,", 1),
+             "expected acquisition_status code"),
+            ("sources.csv", b"2026-10-09T04:21:35Z,dc950", b"2026-10-09T04:21:36Z,dc950",
+             "no matching response SHA-256"),
             ("excluded_or_historical.csv", b"entity_evidence,", b"status,", "deprecated field `status`"),
             ("cooperatives_and_others.csv", b",in_denominator,scope_adr\r\n", b",scope_adr\r\n",
              "missing required columns: in_denominator"),

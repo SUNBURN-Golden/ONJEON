@@ -6,10 +6,12 @@
 
 `python3 -I tools/registry_check.py`도 CI에서 실행한다. 기관·출처 ID의 중복·빈 값, `listed_in`의 출처 참조, 접근 목적과 회사 페이지 출처 ID의 기관 참조를 검사하고 위 상태값 검사를 재사용한다. 접근 결과는 원문 `result`·`*_detail`, 기관별 마지막 홈페이지·리다이렉트/공시 접근 기록과 대조하며 회사 페이지 출처는 URL·관측 시각·원래 결과까지 접근 로그로 추적한다. `source:*.html` 같은 조사 산출물 이름은 출처 ID로 해석하지 않는다. 검사기는 CSV를 수정하지 않으며 메모의 의미나 원문 보관·상품 분모 완성을 증명하지 않는다. [Audit 6 정정·회귀 증거](../../docs/blueprint/audits/2026-11-16_registry_csv_ci_check.md).
 
+같은 CI 단계에서 2026-10-09 기관 원장 53·16·49행과 출처 66건·요청 98건, 2026-11-10 출처 9건·요청 14건을 검사한다. `python3 -I tools/registry_check.py --access-digests`는 `http_code=200`, `host_access=reachable`인 68행의 SHA-256과 근거를 CSV로 출력한다. 응답 본문 해시 63건은 출처 원장 또는 감독당국 요청 기록과 연결된다. 원래 응답 본문 해시를 확인할 수 없는 탐색 요청 5건에는 `access_record_only`로 원래 접근 기록의 해시를 표시한다. [Audit 8 원장 무결성 검증](../../docs/blueprint/audits/2026-11-28_registry_integrity_test.md).
+
 조사 시각: 2026-10-09 04:21–04:36 UTC (이 샌드박스 환경, 해외 IP 경유)
 상태: **1차 근거 목록**. 상품·특약 단위 분모는 아직 만들지 않았다(아래 "열거하지 않은 것" 참조).
 
-`DATA_PIPELINE_CONTRACT.md` §1의 `SourceRegistry` / `DiscoveryManifest` / `ExpectedDocument` 중 **회사 축**만 다룬다. 이 목록의 모든 회사 행은 실제로 가져온 페이지에서 나왔고, 원문 해시는 `sources.csv`에 있다. 원문 HTML은 저장소에 넣지 않았다(샌드박스 scratchpad에만 있음).
+`DATA_PIPELINE_CONTRACT.md` §1의 `SourceRegistry` / `DiscoveryManifest` / `ExpectedDocument` 중 **회사 축**만 다룬다. 출처가 확인된 기관 행은 실제로 가져온 페이지를 참조하며 해당 응답 해시는 `sources.csv`에 있다. 원문 HTML은 저장소에 넣지 않았다(샌드박스 scratchpad에만 있음).
 
 ## 파일
 
@@ -18,7 +20,7 @@
 | `insurers.csv` | 협회 **현행** 목록(KLIA 회원사, KNIA 정회원·준회원·비회원사)에 있는 보험회사 53곳. 기관 분모에 53곳 모두 포함 |
 | `cooperatives_and_others.csv` | 공제조합·우체국보험·한국무역보험공사 16행(시드 1 포함). 기관 분모에는 우체국보험 1곳 포함 |
 | `excluded_or_historical.csv` | 가져온 페이지에는 있으나 현행 협회 목록에 없는 49행: 과거·합병 추정 보험사, DART 업종 목록의 비보험 법인, KIDI '공영보험'의 사회보험 기관. 제외 사유를 남기려고 둔 파일이며 분모가 아니다 |
-| `sources.csv` | 사용한 모든 페이지(목록 출처, 탐색용 페이지, 회사 홈페이지·공시 페이지) 75건과 응답 본문 sha256. 2026-11-10 감독당국 재조회 9건 포함 |
+| `sources.csv` | 근거로 등록한 응답 75건과 응답 본문 SHA-256. 목록 출처, 일부 탐색용 페이지, 회사 홈페이지·공시 페이지와 2026-11-10 감독당국 재조회 9건 포함 |
 | `source_fetch_hosts.json` | `verify_sources.py detect`의 명시적 호스트 허용 목록. HTTPS·같은 출처 리다이렉트·robots 제한을 함께 적용한다 |
 | `access_log.csv` | 기록한 요청 112건(실패 포함)과 결과 분류. 2026-11-10 감독당국 재조회 14건 포함 |
 | `authority_crosscheck_2026-11-10.csv` | FISIS·파인 보험회사 목록과 `insurers.csv`·`excluded_or_historical.csv`의 기관별 대조 결과 57행 및 조회 출처 ID |

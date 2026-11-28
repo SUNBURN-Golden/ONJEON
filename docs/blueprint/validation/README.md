@@ -45,11 +45,11 @@ ONJEON_CRAWLER_ALLOW_NETWORK=1 ONJEON_CRAWLER_CONTACT="$PUBLIC_CRAWLER_CONTACT" 
 
 `detect`는 `ONJEON_CRAWLER_CONTACT`의 공개 이메일 또는 연락처 URL을 `ONJEON-SourceArchiver` User-Agent에 넣는다. 수동 `sources` 워크플로는 같은 이름의 저장소 변수에서 연락처를 받아 detect 단계에만 제공하며, 해당 단계에 `ONJEON_CRAWLER_ALLOW_NETWORK=1`을 설정한다. 로컬 실행에서도 위 예시의 `PUBLIC_CRAWLER_CONTACT`에 실제 공개 연락처를 지정한다.
 
-[2026-10-10 조사](../../research/2026-10-10_source_survey/A_klia.md#6-접근-제한과-실패)의 전면 금지 기록에 따라 `pub.insure.or.kr` 표본 2건은 요청 없이 `fetch_failed`를 기록한다. 최신 robots 정책 확인은 등록된 나머지 HTTPS 출처에 적용한다. 문서 요청 전에 같은 출처의 `/robots.txt`를 같은 User-Agent로 확인하며, 공용 robots 정책의 경로 금지·접근 거부·실패·리다이렉트 판정에 따라 문서 요청을 중단한다.
+[2026-10-10 조사](../../research/2026-10-10_source_survey/A_klia.md#6-접근-제한과-실패)의 전면 금지 기록에 따라 `pub.insure.or.kr` 표본 2건은 요청 없이 `fetch_failed`를 기록한다. 최신 robots 정책 확인은 등록된 나머지 HTTPS 출처에 적용한다. 문서 요청 전에 같은 출처의 `/robots.txt`를 같은 User-Agent로 확인하고 일치하는 그룹들의 규칙을 합쳐 판정한다. robots 요청에서 429나 불완전한 응답 등으로 호스트가 보류되면 같은 실행의 이후 표본에도 UTC 자정까지 보류를 적용한다.
 
 문서와 `robots.txt` 요청은 리다이렉트를 따라가지 않는다. 보고서의 `requested_url`은 입력 URL이고, `final_url`과 `http_status`는 프래그먼트를 제외한 문서 응답 URL과 HTTP 상태다. 문서 응답 메타데이터가 없으면 두 값은 `null`이다. 변경 판정은 계속 `status`에 기록한다. 새 보관 관측에는 입력 URL·문서 응답 URL·HTTP 상태를 함께 남긴다.
 
-출처별 120초 안에 robots 조회, 문서 다운로드와 연결 오류 재시도를 완료해야 한다. HTTP 200, MIME, PDF/HTML 시그니처를 확인하고, HTML의 앞 64 KiB에서 알려진 차단 페이지를 검사한다. 최종 응답에는 공용 전송 계층의 64 MiB 제한을 적용한다. 초과 길이를 선언하면 읽기 전에 거부하고, 실제 스트림이 상한을 넘으면 한 바이트를 더 읽어 초과를 판정한다. 실패한 출처는 `fetch_failed`·종료 코드 1로 집계하고 캐시·원본·성공 관측을 쓰지 않는다. [Audit 8 수집 경계 검증](../audits/2026-11-28_detect_fetch_hardening.md).
+출처별 120초 안에 robots 조회, 문서 다운로드와 연결 오류 재시도를 완료해야 한다. HTTP 200, MIME, PDF/HTML 시그니처를 확인하고, HTML의 앞 64 KiB에서 알려진 차단 페이지를 검사한다. 최종 응답에는 공용 전송 계층의 64 MiB 제한을 적용한다. 초과 길이를 선언하면 읽기 전에 거부하고, 실제 스트림이 상한을 넘으면 한 바이트를 더 읽어 초과를 판정한다. robots와 문서의 `Content-Length`가 반복되면 같은 숫자 값만 허용하며, 선언 길이와 다른 본문은 거부한다. 실패한 출처는 `fetch_failed`·종료 코드 1로 집계하고 캐시·원본·성공 관측을 쓰지 않는다. [Audit 8 수집 경계 검증](../audits/2026-11-28_detect_fetch_hardening.md).
 
 ### HTML 본문 해시
 

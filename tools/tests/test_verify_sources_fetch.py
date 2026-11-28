@@ -250,8 +250,8 @@ class ResponseAdmission(unittest.TestCase):
     def test_body_at_the_cap_is_returned(self):
         self.assertEqual(self.fetch_with(Response(PDF), max_bytes=len(PDF))[0], PDF)
 
-    def test_size_limit_is_bounded_with_missing_false_or_malformed_length(self):
-        for length in (None, 1, "invalid"):
+    def test_size_limit_is_bounded_with_missing_or_understated_length(self):
+        for length in (None, 1):
             with self.subTest(length=length):
                 response = Response(PDF * 20, length=length)
                 with self.assertRaisesRegex(vs.FetchRejected, "too_large"):
@@ -307,10 +307,31 @@ class ResponseAdmission(unittest.TestCase):
         self.assertEqual(sleep.call_args_list, [mock.call(5), mock.call(5)])
 
 
+class RobotsDeferrals(unittest.TestCase):
+    def test_deferral_is_host_scoped_and_expires_at_the_recorded_time(self):
+        deferrals = {"www.kyobo.com": (86400, "robots_rate_limited")}
+
+        def worker(command, *, input, stdout, **kwargs):
+            url = json.loads(input)[0]
+            result = {"content_type": "application/pdf", "final_url": url, "http_status": 200}
+            stdout.write(json.dumps(result).encode() + b"\n" + PDF)
+
+        with mock.patch.object(vs.subprocess, "run", side_effect=worker) as run, \
+                mock.patch.object(vs.time, "time", return_value=86399) as clock:
+            with self.assertRaisesRegex(vs.FetchRejected, "robots_rate_limited"):
+                vs.fetch(SOURCE_URL, robots_deferrals=deferrals)
+            run.assert_not_called()
+            self.assertEqual(vs.fetch("https://www.kbinsure.co.kr/document", robots_deferrals=deferrals)[0], PDF)
+            clock.return_value = 86400
+            self.assertEqual(vs.fetch(SOURCE_URL, robots_deferrals=deferrals)[0], PDF)
+            self.assertEqual(run.call_count, 2)
+
+
 class DetectLocalHTTPS(unittest.TestCase):
     def setUp(self):
         self.robots_status = 200
         self.robots_body = b"User-agent: *\nDisallow:\n"
+        self.robots_length = None
         self.server.test = self
         # Loopback hosts are admitted only in this isolated test registry.
         policy_dir = tempfile.TemporaryDirectory()
@@ -339,9 +360,10 @@ class DetectLocalHTTPS(unittest.TestCase):
                         self.close_connection = True
                         return
                     body = self.server.test.robots_body
+                    length = self.server.test.robots_length
                     self.send_response(status)
                     self.send_header("Content-Type", "text/plain")
-                    self.send_header("Content-Length", str(len(body)))
+                    self.send_header("Content-Length", str(len(body) if length is None else length))
                     if status == 302:
                         self.send_header("Location", "/must-not-fetch")
                     self.end_headers()
@@ -372,6 +394,13 @@ class DetectLocalHTTPS(unittest.TestCase):
                 self.send_header("Content-Type", mime)
                 if self.path == "/declared-large":
                     self.send_header("Content-Length", "100000")
+                elif self.path in ("/repeated-length", "/truncated-repeated-length"):
+                    length = str(len(body) + (self.path == "/truncated-repeated-length"))
+                    self.send_header("Content-Length", length)
+                    self.send_header("Content-Length", length)
+                elif self.path == "/chunked":
+                    self.send_header("Transfer-Encoding", "chunked")
+                    body = f"{len(body):x}\r\n".encode() + body + b"\r\n0\r\n\r\n"
                 elif self.path != "/streamed-large":
                     self.send_header("Content-Length", str(len(body)))
                 try:
@@ -411,10 +440,15 @@ class DetectLocalHTTPS(unittest.TestCase):
         cls.worker.join()
 
     def run_detect(self, root, path, fmt="text_pdf", cap=vs.MAX_FETCH_BYTES, baseline="0" * 64):
+        code, results = self.run_detect_rows(root, [
+            {"sample_id": "source", "url": self.origin + path, "format": fmt,
+             "cache_path": "source/document", "sha256": baseline},
+        ], cap)
+        return code, results[0]
+
+    def run_detect_rows(self, root, rows, cap=vs.MAX_FETCH_BYTES):
         args = argparse.Namespace(raw=(root / "archive").as_uri(), out=str(root / "downloads"),
                                   archive_new=True, endpoint_url=None, report=str(root / "report.json"))
-        row = {"sample_id": "source", "url": self.origin + path, "format": fmt,
-               "cache_path": "source/document", "sha256": baseline}
         bounded_fetch = functools.partial(vs.fetch, max_bytes=cap)
         run = subprocess.run
 
@@ -427,7 +461,7 @@ class DetectLocalHTTPS(unittest.TestCase):
                       "vs._fetch_worker(sys.stdin.buffer, sys.stdout.buffer)")
             return run([sys.executable, "-I", "-c", script, str(vs.ROOT / "tools"), str(self.policy)], **kwargs)
 
-        with mock.patch.object(vs, "rows", return_value=[row]), \
+        with mock.patch.object(vs, "rows", return_value=rows), \
                 mock.patch.object(vs, "fetch", bounded_fetch), \
                 mock.patch.object(vs.subprocess, "run", side_effect=run_worker), \
                 mock.patch.object(vs, "tool_version", return_value=None), \
@@ -435,7 +469,7 @@ class DetectLocalHTTPS(unittest.TestCase):
                                                "https_proxy": "http://127.0.0.1:1", "no_proxy": ""}), \
                 mock.patch("sys.stdout", new_callable=io.StringIO):
             code = vs.cmd_detect(args)
-        return code, json.loads(Path(args.report).read_text())["results"][0]
+        return code, json.loads(Path(args.report).read_text())["results"]
 
     def test_deadline_covers_continuously_streamed_body(self):
         with tempfile.TemporaryDirectory() as d, mock.patch.object(vs, "FETCH_DEADLINE_SECONDS", 1.5):
@@ -520,6 +554,51 @@ class DetectLocalHTTPS(unittest.TestCase):
             self.assertEqual((code, result["http_status"]), (0, 200))
             self.assertEqual(self.requests[before:], ["/robots.txt", "/document"])
 
+    def test_robots_rate_limit_defers_all_later_samples_on_the_host(self):
+        self.robots_status = 429
+        origins = (self.origin, self.origin, "https://127.0.0.1:1")
+        rows = [{"sample_id": f"source-{i}", "url": f"{origin}/document-{i}", "format": "text_pdf",
+                 "cache_path": f"source/document-{i}", "sha256": "0" * 64}
+                for i, origin in enumerate(origins)]
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            before = len(self.requests)
+            code, results = self.run_detect_rows(root, rows)
+            self.assertEqual(self.requests[before:], ["/robots.txt"])
+            self.assertEqual(code, 1)
+            self.assertEqual(len(results), len(rows))
+            for result in results:
+                self.assertEqual((result["status"], result["detail"]), ("fetch_failed", "robots_rate_limited"))
+                self.assertIsNone(result["http_status"])
+                self.assertIsNone(result["final_url"])
+            self.assertFalse((root / "downloads").exists())
+            self.assertFalse((root / "archive").exists())
+
+    def test_incomplete_robots_response_never_authorizes_document_request(self):
+        self.robots_length = len(self.robots_body) + len(b"Disallow: /document\n")
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            before = len(self.requests)
+            code, result = self.run_detect(root, "/document")
+            self.assertEqual(self.requests[before:], ["/robots.txt"])
+            self.assertEqual((code, result["status"], result["detail"]), (1, "fetch_failed", "robots_unreachable"))
+            self.assertIsNone(result["final_url"])
+            self.assertIsNone(result["http_status"])
+            self.assertFalse((root / "downloads").exists())
+            self.assertFalse((root / "archive").exists())
+
+    def test_later_matching_robots_group_disallows_document_request(self):
+        self.robots_body = (b"User-agent: ONJEON-SourceArchiver\nAllow: /\n\n"
+                            b"User-agent: onjeon-sourcearchiver\nDisallow: /document\n")
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            before = len(self.requests)
+            code, result = self.run_detect(root, "/document")
+            self.assertEqual(self.requests[before:], ["/robots.txt"])
+            self.assertEqual((code, result["status"], result["detail"]), (1, "fetch_failed", "robots_disallow"))
+            self.assertFalse((root / "downloads").exists())
+            self.assertFalse((root / "archive").exists())
+
     def test_initial_http_url_fails_without_request_cache_or_archive(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
@@ -571,6 +650,7 @@ class DetectLocalHTTPS(unittest.TestCase):
             ("/fake-pdf", "scanned_pdf", vs.MAX_FETCH_BYTES, "wrong_signature"),
             ("/declared-large", "text_pdf", 10, "too_large"),
             ("/streamed-large", "text_pdf", 10, "too_large"),
+            ("/truncated-repeated-length", "text_pdf", vs.MAX_FETCH_BYTES, "length_mismatch"),
         ):
             with self.subTest(path=path, fmt=fmt), tempfile.TemporaryDirectory() as d:
                 root = Path(d)
@@ -594,7 +674,8 @@ class DetectLocalHTTPS(unittest.TestCase):
         self.assertNotIn("/must-not-fetch", self.requests)
 
     def test_admitted_pdf_unchanged_and_public_html_still_archive(self):
-        for path, fmt, body in (("/document", "text_pdf", PDF), ("/public", "html", HTML)):
+        for path, fmt, body in (("/document", "text_pdf", PDF), ("/public", "html", HTML),
+                                ("/repeated-length", "text_pdf", PDF), ("/chunked", "text_pdf", PDF)):
             with self.subTest(fmt=fmt), tempfile.TemporaryDirectory() as d:
                 root = Path(d)
                 code, result = self.run_detect(root, path, fmt, baseline=vs.sa.sha256_bytes(body))

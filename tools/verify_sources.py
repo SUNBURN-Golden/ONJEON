@@ -56,7 +56,7 @@ import source_metadata as sm  # noqa: E402
 from crawler.config import ConfigError, CrawlerConfig, HARD_OBJECT_CAP_BYTES  # noqa: E402
 from crawler.robots import RobotsCache  # noqa: E402
 from crawler.transport import (  # noqa: E402
-    BodyTooLargeError, NetworkDisabledError, RefusedRequestError, TransportError, UrllibTransport,
+    BodyFramingError, BodyTooLargeError, NetworkDisabledError, RefusedRequestError, TransportError, UrllibTransport,
 )
 from crawler.useragent import UserAgentError  # noqa: E402
 
@@ -378,10 +378,11 @@ ROBOTS_POLICY_SOURCE = "docs/research/2026-10-10_source_survey/A_klia.md#6-ì ‘ê·
 class FetchRejected(Exception):
     """A source could not be admitted. Carry document response metadata when available."""
 
-    def __init__(self, detail, *, final_url=None, http_status=None):
+    def __init__(self, detail, *, final_url=None, http_status=None, deferred_until=None):
         super().__init__(detail)
         self.final_url = final_url
         self.http_status = http_status
+        self.deferred_until = deferred_until
 
 
 class RobotsDisallowed(FetchRejected):
@@ -473,9 +474,17 @@ def _validate_fetch_request(url, attempts, max_bytes, expected_format):
     return kind
 
 
-def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf"):
+def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf", robots_deferrals=None):
     """Return (admitted bytes, MIME, final URL, HTTP status) within one deadline per source."""
     kind = _validate_fetch_request(url, attempts, max_bytes, expected_format)
+    if robots_deferrals is None:
+        robots_deferrals = {}
+    host = urllib.parse.urlsplit(url).hostname
+    deferred = robots_deferrals.get(host)
+    if deferred is not None:
+        until, reason = deferred
+        if time.time() < until:
+            raise FetchRejected(reason, deferred_until=until)
     command = [sys.executable, "-I", str(Path(__file__).resolve()), "--fetch-worker"]
     request = json.dumps([url, attempts, max_bytes, kind]).encode()
     # A socket timeout only caps individual operations. A separate process can be
@@ -507,8 +516,12 @@ def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf"):
         if result is None or "response" in result:
             raise FetchRejected("worker_failed: missing fetch result", **observed)
         if "error" in result:
+            deferred_until = result.get("deferred_until")
+            if deferred_until is not None:
+                robots_deferrals[host] = (deferred_until, result["detail"])
             raise FetchRejected(result["detail"], final_url=result.get("final_url", observed.get("final_url")),
-                                http_status=result.get("http_status", observed.get("http_status")))
+                                http_status=result.get("http_status", observed.get("http_status")),
+                                deferred_until=deferred_until)
         return output.read(), result["content_type"], result["final_url"], result["http_status"]
 
 
@@ -527,7 +540,7 @@ def _fetch_worker(input_stream, output_stream):
         result = {"content_type": ctype, "final_url": final_url, "http_status": http_status}
     except FetchRejected as e:
         result = {"error": "FetchRejected", "detail": str(e),
-                  "final_url": e.final_url, "http_status": e.http_status}
+                  "final_url": e.final_url, "http_status": e.http_status, "deferred_until": e.deferred_until}
     except Exception as e:
         result = {"error": "FetchRejected", "detail": f"{type(e).__name__}: {e}"}
     output_stream.write(json.dumps(result).encode() + b"\n")
@@ -550,7 +563,7 @@ def _fetch_https(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format=
 
     robots = RobotsCache(transport, transport.user_agent, follow_redirects=False).check(url)
     if not robots.allowed:
-        raise FetchRejected(robots.reason)
+        raise FetchRejected(robots.reason, deferred_until=robots.deferred_until)
     if robots.crawl_delay:
         time.sleep(robots.crawl_delay)
 
@@ -569,11 +582,10 @@ def _fetch_https(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format=
                 if ctype not in SOURCE_MIMES[kind]:
                     raise FetchRejected(f"content_type_mismatch: expected {kind}, received {ctype or 'missing'}")
                 body = b"".join(response.body_iter)
-                declared = response.headers.get("content-length", "").strip()
-                if declared.isascii() and declared.isdecimal() and len(body) != int(declared):
-                    raise FetchRejected("length_mismatch: incomplete response body")
                 check_source_body(body, kind)
                 return body, ctype, final_url, http_status
+        except BodyFramingError as e:
+            raise FetchRejected(f"length_mismatch: {e}", final_url=final_url, http_status=http_status) from e
         except BodyTooLargeError as e:
             raise FetchRejected(f"too_large: {e}", final_url=final_url, http_status=http_status) from e
         except FetchRejected as e:
@@ -591,6 +603,7 @@ def cmd_detect(args):
     raw = sa.store(args.raw, args.endpoint_url) if args.raw else None
     out = Path(args.out)
     results = []
+    robots_deferrals = {}  # Host-wide decisions survive each sample's deadline-bounded worker.
     for r in rows():
         sid = r["sample_id"]
         res = {"sample_id": sid, "url": r["url"], "requested_url": r["url"], "final_url": None, "http_status": None,
@@ -608,7 +621,8 @@ def cmd_detect(args):
             results.append(res)
             continue
         try:
-            body, ctype, final_url, http_status = fetch(r["url"], expected_format=r["format"])
+            body, ctype, final_url, http_status = fetch(r["url"], expected_format=r["format"],
+                                                      robots_deferrals=robots_deferrals)
         except FetchRejected as e:
             res.update(status="fetch_failed", detail=str(e)[:200], http_status=e.http_status, final_url=e.final_url)
             if e.final_url is not None:

@@ -1,8 +1,7 @@
 """robots.txt policy over bytes supplied by the injected transport (stdlib urllib.robotparser logic).
 
-Parsing and group selection are stdlib (RobotFileParser.parse / Entry.applies_to). Rule matching is RFC 9309
-instead of the stdlib's first-match-wins with literal paths: the longest matching rule wins, Allow wins a tie,
-`*` and a trailing `$` work (stdlib would silently ignore `Disallow: /*.pdf$`, the unsafe direction).
+Parsing uses the stdlib RobotFileParser. Group selection and rule matching follow RFC 9309: matching groups
+are combined, the longest matching rule wins, Allow wins a tie, and `*` and a trailing `$` work.
 
 Outcomes per host (RFC 9309, plus the project rule "when in doubt, do not fetch"):
   200            parse; Disallow/Allow honoured for our product token; Crawl-delay returned (else None)
@@ -24,7 +23,7 @@ import time
 from dataclasses import dataclass
 from typing import Callable, Dict, Mapping, Optional, Tuple
 from urllib.parse import unquote, urljoin, urlsplit
-from urllib.robotparser import RobotFileParser
+from urllib.robotparser import RobotFileParser, RuleLine
 
 from .transport import BodyTooLargeError, NetworkDisabledError, Transport, TransportError
 from .useragent import PRODUCT_NAME, build_user_agent
@@ -51,7 +50,7 @@ class RobotsDecision:
 @dataclass
 class _Entry:
     fetched_at: float
-    parser: Optional[RobotFileParser]  # None => no robots.txt (4xx): allow all
+    rulelines: Tuple[RuleLine, ...]
     crawl_delay: Optional[float]
     reason: str
 
@@ -98,11 +97,9 @@ class RobotsCache:
                 entry = self._fetch(origin, now, headers, request)
                 if entry is None:
                     return self._deferral(origin[1], now)
-            if entry.parser is None:
-                return RobotsDecision(True, entry.reason, None)
-            if not _can_fetch(entry.parser, url):
+            if not _can_fetch(entry.rulelines, url):
                 return RobotsDecision(False, "robots_disallow", entry.crawl_delay)
-            return RobotsDecision(True, "ok", entry.crawl_delay)
+            return RobotsDecision(True, entry.reason, entry.crawl_delay)
 
     def crawl_delay(self, url: str) -> Optional[float]:
         return self.check(url).crawl_delay
@@ -162,7 +159,7 @@ class RobotsCache:
             self._defer(host, now, "robots_rate_limited")
             return None
         if 400 <= status < 500:
-            entry = _Entry(now, None, None, "robots_not_found")
+            entry = _Entry(now, (), None, "robots_not_found")
         elif 200 <= status < 300:
             if body is None:  # over the cap and nothing usable: we cannot know the rules, so do not fetch
                 self._defer(host, now, "robots_too_large")
@@ -191,28 +188,32 @@ def _read_capped(resp) -> Optional[bytes]:
     return bytes(buf)
 
 
+class _GroupParser(RobotFileParser):
+    def _add_entry(self, entry):
+        # Keep every group, including wildcard groups the stdlib would discard.
+        self.entries.append(entry)
+
+
 def _parse(now: float, body: bytes) -> _Entry:
-    rp = RobotFileParser()
-    rp.parse(body.decode("utf-8-sig", errors="replace").splitlines())
-    delay = rp.crawl_delay(PRODUCT_NAME)
-    return _Entry(now, rp, float(delay) if delay is not None else None, "ok")
+    parser = _GroupParser()
+    lines = body.decode("utf-8-sig", errors="replace").splitlines()
+    parser.parse(line for line in lines if line.strip())
+    token = PRODUCT_NAME.lower()
+    groups = [group for group in parser.entries if any(agent.lower() == token for agent in group.useragents)]
+    if not groups:
+        groups = [group for group in parser.entries if "*" in group.useragents]
+    rulelines = tuple(rule for group in groups for rule in group.rulelines)
+    delay = max((group.delay for group in groups if group.delay is not None), default=None)
+    return _Entry(now, rulelines, float(delay) if delay is not None else None, "ok")
 
 
-def _group(rp: RobotFileParser):
-    for entry in rp.entries:
-        if entry.applies_to(PRODUCT_NAME):
-            return entry
-    return rp.default_entry
-
-
-def _can_fetch(rp: RobotFileParser, url: str) -> bool:
-    group = _group(rp)
-    if group is None:
+def _can_fetch(rulelines: Tuple[RuleLine, ...], url: str) -> bool:
+    if not rulelines:
         return True
     parts = urlsplit(url)
     path = unquote(parts.path or "/") + (f"?{unquote(parts.query)}" if parts.query else "")
     best_len, allowed = -1, True
-    for rule in group.rulelines:
+    for rule in rulelines:
         pattern = unquote(rule.path)  # RuleLine re-quotes its path (turning * and $ into %2A, %24)
         if not pattern or not _matches(pattern, path):
             continue  # an empty Disallow/Allow matches nothing

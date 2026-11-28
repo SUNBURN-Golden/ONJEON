@@ -11,6 +11,7 @@ UrllibTransport (stdlib) rules:
   Non-2xx statuses are returned as responses, not raised.
 - environment proxies are ignored (an explicit empty proxy handler); there is no proxy support.
 - the body is streamed in bounded chunks and never exceeds max_bytes (BodyTooLargeError).
+- invalid body framing and a length mismatch fail the stream (BodyFramingError).
 """
 import abc
 import http.client
@@ -45,6 +46,10 @@ class RefusedRequestError(TransportError):
 
 class BodyTooLargeError(TransportError):
     """The body exceeded max_bytes; no byte beyond the cap was yielded."""
+
+
+class BodyFramingError(TransportError):
+    """The response body has invalid framing or does not match its declared length."""
 
 
 @dataclass
@@ -158,21 +163,35 @@ class UrllibTransport(Transport):
         for k, v in resp.headers.items():
             k = k.lower()
             hdrs[k] = f"{hdrs[k]}, {v}" if k in hdrs else v
-        return Response(resp.status, hdrs, _stream(resp, hdrs.get("content-length"), max_bytes), resp.close)
+        return Response(resp.status, hdrs, _stream(resp, hdrs, max_bytes), resp.close)
 
 
 def _declared_length(value: Optional[str]) -> Optional[int]:
-    """Parse Content-Length; anything unparsable (non-ASCII digits, absurd length) counts as unknown."""
-    if not value:
+    """RFC 9112 allows repeated Content-Length values only when all are valid and equal."""
+    if value is None:
         return None
-    value = value.strip()
-    if not (value.isascii() and value.isdigit()):
-        return None
+    values = [part.strip(" \t") for part in value.split(",")]
+    if any(not (part.isascii() and part.isdigit()) for part in values):
+        raise BodyFramingError("invalid Content-Length")
+    lengths = {part.lstrip("0") or "0" for part in values}
+    if len(lengths) != 1:
+        raise BodyFramingError("conflicting Content-Length values")
+    value, = lengths
+    # Any larger value is already over every supported cap. Avoid unbounded int conversion.
     return int(value) if len(value) <= 18 else 1 << 62
 
 
-def _stream(resp, content_length: Optional[str], max_bytes: int) -> Iterator[bytes]:
+def _stream(resp, headers: Mapping[str, str], max_bytes: int) -> Iterator[bytes]:
     try:
+        if 100 <= resp.status < 200 or resp.status in (204, 304):
+            return  # These responses cannot carry a body, regardless of Content-Length.
+        content_length = headers.get("content-length")
+        transfer_encoding = headers.get("transfer-encoding")
+        if transfer_encoding is not None:
+            if content_length is not None:
+                raise BodyFramingError("both Transfer-Encoding and Content-Length are present")
+            if transfer_encoding.lower() != "chunked":
+                raise BodyFramingError("unsupported Transfer-Encoding")
         declared = _declared_length(content_length)
         if declared is not None and declared > max_bytes:
             raise BodyTooLargeError("declared Content-Length exceeds the cap")
@@ -183,6 +202,8 @@ def _stream(resp, content_length: Optional[str], max_bytes: int) -> Iterator[byt
             except (OSError, http.client.HTTPException) as e:
                 raise TransportError(f"read failed: {type(e).__name__}") from None
             if not chunk:
+                if declared is not None and total != declared:
+                    raise BodyFramingError("response body does not match Content-Length")
                 return
             total += len(chunk)
             if total > max_bytes:

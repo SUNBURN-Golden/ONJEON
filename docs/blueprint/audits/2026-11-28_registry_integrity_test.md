@@ -14,9 +14,11 @@
 
 ## SHA-256 연결
 
-`python3 -I tools/registry_check.py --access-digests`가 HTTP 200·`reachable`인 68건의 행 번호, 요청 시각, 목적, 요청·최종 URL, 해시 종류, 해시와 출처를 CSV로 출력한다. 요청 시각과 요청 URL을 사용해 같은 URL의 다른 응답을 구별한다. 최초 조사 49건의 응답 본문 해시는 `sources.csv`에서, 재조회 14건의 해시는 당시 요청 기록에서 읽는다. 재조회 기록의 호스트·최종 URL·요청 방식과 POST 인자를 접근 로그와 대조하고, 그중 출처 원장에도 있는 9건은 두 해시가 일치해야 한다. [감독당국 요청 기록](../../../tools/evidence/audit5-registry-readme-sync/requests.tsv).
+`python3 -I tools/registry_check.py --access-digests`가 HTTP 200·`reachable`인 68건의 행 번호, 요청 시각, 목적, 요청·최종 URL, 해시 종류, 해시와 출처를 CSV로 출력한다. 최초 조사 49건의 응답 본문 해시는 `sources.csv`에서 읽고 요청 시각·URL과 출처 ID에 대응하는 접근 목적을 대조한다. 같은 URL을 쓰는 DART 업종·페이지 조회는 기록된 목적의 파일명으로 구분한다.
 
-최초 조사 탐색 5건은 저장소에 당시 응답 본문이나 그 해시가 없어 `access_record_only`로 표시한다. 이 해시는 원래 CSV 행의 전체 필드를 키가 정렬된 공백 없는 UTF-8 JSON 객체로 직렬화해 계산한다. 검사기에 고정한 다음 다섯 기록에만 이 방식이 적용되며, 다른 요청의 응답 해시 누락은 실패한다.
+재조회 14건의 해시는 당시 요청 기록에서 읽는다. 접근 결과를 선별하기 전에 요청 기록의 호스트·최종 URL·HTTP 코드·curl 종료 코드·요청 방식과 POST 인자를 접근 로그와 대조한다. 출처 원장에도 있는 9건은 두 해시가 일치해야 한다. HTTP 200 출처나 재조회 요청에 대응하는 접근 행이 빠지거나 기록된 성공 결과와 충돌하면 검사가 실패한다. [감독당국 요청 기록](../../../tools/evidence/audit5-registry-readme-sync/requests.tsv).
+
+최초 조사 탐색 5건은 저장소에 당시 응답 본문이나 그 해시가 없어 `access_record_only`로 표시한다. 이 해시는 원래 CSV 행의 전체 필드를 키가 정렬된 공백 없는 UTF-8 JSON 객체로 직렬화해 계산한다. 검사기에 고정한 다음 다섯 기록이 모두 있어야 하며, 다른 요청에는 응답 해시가 필요하다.
 
 | `access_log.csv` 행 | 탐색 목적 |
 |---:|---|
@@ -36,12 +38,12 @@ python3 -I tools/registry_check.py --access-digests
 python3 -m unittest discover -s tools/tests -p 'test_registry*.py' -v
 ```
 
-기본 검사 결과는 `68 reachable HTTP 200 observations: 63 response body digests, 5 access record digests`다. 회귀 시험은 CI의 명령을 임시 원장에 실행해 폭·중복 ID·참조·상태 코드·건수·해시 연결 오류를 거부하고 입력을 보존하는지 확인한다. 해시 CSV를 원래 요청 기록과 전수 대조하고, 모호한 참조·잘못된 해시·재조회 기록 불일치도 검출한다. [회귀 시험](../../../tools/tests/test_registry_check.py).
+기본 검사 결과는 `68 reachable HTTP 200 observations: 63 response body digests, 5 access record digests`다. 현재 원장의 해시 CSV는 수정 전후 바이트 단위로 일치했다. 회귀 시험은 CI의 명령을 임시 원장에 실행해 폭·중복 ID·참조·상태 코드·건수·해시 연결 오류를 거부하고 입력을 보존하는지 확인한다. 해시 CSV를 원래 요청 기록과 전수 대조하고, 모호한 참조·잘못된 해시·재조회 기록 불일치도 검출한다. DART `6511`·`6512` 출처의 시각을 바꾸거나 FISIS 홈페이지의 `http_code`·`result`를 모두 `302`로 바꾸면 검사가 실패한다. [회귀 시험](../../../tools/tests/test_registry_check.py).
 
 | 로컬 실행 | 결과 |
 |---|---|
-| 원장 회귀 시험 | 104개 통과 |
-| `tools/tests` 전체 | 1,822개 통과, 6개 건너뜀 |
+| 원장 회귀 시험 | 108개 통과 |
+| `tools/tests` 전체 | 1,826개 통과, 6개 건너뜀 |
 | 데몬 실행기 검증 | 81개 통과 |
 | Rust 1.98.1 워크스페이스 | 566개 통과, 1개 제외 |
 | 규칙 순서·시나리오 API·온톨로지 실행기 | 각각 2개·4개·4개 통과 |

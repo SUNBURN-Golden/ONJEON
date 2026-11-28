@@ -173,6 +173,14 @@ class RegistryCheck(unittest.TestCase):
         self.assertEqual([r["line"] for r in report if r["digest_kind"] == "access_record_only"],
                          ["10", "14", "15", "20", "27"])
         self.assertEqual(sum(r["evidence"].startswith(rc.SUPERVISORY_REQUESTS) for r in report), 14)
+        dart = {r["purpose"]: r["evidence"] for r in report if r["purpose"].startswith("source:dart_search_")}
+        self.assertEqual(dart, {
+            "source:dart_search_6511_p1.html": "data/registry/sources.csv#dart_ind_6511",
+            "source:dart_search_6512_p1.html": "data/registry/sources.csv#dart_ind_6512",
+            "source:dart_search_651_p1.html": "data/registry/sources.csv#dart_ind_651_p1",
+            "source:dart_search_651_p2.html": "data/registry/sources.csv#dart_ind_651_p2",
+            "source:dart_search_652_p1.html": "data/registry/sources.csv#dart_ind_652",
+        })
         for record in report:
             with self.subTest(line=record["line"], purpose=record["purpose"]):
                 row = access[record["line"]]
@@ -225,13 +233,62 @@ class RegistryCheck(unittest.TestCase):
                     detail="changed historical request evidence")
         self.assertFinding("access_log.csv:27: no matching response SHA-256 for 'source:dart_dsae001.html'")
 
+    def test_swapping_same_url_dart_source_timestamps_rejects_both_digest_links(self):
+        rows = self.rows("sources.csv")
+        life, nonlife = (next(row for row in rows if row["source_id"] == f"dart_ind_{code}")
+                         for code in (6511, 6512))
+        self.assertEqual(life["url"], nonlife["url"])
+        life["retrieved_at"], nonlife["retrieved_at"] = nonlife["retrieved_at"], life["retrieved_at"]
+        self.write("sources.csv", rows)
+        self.assertFinding("access_log.csv:34: source_id 'dart_ind_6511' expects purpose "
+                           "'source:dart_search_6511_p1.html'")
+        self.assertFinding("access_log.csv:35: source_id 'dart_ind_6512' expects purpose "
+                           "'source:dart_search_6512_p1.html'")
+
     def test_success_cannot_be_hidden_by_changing_http_code_or_curl_result(self):
         original = (self.reg / "access_log.csv").read_bytes()
-        for changes in (dict(http_code="302"), dict(curl_exit="28"), dict(result="302")):
+        for changes in (dict(http_code="302"), dict(curl_exit="28"), dict(result="302"),
+                        dict(http_code="302", result="302")):
             with self.subTest(changes=changes):
                 self.change("access_log.csv", "purpose", "source:klia_home.html", **changes)
                 self.assertFinding("access_log.csv:2: inconsistent reachable HTTP 200 observation")
                 (self.reg / "access_log.csv").write_bytes(original)
+
+    def test_supervisory_success_cannot_be_hidden_by_access_status_fields(self):
+        self.copy_scripts()
+        command = [sys.executable, "-I", "tools/registry_check.py", "--access-digests"]
+        original = (self.reg / "access_log.csv").read_bytes()
+        for changes, finding in (
+            (dict(http_code="302", result="302"),
+             f"probe:fisis_home.html' (conflicts with {rc.SUPERVISORY_REQUESTS}:2)"),
+            (dict(result="200_js_shell", host_access="js_shell"),
+             "inconsistent reachable HTTP 200 observation for 'probe:fisis_home.html'"),
+        ):
+            with self.subTest(changes=changes):
+                self.change("access_log.csv", "purpose", "probe:fisis_home.html", **changes)
+                result = subprocess.run(command, cwd=self.root, capture_output=True, text=True, timeout=30)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertEqual(result.stdout, "")
+                self.assertIn(finding, result.stderr)
+                (self.reg / "access_log.csv").write_bytes(original)
+
+    def test_evidence_cannot_be_orphaned_by_changing_a_request_key_and_status(self):
+        original = (self.reg / "access_log.csv").read_bytes()
+        for purpose, timestamp, finding in (
+            ("source:klia_home.html", "2026-10-09T04:21:36Z",
+             "no matching access_log observation for HTTP 200 source_id 'klia_home'"),
+            ("probe:fisis_home.html", "2026-11-10T11:09:05Z",
+             f"{rc.SUPERVISORY_REQUESTS}:2: no matching access_log observation"),
+        ):
+            with self.subTest(purpose=purpose):
+                self.change("access_log.csv", "purpose", purpose, attempted_at=timestamp,
+                            http_code="302", result="302")
+                self.assertFinding(finding)
+                (self.reg / "access_log.csv").write_bytes(original)
+
+    def test_original_hashed_access_record_cannot_be_hidden_by_redirect_fields(self):
+        self.change("access_log.csv", "purpose", "source:dart_dsae001.html", http_code="302", result="302")
+        self.assertFinding("missing 1 original reachable HTTP 200 access record")
 
     def test_supervisory_digests_require_the_original_request_and_agreement_with_sources(self):
         manifest = self.rows(self.manifest, delimiter="\t")
@@ -257,9 +314,10 @@ class RegistryCheck(unittest.TestCase):
         self.assertTrue(any(not r["listed_in"] and r["entity_evidence"] == "seed"
                             for r in self.rows("cooperatives_and_others.csv")))
         rows = self.rows("access_log.csv")
+        redirect = next(r for r in rows if r["result"] == "307")
         for purpose in ("source:artifact.html", "probe:artifact.html", "meta:artifact.json",
                         "discover:artifact.jsp", "wikipedia_search (tertiary source attempt)"):
-            rows[0]["purpose"] = purpose
+            redirect["purpose"] = purpose
             self.write("access_log.csv", rows)
             self.assertEqual(rc.check(self.root), [])
 

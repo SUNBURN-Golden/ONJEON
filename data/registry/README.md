@@ -6,7 +6,7 @@
 
 `python3 -I tools/registry_check.py`도 CI에서 실행한다. 기관·출처 ID의 중복·빈 값, `listed_in`의 출처 참조, 접근 목적과 회사 페이지 출처 ID의 기관 참조를 검사하고 위 상태값 검사를 재사용한다. 접근 결과는 원문 `result`·`*_detail`, 기관별 마지막 홈페이지·리다이렉트/공시 접근 기록과 대조하며 회사 페이지 출처는 URL·관측 시각·원래 결과까지 접근 로그로 추적한다. `source:*.html` 같은 조사 산출물 이름은 출처 ID로 해석하지 않는다. 검사기는 CSV를 수정하지 않으며 메모의 의미나 원문 보관·상품 분모 완성을 증명하지 않는다. [Audit 6 정정·회귀 증거](../../docs/blueprint/audits/2026-11-16_registry_csv_ci_check.md).
 
-같은 CI 단계에서 2026-10-09 기관 원장 53·16·49행과 출처 66건·요청 98건, 2026-11-10 출처 9건·요청 14건을 검사한다. `python3 -I tools/registry_check.py --access-digests`는 `http_code=200`, `host_access=reachable`인 68행의 SHA-256과 근거를 CSV로 출력한다. 응답 본문 해시 63건은 출처 원장 또는 감독당국 요청 기록과 연결된다. 원래 응답 본문 해시를 확인할 수 없는 탐색 요청 5건에는 `access_record_only`로 원래 접근 기록의 해시를 표시한다. [Audit 8 원장 무결성 검증](../../docs/blueprint/audits/2026-11-28_registry_integrity_test.md).
+같은 CI 단계에서 2026-10-09 기관 원장 53·16·49행과 출처 66건·요청 98건, 2026-11-10 출처 9건·요청 14건을 검사한다. `python3 -I tools/registry_check.py --access-digests`는 `http_code=200`, `host_access=reachable`인 68행의 SHA-256과 근거를 CSV로 출력한다. 응답 본문 해시 63건은 출처 원장 또는 감독당국 요청 기록과 연결된다. 같은 URL을 쓰는 요청은 기록된 목적이나 POST 인자로 구별하며, 보고 대상을 고르기 전에 접근 행과 요청 근거의 성공 결과가 일치하는지 확인한다. 원래 응답 본문 해시를 확인할 수 없는 탐색 요청 5건에는 `access_record_only`로 원래 접근 기록의 해시를 표시한다. [Audit 8 원장 무결성 검증](../../docs/blueprint/audits/2026-11-28_registry_integrity_test.md).
 
 조사 시각: 2026-10-09 04:21–04:36 UTC (이 샌드박스 환경, 해외 IP 경유)
 상태: **1차 근거 목록**. 상품·특약 단위 분모는 아직 만들지 않았다(아래 "열거하지 않은 것" 참조).

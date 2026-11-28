@@ -41,6 +41,21 @@ OBSERVATION_ROW_COUNTS = {
     SOURCES: ("retrieved_at", {"2026-10-09": 66, CROSSCHECK_DATE: 9}),
     ACCESS_LOG: ("attempted_at", {"2026-10-09": 98, CROSSCHECK_DATE: 14}),
 }
+# Original HTTP 200 source artifacts whose filenames differ from <source_id>.html.
+ORIGINAL_SOURCE_ARTIFACTS = {
+    "dart_corp_form": "dart_dsae001_b.html",
+    "dart_ind_6511": "dart_search_6511_p1.html",
+    "dart_ind_6512": "dart_search_6512_p1.html",
+    "dart_ind_651_p1": "dart_search_651_p1.html",
+    "dart_ind_651_p2": "dart_search_651_p2.html",
+    "dart_ind_652": "dart_search_652_p1.html",
+    "einsmarket_home": "einsmarket.html",
+    "kidi_home": "probe_www.kidi.or.kr.html",
+    "kidi_sitelink": "kidi_nd15720.html",
+    "klia_member_history": "klia_memberHis.html",
+    "klia_pub_mngtdis": "klia_pub_mngtDis.html",
+    "knia_home": "probe_www.knia.or.kr.html",
+}
 # These five original probes have no recorded response body digest. Pin the
 # exact access records so missing hashes on other requests fail validation.
 LEGACY_ACCESS_RECORD_DIGESTS = {
@@ -181,24 +196,27 @@ def _inspect(root):
                  f"result {latest['host_access']!r} for {key!r}")
 
     for key, (name, line, row) in sources.items():
-        for prefix in PREFIXES:
-            if not key.startswith(prefix + "_"):
-                continue
-            entity_id = key[len(prefix) + 1:]
-            if entity_id not in entities:
-                fail(name, line, f"source_id references unknown insurer_id {entity_id!r}")
-            # Source IDs and purposes use different separators, but must trace
-            # to the same URL, timestamp and original result.
-            purpose = f"{prefix}:{entity_id}"
-            if not any(attempt["purpose"] == purpose and attempt["url"] == row["url"]
-                       and attempt["attempted_at"] == row["retrieved_at"]
-                       and attempt["result"] == row["http_status"]
-                       for _, attempt in tables[ACCESS_LOG]):
-                fail(name, line, f"no matching access_log observation for {purpose!r}")
-            break
+        purpose = entity_source_purpose(key)
+        if purpose is None:
+            continue
+        entity_id = purpose.split(":", 1)[1]
+        if entity_id not in entities:
+            fail(name, line, f"source_id references unknown insurer_id {entity_id!r}")
+        if not any(attempt["purpose"] == purpose and attempt["url"] == row["url"]
+                   and attempt["attempted_at"] == row["retrieved_at"]
+                   and attempt["result"] == row["http_status"]
+                   for _, attempt in tables[ACCESS_LOG]):
+            fail(name, line, f"no matching access_log observation for {purpose!r}")
     check_authority_crosscheck(tables, entities, sources, fail)
     digests = check_access_digests(tables, manifest, fail, problems)
     return problems, denominator_ids, digests
+
+
+def entity_source_purpose(source_id):
+    for prefix in PREFIXES:
+        if source_id.startswith(prefix + "_"):
+            return f"{prefix}:{source_id[len(prefix) + 1:]}"
+    return None
 
 
 def check_snapshot_counts(tables, fail):
@@ -221,7 +239,7 @@ def check_access_digests(tables, manifest, fail, problems):
             key = (row["retrieved_at"], row["url"])
             if key in sources_by_request:
                 fail(SOURCES, line, f"duplicate HTTP 200 source observation for {key!r}")
-            sources_by_request[key] = row
+            sources_by_request[key] = line, row
 
     manifest_by_request = {}
     for line, row in manifest:
@@ -231,6 +249,7 @@ def check_access_digests(tables, manifest, fail, problems):
         manifest_by_request[key] = line, row
 
     seen = set()
+    missing_access_records = set(LEGACY_ACCESS_RECORD_DIGESTS)
     digests = []
     for line, row in tables[ACCESS_LOG]:
         key = (row["attempted_at"], row["url"])
@@ -238,18 +257,25 @@ def check_access_digests(tables, manifest, fail, problems):
             fail(ACCESS_LOG, line, f"duplicate access observation for {key!r}")
         seen.add(key)
 
+        _, source = sources_by_request.get(key, (None, None))
+        manifest_line, request = manifest_by_request.get(key, (None, None))
+        if request is not None and not matches_manifest_request(row, request):
+            fail(ACCESS_LOG, line, f"no matching supervisory request for {row['purpose']!r} "
+                 f"(conflicts with {SUPERVISORY_REQUESTS}:{manifest_line})")
+            continue
+        recorded_success = source is not None or (
+            request is not None and request["http_code"] == "200" and request["curl_exit"] == "0"
+        )
         reachable_200 = row["http_code"] == "200" and row["host_access"] == "reachable"
-        if not reachable_200 and row["result"] != "200":
+        if not (recorded_success or reachable_200 or row["result"] == "200"):
             continue
         if not reachable_200 or row["result"] != "200" or row["curl_exit"] != "0":
             fail(ACCESS_LOG, line, f"inconsistent reachable HTTP 200 observation for {row['purpose']!r}")
             continue
 
-        source = sources_by_request.get(key)
         digest_kind = "response_body"
         if row["attempted_at"].startswith(CROSSCHECK_DATE + "T"):
-            manifest_line, request = manifest_by_request.get(key, (None, None))
-            if request is None or not matches_manifest_request(row, request):
+            if request is None:
                 fail(ACCESS_LOG, line, f"no matching supervisory request for {row['purpose']!r}")
                 continue
             digest = request["sha256"]
@@ -257,14 +283,21 @@ def check_access_digests(tables, manifest, fail, problems):
             if source is not None and digest != source["sha256"]:
                 fail(ACCESS_LOG, line, f"conflicting response SHA-256 in {evidence} and {source['source_id']!r}")
         elif source is not None:
+            source_id = source["source_id"]
+            artifact = ORIGINAL_SOURCE_ARTIFACTS.get(source_id, f"{source_id}.html")
+            purpose = entity_source_purpose(source_id) or f"source:{artifact}"
+            if row["purpose"] != purpose:
+                fail(ACCESS_LOG, line, f"source_id {source_id!r} expects purpose {purpose!r}, got {row['purpose']!r}")
+                continue
             digest = source["sha256"]
-            evidence = f"data/registry/{SOURCES}#{source['source_id']}"
+            evidence = f"data/registry/{SOURCES}#{source_id}"
         else:
             payload = json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
             digest = hashlib.sha256(payload).hexdigest()
             if digest not in LEGACY_ACCESS_RECORD_DIGESTS:
                 fail(ACCESS_LOG, line, f"no matching response SHA-256 for {row['purpose']!r}")
                 continue
+            missing_access_records.discard(digest)
             digest_kind = "access_record_only"
             evidence = f"data/registry/{ACCESS_LOG}:{line}"
         if not SHA256.fullmatch(digest):
@@ -273,6 +306,15 @@ def check_access_digests(tables, manifest, fail, problems):
         digests.append({"line": line, "attempted_at": row["attempted_at"], "purpose": row["purpose"],
                         "url": row["url"], "final_url": row["final_url"], "digest_kind": digest_kind,
                         "sha256": digest, "evidence": evidence})
+
+    for key, (line, source) in sources_by_request.items():
+        if key not in seen:
+            fail(SOURCES, line, f"no matching access_log observation for HTTP 200 source_id {source['source_id']!r}")
+    for key, (line, _) in manifest_by_request.items():
+        if key not in seen:
+            problems.append(f"{SUPERVISORY_REQUESTS}:{line}: no matching access_log observation for {key!r}")
+    if missing_access_records:
+        fail(ACCESS_LOG, 1, f"missing {len(missing_access_records)} original reachable HTTP 200 access record(s)")
     return digests
 
 

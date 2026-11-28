@@ -11,14 +11,18 @@ UrllibTransport (stdlib) rules:
   Non-2xx statuses are returned as responses, not raised.
 - environment proxies are ignored (an explicit empty proxy handler); there is no proxy support.
 - the body is streamed in bounded chunks and never exceeds max_bytes (BodyTooLargeError).
+- a response header section must end with a blank line before any status is returned.
+- invalid body framing and a length mismatch fail the stream (BodyFramingError).
 """
 import abc
+import email.utils
 import http.client
 import ipaddress
 import math
 import os
 import urllib.request
 from dataclasses import dataclass, field
+from datetime import timezone
 from typing import Callable, Iterator, Mapping, Optional
 from urllib.parse import urlsplit
 
@@ -45,6 +49,10 @@ class RefusedRequestError(TransportError):
 
 class BodyTooLargeError(TransportError):
     """The body exceeded max_bytes; no byte beyond the cap was yielded."""
+
+
+class BodyFramingError(TransportError):
+    """The response body has invalid framing or does not match its declared length."""
 
 
 @dataclass
@@ -78,6 +86,22 @@ class Transport(abc.ABC):
         """GET url. Never follows redirects. body_iter yields at most max_bytes in total."""
 
 
+def retry_after_until(value: Optional[str], now: float) -> Optional[float]:
+    """Return the deadline from a Retry-After delay in seconds or HTTP date."""
+    if not value:
+        return None
+    value = value.strip()
+    try:
+        if value.isascii() and value.isdigit():
+            return now + int(value)
+        date = email.utils.parsedate_to_datetime(value)
+        if date.tzinfo is None:
+            date = date.replace(tzinfo=timezone.utc)
+        return date.timestamp()
+    except (TypeError, ValueError, OverflowError, OSError):
+        return None
+
+
 def is_loopback_host(host: Optional[str]) -> bool:
     if not host:
         return False
@@ -100,13 +124,68 @@ def _split(url: str):
     return parts, host
 
 
+class _HeaderReader:
+    """Keep the last raw line that the stdlib's bounded header parser consumed."""
+
+    def __init__(self, source):
+        self.source = source
+        self.last_line = b""
+
+    def readline(self, limit: int) -> bytes:
+        self.last_line = self.source.readline(limit)
+        return self.last_line
+
+    def close(self) -> None:
+        self.source.close()
+
+
+class _CompleteHTTPResponse(http.client.HTTPResponse):
+    def begin(self) -> None:
+        if self.headers is not None:
+            return
+        source = self.fp
+        reader = self.fp = _HeaderReader(source)
+        try:
+            super().begin()
+            if reader.last_line not in (b"\r\n", b"\n"):
+                raise http.client.HTTPException("incomplete response headers")
+        finally:
+            if self.fp is reader:
+                self.fp = source
+
+    def _read_and_discard_trailer(self) -> None:
+        # http.client tolerates EOF after the zero chunk. RFC 9112 requires a final CRLF.
+        reader = _HeaderReader(self.fp)
+        http.client.parse_headers(reader)
+        if reader.last_line != b"\r\n":
+            raise BodyFramingError("incomplete chunked trailer section")
+
+
+class _HTTPConnection(http.client.HTTPConnection):
+    response_class = _CompleteHTTPResponse
+
+
+class _HTTPSConnection(http.client.HTTPSConnection):
+    response_class = _CompleteHTTPResponse
+
+
+class _HTTPHandler(urllib.request.HTTPHandler):
+    def http_open(self, req):
+        return self.do_open(_HTTPConnection, req)
+
+
+class _HTTPSHandler(urllib.request.HTTPSHandler):
+    def https_open(self, req):
+        return self.do_open(_HTTPSConnection, req, context=self._context)
+
+
 def _build_opener() -> urllib.request.OpenerDirector:
     """Minimal opener: no env proxies, no redirect handler, no error processor (3xx/4xx/5xx come back as
     responses), no file/ftp/data handlers, no default User-agent."""
     opener = urllib.request.OpenerDirector()
     opener.add_handler(urllib.request.ProxyHandler({}))
-    opener.add_handler(urllib.request.HTTPHandler())
-    opener.add_handler(urllib.request.HTTPSHandler())
+    opener.add_handler(_HTTPHandler())
+    opener.add_handler(_HTTPSHandler())
     opener.addheaders = []
     return opener
 
@@ -158,21 +237,35 @@ class UrllibTransport(Transport):
         for k, v in resp.headers.items():
             k = k.lower()
             hdrs[k] = f"{hdrs[k]}, {v}" if k in hdrs else v
-        return Response(resp.status, hdrs, _stream(resp, hdrs.get("content-length"), max_bytes), resp.close)
+        return Response(resp.status, hdrs, _stream(resp, hdrs, max_bytes), resp.close)
 
 
 def _declared_length(value: Optional[str]) -> Optional[int]:
-    """Parse Content-Length; anything unparsable (non-ASCII digits, absurd length) counts as unknown."""
-    if not value:
+    """RFC 9112 allows repeated Content-Length values only when all are valid and equal."""
+    if value is None:
         return None
-    value = value.strip()
-    if not (value.isascii() and value.isdigit()):
-        return None
+    values = [part.strip(" \t") for part in value.split(",")]
+    if any(not (part.isascii() and part.isdigit()) for part in values):
+        raise BodyFramingError("invalid Content-Length")
+    lengths = {part.lstrip("0") or "0" for part in values}
+    if len(lengths) != 1:
+        raise BodyFramingError("conflicting Content-Length values")
+    value, = lengths
+    # Any larger value is already over every supported cap. Avoid unbounded int conversion.
     return int(value) if len(value) <= 18 else 1 << 62
 
 
-def _stream(resp, content_length: Optional[str], max_bytes: int) -> Iterator[bytes]:
+def _stream(resp, headers: Mapping[str, str], max_bytes: int) -> Iterator[bytes]:
     try:
+        if 100 <= resp.status < 200 or resp.status in (204, 304):
+            return  # These responses cannot carry a body, regardless of Content-Length.
+        content_length = headers.get("content-length")
+        transfer_encoding = headers.get("transfer-encoding")
+        if transfer_encoding is not None:
+            if content_length is not None:
+                raise BodyFramingError("both Transfer-Encoding and Content-Length are present")
+            if transfer_encoding.lower() != "chunked":
+                raise BodyFramingError("unsupported Transfer-Encoding")
         declared = _declared_length(content_length)
         if declared is not None and declared > max_bytes:
             raise BodyTooLargeError("declared Content-Length exceeds the cap")
@@ -183,6 +276,8 @@ def _stream(resp, content_length: Optional[str], max_bytes: int) -> Iterator[byt
             except (OSError, http.client.HTTPException) as e:
                 raise TransportError(f"read failed: {type(e).__name__}") from None
             if not chunk:
+                if declared is not None and total != declared:
+                    raise BodyFramingError("response body does not match Content-Length")
                 return
             total += len(chunk)
             if total > max_bytes:

@@ -1,4 +1,6 @@
 """Check source setup and failure handling with no network or credentials."""
+import json
+import os
 import re
 import subprocess
 import sys
@@ -60,6 +62,34 @@ class WorkflowSources(unittest.TestCase):
                 self.assertNotEqual(mutated, self.workflow)
                 with self.assertRaisesRegex(AssertionError, "must require success"):
                     self.assert_failure_handling(mutated)
+
+    def test_detect_opts_into_network_only_for_the_isolated_detect_command(self):
+        step = self.step(self.workflow, "Detect current source changes")
+        self.assertIn("ONJEON_CRAWLER_ALLOW_NETWORK: '1'", step)
+        self.assertIn("ONJEON_CRAWLER_CONTACT: ${{ vars.ONJEON_CRAWLER_CONTACT }}", step)
+        self.assertIn('"$RUNNER_TEMP/venv/bin/python" -I tools/verify_sources.py detect', step)
+        self.assertNotRegex(self.workflow.replace(step, ""), r"ONJEON_CRAWLER_(?:ALLOW_NETWORK|CONTACT):")
+        self.assertNotIn("secrets.", step)
+
+    def test_detect_summary_displays_document_response_metadata(self):
+        step = self.step(self.workflow, "Per-source result")
+        body = step.split("        run: |\n", 1)[1]
+        script = "\n".join(line[10:] for line in body.splitlines())
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report = root / "detect.json"
+            summary = root / "summary"
+            report.write_text(json.dumps({"summary": {"fetch_failed": 2}, "results": [
+                {"sample_id": "redirect", "status": "fetch_failed", "http_status": 302,
+                 "final_url": "https://example.org/start?a=1&b=2", "detail": "redirect_disallowed: 302"},
+                {"sample_id": "robots", "status": "fetch_failed", "http_status": None,
+                 "final_url": None, "detail": "robots_disallow"},
+            ]}))
+            subprocess.run(["bash", "-e", "-c", script], check=True, timeout=10,
+                           env={**os.environ, "RUNNER_TEMP": tmp, "GITHUB_STEP_SUMMARY": str(summary)})
+            rendered = summary.read_text()
+            self.assertIn("| redirect | fetch_failed | 302 | https://example.org/start?a=1&amp;b=2 |", rendered)
+            self.assertIn("| robots | fetch_failed |  |  | robots_disallow |", rendered)
 
     def test_listing_shell_propagates_budget_stop_from_either_tool_call(self):
         listing = self.step(self.workflow, LISTING)

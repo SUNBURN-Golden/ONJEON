@@ -238,7 +238,7 @@ class CliDependencies(unittest.TestCase):
                            "content_sha256": hch.content_sha256(before, "www.kyobo.com")}
                     out, report = Path(d) / "out", Path(d) / "report.json"
                     with mock.patch.object(vs, "rows", return_value=[row]), \
-                            mock.patch.object(vs, "fetch", return_value=(after, "text/html", row["url"])):
+                            mock.patch.object(vs, "fetch", return_value=(after, "text/html", row["url"], 200)):
                         code, _ = self.run_main(["detect", "--out", str(out), "--report", str(report)])
                     self.assertEqual(code, 0)
                     doc = json.loads(report.read_text())
@@ -273,7 +273,7 @@ class CliDependencies(unittest.TestCase):
                            "content_sha256": hch.content_sha256(before, "www.kyobo.com")}
                     out, report = Path(d) / "out", Path(d) / "report.json"
                     with mock.patch.object(vs, "rows", return_value=[row]), \
-                            mock.patch.object(vs, "fetch", return_value=(after, "text/html", row["url"])):
+                            mock.patch.object(vs, "fetch", return_value=(after, "text/html", row["url"], 200)):
                         code, _ = self.run_main(["detect", "--out", str(out), "--report", str(report)])
                     self.assertEqual(code, 0)
                     doc = json.loads(report.read_text())
@@ -297,12 +297,13 @@ class CliDependencies(unittest.TestCase):
                 out = Path(d) / "downloads"
                 report = Path(d) / "report.json"
                 fetch = mock.Mock(side_effect=response) if isinstance(response, Exception) else \
-                    mock.Mock(return_value=(response, "application/pdf", row["url"]))
+                    mock.Mock(return_value=(response, "application/pdf", row["url"], 200))
                 with mock.patch.object(vs, "rows", return_value=[row]), \
                         mock.patch.object(vs, "fetch", fetch):
                     code, _ = self.run_main(["detect", "--out", str(out), "--report", str(report)])
                 self.assertEqual(code, expected_code)
-                fetch.assert_called_once_with(row["url"], expected_format=row["format"])
+                fetch.assert_called_once_with(row["url"], expected_format=row["format"],
+                                              robots_deferrals={}, host_pacing={})
                 doc = json.loads(report.read_text())
                 self.assertEqual(doc["check"], "detect")
                 self.assertEqual(doc["summary"], {status: 1})
@@ -366,7 +367,7 @@ class DetectExit(unittest.TestCase):
             calls["n"] += 1
             if calls["n"] == 1:
                 raise OSError("blocked")
-            return b"other bytes", "application/pdf", url
+            return b"other bytes", "application/pdf", url, 200
         with mock.patch.object(vs, "rows", return_value=rows):
             code, summary = self.run_detect(fetch)
         self.assertEqual(code, 1)
@@ -375,7 +376,7 @@ class DetectExit(unittest.TestCase):
 
     def test_changed_sources_are_a_successful_observation(self):
         with mock.patch.object(vs, "rows", return_value=[self.html_row("unused", b"x")]):
-            code, summary = self.run_detect(lambda url, **kw: (b"other bytes", "text/html", url))
+            code, summary = self.run_detect(lambda url, **kw: (b"other bytes", "text/html", url, 200))
         self.assertEqual(code, 0)
         self.assertNotIn("fetch_failed", summary)
 
@@ -414,7 +415,7 @@ class DetectExit(unittest.TestCase):
             import argparse
             args = argparse.Namespace(raw=None, out=d, archive_new=False, report=str(Path(d) / "r.json"),
                                       endpoint_url=None, cache=None, derived=None, ocr=False)
-            with mock.patch.object(vs, "fetch", side_effect=vs.FetchTooLarge("body exceeds 5 bytes")), \
+            with mock.patch.object(vs, "fetch", side_effect=vs.FetchRejected("too_large: body exceeds 5 bytes")), \
                     mock.patch.object(vs, "rows", return_value=[self.html_row("unused", b"x")]), \
                     mock.patch("sys.stdout", new_callable=__import__("io").StringIO):
                 code = vs.cmd_detect(args)
@@ -435,7 +436,7 @@ class DetectExit(unittest.TestCase):
         from unittest import mock
         row = self.html_row(rule, before)
         with mock.patch.object(vs, "rows", return_value=[row]):
-            return self.run_detect(lambda url, **kw: (after, "text/html", url))[1]
+            return self.run_detect(lambda url, **kw: (after, "text/html", url, 200))[1]
 
     def test_current_rule_hash_reports_bytes_changed_content_same(self):
         import html_content_hash as hch
@@ -480,7 +481,7 @@ class RecordedRobotsPolicy(unittest.TestCase):
                                       endpoint_url=None)
             store = mock.Mock()
             with mock.patch.object(vs.sa, "store", return_value=store), \
-                    mock.patch.object(vs, "fetch", side_effect=lambda url, **kw: (b"changed", "text/html", url)) as fetch, \
+                    mock.patch.object(vs, "fetch", side_effect=lambda url, **kw: (b"changed", "text/html", url, 200)) as fetch, \
                     mock.patch.object(vs.sa, "put_raw", return_value=("key", "new")) as put_raw, \
                     mock.patch.object(vs.sa, "put_observation", return_value=("obs", "new")) as put_obs, \
                     mock.patch("sys.stdout", new_callable=io.StringIO):
@@ -498,6 +499,8 @@ class RecordedRobotsPolicy(unittest.TestCase):
                 self.assertEqual(res["status"], "fetch_failed")
                 self.assertTrue(res["detail"].startswith("robots_disallow:"))
                 self.assertIn(vs.ROBOTS_POLICY_SOURCE, res["detail"])
+                self.assertIsNone(res["http_status"])
+                self.assertIsNone(res["final_url"])
                 self.assertEqual(res["baseline_sha256"], r["sha256"])
                 for key in ("sha256_now", "archived_object", "observation"):
                     self.assertNotIn(key, res)
@@ -516,109 +519,6 @@ class RecordedRobotsPolicy(unittest.TestCase):
                     "https://www.kyobo.com/?url=https://pub.insure.or.kr/", "https://www.klia.or.kr/"):
             with self.subTest(url=url):
                 vs.check_recorded_robots_policy(url)
-
-    def test_redirect_to_recorded_disallow_is_refused_before_request(self):
-        handler = vs.PolicyRedirectHandler()
-        req = vs.urllib.request.Request("https://www.kyobo.com/source")
-        for code in (301, 302, 303, 307, 308):
-            with self.subTest(code=code), mock.patch.object(
-                    vs.urllib.request.HTTPRedirectHandler, "redirect_request") as redirect:
-                with self.assertRaises(vs.RobotsDisallowed):
-                    handler.redirect_request(req, None, code, "redirect", {}, "https://pub.insure.or.kr/p")
-                redirect.assert_not_called()
-
-    def test_permitted_redirect_uses_standard_handler(self):
-        req = vs.urllib.request.Request("https://www.kyobo.com/source")
-        redirected = vs.PolicyRedirectHandler().redirect_request(
-            req, None, 302, "redirect", {}, "https://www.kyobo.com/new")
-        self.assertEqual(redirected.full_url, "https://www.kyobo.com/new")
-
-    def test_blocked_redirect_is_reported_and_not_retried(self):
-        import argparse
-        row = {"sample_id": "redirect", "url": "https://www.kyobo.com/source", "sha256": "0" * 64,
-               "format": "html", "cache_path": "redirect/page.html"}
-        opener = mock.Mock()
-        opener.open.side_effect = vs.RobotsDisallowed("robots_disallow: redirected target")
-        with tempfile.TemporaryDirectory() as d:
-            args = argparse.Namespace(raw=None, out=str(Path(d) / "out"), archive_new=False,
-                                      report=str(Path(d) / "r.json"))
-            # tool_version is mocked because report() probes pdftotext/tesseract with
-            # subprocess.run(timeout=...), whose POSIX busy-wait polls the *global*
-            # time.sleep this test patches (0.001s doubling to 0.05s). Under load those
-            # polls land in the mock and masquerade as fetch retries.
-            with mock.patch.object(vs, "rows", return_value=[row]), \
-                    mock.patch.object(vs, "fetch", vs._fetch_https), \
-                    mock.patch.object(vs, "tool_version", return_value=None), \
-                    mock.patch.object(vs.urllib.request, "build_opener", return_value=opener) as build, \
-                    mock.patch.object(vs.time, "sleep") as sleep, \
-                    mock.patch("sys.stdout", new_callable=io.StringIO):
-                self.assertEqual(vs.cmd_detect(args), 1)
-            self.assertIsInstance(build.call_args.args[0], vs.PolicyRedirectHandler)
-            opener.open.assert_called_once()
-            sleep.assert_not_called()
-            doc = json.loads(Path(args.report).read_text())
-            self.assertEqual(doc["summary"], {"fetch_failed": 1})
-            self.assertEqual(doc["results"][0]["detail"], "robots_disallow: redirected target")
-            self.assertFalse(Path(args.out).exists())
-
-
-class FetchSizeCap(unittest.TestCase):
-    """fetch() must stop reading at the cap instead of buffering an unbounded body (audit 1)."""
-
-    class Resp:
-        def __init__(self, data, length=None):
-            import io
-            self.buf, self.reads = io.BytesIO(data), 0
-            self.headers = mock_headers(length)
-            self.headers["Content-Type"] = "application/pdf"
-            self.status = 200
-
-        def geturl(self):
-            return "https://www.kyobo.com/x"
-
-        def read(self, n=-1):
-            self.reads += 1
-            return self.buf.read(n)
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *a):
-            return False
-
-    def fetch_with(self, resp, max_bytes):
-        from unittest import mock
-        resp.headers.get_content_type = lambda: "application/pdf"
-        opener = mock.Mock()
-        opener.open.return_value = resp
-        with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener):
-            return vs._fetch_https("https://www.kyobo.com/x", max_bytes=max_bytes)
-
-    def test_body_at_the_cap_is_returned(self):
-        body, ctype, final_url = self.fetch_with(self.Resp(b"%PDF-12345"), 10)
-        self.assertEqual((body, ctype, final_url), (b"%PDF-12345", "application/pdf", "https://www.kyobo.com/x"))
-
-    def test_streamed_body_over_the_cap_is_refused(self):
-        resp = self.Resp(b"x" * 100)
-        with self.assertRaises(vs.FetchTooLarge):
-            self.fetch_with(resp, 10)
-        self.assertEqual(resp.buf.tell(), 11)  # stopped one byte past the cap, did not drain the rest
-
-    def test_declared_content_length_over_the_cap_is_refused_unread(self):
-        resp = self.Resp(b"x" * 100, length="100")
-        with self.assertRaises(vs.FetchTooLarge):
-            self.fetch_with(resp, 10)
-        self.assertEqual(resp.reads, 0)
-
-
-def mock_headers(length):
-    class H(dict):
-        def get_content_type(self):
-            return "application/pdf"
-    h = H()
-    if length is not None:
-        h["Content-Length"] = length
-    return h
 
 
 if __name__ == "__main__":

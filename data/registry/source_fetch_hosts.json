@@ -1,5 +1,5 @@
 {
-  "description": "Exact source hosts admitted by tools/verify_sources.py detect. HTTPS and same-origin redirects remain required. Adding a sample URL does not register its host.",
+  "description": "Exact source hosts admitted by tools/verify_sources.py detect. Detect requires HTTPS and rejects redirects for documents and robots.txt. Adding a sample URL does not register its host.",
   "basis": [
     "data/registry/sources.csv: url",
     "data/registry/insurers.csv: home_url, disclosure_url",

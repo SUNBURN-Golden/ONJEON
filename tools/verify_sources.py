@@ -15,15 +15,18 @@ detect     현재 출처 변경 감지 — fetch permitted recorded URLs and com
            content with different bytes is `bytes_changed_content_same`, never byte identity.
            Survey-recorded robots disallows are held without a request, reported as
            `fetch_failed` with detail `robots_disallow`, and keep the run nonzero.
+           Other sources must pass a live robots.txt check before a document request.
 
 Originals come from the raw archive (tools/source_archive.py layout; file:// or s3://) or from a
-cache directory laid out by samples.csv `cache_path`. Downloads are untrusted input: HTTPS-only,
-exact hosts in data/registry/source_fetch_hosts.json, same-origin
-redirects only, final URL recorded, MIME/signature and known HTML block-page checks before any
-write. Redirect response bodies are closed unread. Final bodies over MAX_FETCH_BYTES are refused
+cache directory laid out by samples.csv `cache_path`. Detect uses the shared crawler transport:
+HTTPS-only, exact hosts in data/registry/source_fetch_hosts.json, no redirects, and an honest UA.
+The document response URL and HTTP status are recorded separately from change status.
+MIME/signature and known HTML block-page checks run before any write. Redirect response bodies
+are closed unread. Final bodies over MAX_FETCH_BYTES are refused
 (streaming stops at cap + 1 byte). TLS verification stays on; only network errors are retried.
-Each fetch has one wall-clock deadline across redirects, body reads and retries. Rejections are
-`fetch_failed`. Reproduction bounds extractor subprocesses and removes its temporary files.
+Each fetch has one wall-clock deadline across crawl delays, robots.txt, body reads and retries.
+Rejections are `fetch_failed`. Crawl delays and holds apply across samples on the same host in the current run.
+Reproduction bounds extractor subprocesses and removes its temporary files.
 
 Usage:
   verify_sources.py reproduce --raw file:///archive/raw [--derived file:///archive/derived] [--ocr] --report r.json
@@ -35,7 +38,6 @@ import csv
 import datetime as dt
 import hashlib
 import html
-import io
 import json
 import os
 import re
@@ -44,9 +46,7 @@ import subprocess
 import sys
 import tempfile
 import time
-import urllib.error
 import urllib.parse
-import urllib.request
 from contextlib import ExitStack, contextmanager
 from pathlib import Path
 
@@ -54,6 +54,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import html_content_hash as hch  # noqa: E402
 import source_archive as sa  # noqa: E402
 import source_metadata as sm  # noqa: E402
+from crawler.config import ConfigError, CrawlerConfig, HARD_OBJECT_CAP_BYTES  # noqa: E402
+from crawler.robots import DAY_S, RobotsCache  # noqa: E402
+from crawler.transport import (  # noqa: E402
+    BodyFramingError, BodyTooLargeError, NetworkDisabledError, RefusedRequestError, TransportError, UrllibTransport,
+    retry_after_until,
+)
+from crawler.useragent import UserAgentError  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 VAL = ROOT / "docs/blueprint/validation"
@@ -359,9 +366,10 @@ def cmd_reproduce(args):
     return report("reproduce", args, results, ok={"reproduced"} | unverified)
 
 
-MAX_FETCH_BYTES = 256 * 1024 * 1024  # ~8x the largest recorded sample (32 MB); a bigger body is not a filing PDF/HTML
+MAX_FETCH_BYTES = HARD_OBJECT_CAP_BYTES
 FETCH_DEADLINE_SECONDS = 120
 FETCH_SOCKET_TIMEOUT_SECONDS = 30
+CONTACT_ENV = "ONJEON_CRAWLER_CONTACT"
 SOURCE_HOST_REGISTRY = ROOT / "data/registry/source_fetch_hosts.json"
 # Conservative hold from the 2026-10-10 survey, not a live robots.txt observation.
 # Removing a hold requires reviewing the recorded policy; detect never overrides it.
@@ -369,20 +377,27 @@ ROBOTS_DISALLOWED_HOSTS = frozenset({"pub.insure.or.kr"})
 ROBOTS_POLICY_SOURCE = "docs/research/2026-10-10_source_survey/A_klia.md#6-접근-제한과-실패"
 
 
-class RobotsDisallowed(Exception):
+class FetchRejected(Exception):
+    """A source could not be admitted. Carry document response metadata when available."""
+
+    def __init__(self, detail, *, final_url=None, http_status=None, deferred_until=None):
+        super().__init__(detail)
+        self.final_url = final_url
+        self.http_status = http_status
+        self.deferred_until = deferred_until
+
+
+class RobotsDisallowed(FetchRejected):
     """A source is held by a survey-recorded robots.txt disallow; no request is sent."""
 
 
 def check_recorded_robots_policy(url):
-    host = (urllib.parse.urlsplit(url).hostname or "").lower().rstrip(".")
+    try:
+        host = (urllib.parse.urlsplit(url).hostname or "").lower().rstrip(".")
+    except (TypeError, ValueError):
+        return  # URL admission reports malformed URLs separately.
     if host in ROBOTS_DISALLOWED_HOSTS:
         raise RobotsDisallowed(f"robots_disallow: {host}: User-agent: *; Disallow: /; {ROBOTS_POLICY_SOURCE}")
-
-
-class FetchRejected(Exception):
-    """A response is not an admissible source document. No retry or archive write."""
-
-    final_url = None
 
 
 def registered_source_hosts():
@@ -409,60 +424,6 @@ def source_origin(url):
     if origin[1] not in registered_source_hosts():
         raise FetchRejected("url_disallowed: host is not in the source host registry")
     return origin
-
-
-def check_redirect(source, target):
-    check_recorded_robots_policy(target)
-    origin = source_origin(source)
-    try:
-        target_origin = source_origin(target)
-    except FetchRejected as e:
-        raise FetchRejected("redirect_disallowed: invalid HTTPS target") from e
-    if origin != target_origin:
-        raise FetchRejected("redirect_disallowed: scheme, host or port changed")
-
-
-class PolicyRedirectHandler(urllib.request.HTTPRedirectHandler):
-    def http_error_302(self, req, fp, code, msg, headers):
-        # urllib drains each admitted redirect with an unbounded fp.read() before
-        # opening the next URL. These bytes are not the source document: close the
-        # connection unread and give the standard URL/loop handling an empty body.
-        fp.close()
-        with io.BytesIO() as empty_body:
-            return super().http_error_302(req, empty_body, code, msg, headers)
-
-    http_error_301 = http_error_303 = http_error_307 = http_error_308 = http_error_302
-
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        try:
-            check_redirect(req.full_url, newurl)
-        except (FetchRejected, RobotsDisallowed):
-            if fp is not None:
-                fp.close()
-            raise
-        return super().redirect_request(req, fp, code, msg, headers, newurl)
-
-
-class FetchTooLarge(Exception):
-    """The response body exceeds the byte cap; it is neither read to the end nor hashed."""
-
-
-def read_capped(r, max_bytes):
-    """Read at most max_bytes from a response; a larger body (declared or streamed) raises FetchTooLarge."""
-    declared = r.headers.get("Content-Length")
-    if declared and declared.isdigit() and int(declared) > max_bytes:
-        raise FetchTooLarge(f"Content-Length {declared} exceeds {max_bytes} bytes")
-    chunks, total = [], 0
-    while True:
-        chunk = r.read(min(1024 * 1024, max_bytes + 1 - total))
-        if not chunk:
-            if declared and declared.isdigit() and total != int(declared):
-                raise FetchRejected("length_mismatch: incomplete response body")
-            return b"".join(chunks)
-        total += len(chunk)
-        if total > max_bytes:
-            raise FetchTooLarge(f"body exceeds {max_bytes} bytes")
-        chunks.append(chunk)
 
 
 SOURCE_MIMES = {
@@ -515,86 +476,176 @@ def _validate_fetch_request(url, attempts, max_bytes, expected_format):
     return kind
 
 
-def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf"):
-    """Return (admitted bytes, MIME, final URL) within one deadline per source."""
+def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf",
+          robots_deferrals=None, host_pacing=None):
+    """Return (bytes, MIME, final URL, HTTP status), sharing holds and crawl delays by host."""
     kind = _validate_fetch_request(url, attempts, max_bytes, expected_format)
+    if robots_deferrals is None:
+        robots_deferrals = {}
+    host = urllib.parse.urlsplit(url).hostname
+    deferred = robots_deferrals.get(host)
+    if deferred is not None:
+        until, reason = deferred
+        if time.time() < until:
+            raise FetchRejected(reason, deferred_until=until)
     command = [sys.executable, "-I", str(Path(__file__).resolve()), "--fetch-worker"]
-    request = json.dumps([url, attempts, max_bytes, kind]).encode()
+    pacing = host_pacing.get(host, (0, 0)) if host_pacing is not None else (0, 0)
+    request = json.dumps([url, attempts, max_bytes, kind, pacing]).encode()
     # A socket timeout only caps individual operations. A separate process can be
     # killed and reaped even during DNS resolution or a slowly streamed response.
-    # Its temporary output is one JSON line followed by the admitted document bytes.
+    # Its temporary output contains response metadata as soon as headers arrive,
+    # then the terminal result and any admitted document bytes.
     with tempfile.TemporaryFile() as output:
+        deadline = None
         try:
             subprocess.run(command, input=request, stdout=output, check=True, timeout=FETCH_DEADLINE_SECONDS)
         except subprocess.TimeoutExpired as e:
-            raise FetchRejected(f"deadline_exceeded: source fetch exceeded {FETCH_DEADLINE_SECONDS:g}s") from e
+            deadline = e
+        stopped_at = time.monotonic()
         output.seek(0)
-        result = json.loads(output.readline())
-        if "error" not in result:
-            return output.read(), result["content_type"], result["final_url"]
-    if result["error"] == "HTTPError":
-        raise urllib.error.HTTPError(result["final_url"], result["code"], result["detail"], {}, None)
-    error_type = {"FetchTooLarge": FetchTooLarge, "RobotsDisallowed": RobotsDisallowed}.get(result["error"], FetchRejected)
-    error = error_type(result["detail"])
-    if result.get("final_url"):
-        error.final_url = result["final_url"]
-    raise error
+        observed = {}
+        result = None
+        for line in output:
+            try:
+                event = json.loads(line)
+            except ValueError:
+                if deadline is None:
+                    raise
+                break  # The worker may have been killed mid-write.
+            if "crawl_delay" in event:
+                if host_pacing is not None:
+                    delay = event["crawl_delay"]
+                    # A killed worker may have been in flight. Measure from its exit.
+                    host_pacing[host] = (delay, stopped_at + delay)
+                continue
+            if "response" not in event:
+                result = event
+                break
+            observed = event["response"]
+            if "deferral" in event:
+                robots_deferrals[host] = tuple(event["deferral"])
+        if deadline is not None:
+            raise FetchRejected(f"deadline_exceeded: source fetch exceeded {FETCH_DEADLINE_SECONDS:g}s",
+                                **observed) from deadline
+        if result is None:
+            raise FetchRejected("worker_failed: missing fetch result", **observed)
+        if "error" in result:
+            deferred_until = result.get("deferred_until")
+            if deferred_until is not None:
+                robots_deferrals[host] = (deferred_until, result["detail"])
+            raise FetchRejected(result["detail"], final_url=result.get("final_url", observed.get("final_url")),
+                                http_status=result.get("http_status", observed.get("http_status")),
+                                deferred_until=deferred_until)
+        return output.read(), result["content_type"], result["final_url"], result["http_status"]
 
 
 def _fetch_worker(input_stream, output_stream):
-    url, attempts, max_bytes, kind = json.load(input_stream)
+    url, attempts, max_bytes, kind, pacing = json.load(input_stream)
+
+    def record_progress(**metadata):
+        output_stream.write(json.dumps(metadata).encode() + b"\n")
+        output_stream.flush()
+
     body = b""
     try:
-        body, ctype, final_url = _fetch_https(url, attempts, max_bytes, expected_format=kind)
-        result = {"content_type": ctype, "final_url": final_url}
-    except urllib.error.HTTPError as e:
-        result = {"error": "HTTPError", "detail": e.reason, "code": e.code, "final_url": e.geturl()}
-    except (FetchRejected, FetchTooLarge, RobotsDisallowed) as e:
-        result = {"error": type(e).__name__, "detail": str(e), "final_url": getattr(e, "final_url", None)}
+        body, ctype, final_url, http_status = _fetch_https(url, attempts, max_bytes, expected_format=kind,
+                                                          pacing=pacing, record_progress=record_progress)
+        result = {"content_type": ctype, "final_url": final_url, "http_status": http_status}
+    except FetchRejected as e:
+        result = {"error": "FetchRejected", "detail": str(e),
+                  "final_url": e.final_url, "http_status": e.http_status, "deferred_until": e.deferred_until}
     except Exception as e:
         result = {"error": "FetchRejected", "detail": f"{type(e).__name__}: {e}"}
     output_stream.write(json.dumps(result).encode() + b"\n")
     output_stream.write(body)
 
 
-def _fetch_https(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf"):
+def _fetch_https(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf",
+                 pacing=(0, 0), record_progress=None):
     kind = _validate_fetch_request(url, attempts, max_bytes, expected_format)
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (onjeon source change detection)"})
-    opener = urllib.request.build_opener(PolicyRedirectHandler())
+    url, _ = urllib.parse.urldefrag(url)  # fragments are client-side and are never sent on the wire
+    try:
+        # The explicit detect command opts into networking in this config. The transport
+        # also requires its environment opt-in for every non-loopback request.
+        config = CrawlerConfig(contact=os.environ.get(CONTACT_ENV, ""), network_enabled=True)
+        transport = UrllibTransport(config)
+        transport.check_destination(url)
+    except (NetworkDisabledError, RefusedRequestError) as e:
+        raise FetchRejected(str(e)) from e
+    except (ConfigError, UserAgentError) as e:
+        raise FetchRejected(f"crawler_contact: set {CONTACT_ENV} to a valid public email or URL") from e
+
+    crawl_delay, ready_at = pacing
+    wait = ready_at - time.monotonic()
+    if wait > 0:
+        time.sleep(wait)
+    if crawl_delay and record_progress is not None:
+        record_progress(crawl_delay=crawl_delay)
+    robots = RobotsCache(transport, transport.user_agent, follow_redirects=False).check(url)
+    if (robots.crawl_delay or 0) > crawl_delay:
+        crawl_delay = robots.crawl_delay
+        if record_progress is not None:
+            record_progress(crawl_delay=crawl_delay)
+    if not robots.allowed:
+        raise FetchRejected(robots.reason, deferred_until=robots.deferred_until)
+    if crawl_delay:
+        time.sleep(crawl_delay)
+
+    final_url = http_status = None
     for i in range(attempts):
         try:
-            with opener.open(req, timeout=FETCH_SOCKET_TIMEOUT_SECONDS) as r:
-                final_url = r.geturl()
-                try:
-                    check_redirect(url, final_url)
-                    if r.status != 200:
-                        raise FetchRejected(f"unexpected_status: {r.status}")
-                    # Do not use get_content_type(): it silently defaults a missing header to HTML.
-                    ctype = (r.headers.get("Content-Type") or "").split(";", 1)[0].strip().lower()
-                    if ctype not in SOURCE_MIMES[kind]:
-                        raise FetchRejected(f"content_type_mismatch: expected {kind}, received {ctype or 'missing'}")
-                    body = read_capped(r, max_bytes)
-                    check_source_body(body, kind)
-                except (FetchRejected, FetchTooLarge) as e:
-                    e.final_url = final_url
-                    raise
-                return body, ctype, final_url
-        except urllib.error.HTTPError as e:
-            e.close()
-            raise  # an HTTP status is an answer, not a network error
-        except (urllib.error.URLError, TimeoutError, ConnectionError):
+            with transport.request(url, None, FETCH_SOCKET_TIMEOUT_SECONDS, max_bytes) as response:
+                final_url, http_status = url, response.status
+                retry_after = response.headers.get("retry-after")
+                deferral = None
+                if http_status == 429 or (http_status == 503 and retry_after is not None):
+                    received_at = time.time()
+                    until = retry_after_until(retry_after, received_at)
+                    if until is None or until <= received_at:
+                        until = (int(received_at // DAY_S) + 1) * DAY_S
+                    deferral = (until, f"rate_limited: {http_status}")
+                if record_progress is not None:
+                    metadata = {"response": {"final_url": final_url, "http_status": http_status}}
+                    if deferral is not None:
+                        metadata["deferral"] = deferral
+                    record_progress(**metadata)
+                if deferral is not None:
+                    until, detail = deferral
+                    raise FetchRejected(detail, deferred_until=until)
+                if 300 <= http_status < 400:
+                    raise FetchRejected(f"redirect_disallowed: {http_status}")
+                if http_status != 200:
+                    raise FetchRejected(f"unexpected_status: {http_status}")
+                ctype = response.headers.get("content-type", "").split(";", 1)[0].strip().lower()
+                if ctype not in SOURCE_MIMES[kind]:
+                    raise FetchRejected(f"content_type_mismatch: expected {kind}, received {ctype or 'missing'}")
+                body = b"".join(response.body_iter)
+                check_source_body(body, kind)
+                return body, ctype, final_url, http_status
+        except BodyFramingError as e:
+            raise FetchRejected(f"length_mismatch: {e}", final_url=final_url, http_status=http_status) from e
+        except BodyTooLargeError as e:
+            raise FetchRejected(f"too_large: {e}", final_url=final_url, http_status=http_status) from e
+        except FetchRejected as e:
+            e.final_url, e.http_status = final_url, http_status
+            raise
+        except (NetworkDisabledError, RefusedRequestError) as e:
+            raise FetchRejected(str(e), final_url=final_url, http_status=http_status) from e
+        except TransportError as e:
             if i == attempts - 1:
-                raise
-            time.sleep(2 * 2**i)
+                raise FetchRejected(f"transport_error: {e}", final_url=final_url, http_status=http_status) from e
+            time.sleep(max(2 * 2**i, crawl_delay))
 
 
 def cmd_detect(args):
     raw = sa.store(args.raw, args.endpoint_url) if args.raw else None
     out = Path(args.out)
     results = []
+    host_deferrals = {}  # Host-wide decisions survive each sample's deadline-bounded worker.
+    host_pacing = {}
     for r in rows():
         sid = r["sample_id"]
-        res = {"sample_id": sid, "url": r["url"], "requested_url": r["url"],
+        res = {"sample_id": sid, "url": r["url"], "requested_url": r["url"], "final_url": None, "http_status": None,
                "baseline_sha256": r["sha256"], "observed_at": now()}
         try:
             check_recorded_robots_policy(r["url"])
@@ -609,28 +660,19 @@ def cmd_detect(args):
             results.append(res)
             continue
         try:
-            body, ctype, final_url = fetch(r["url"], expected_format=r["format"])
-        except RobotsDisallowed as e:
-            res.update(status="fetch_failed", detail=str(e))
-            results.append(res)
-            continue
-        except (FetchRejected, FetchTooLarge) as e:
-            detail = f"too_large: {e}" if isinstance(e, FetchTooLarge) else str(e)
-            res.update(status="fetch_failed", detail=detail[:200])
-            if getattr(e, "final_url", None):
-                res.update(url=e.final_url, final_url=e.final_url)
-            results.append(res)
-            continue
-        except urllib.error.HTTPError as e:
-            res.update(status="fetch_failed", detail=f"HTTPError: {e}"[:200],
-                       url=e.geturl(), final_url=e.geturl())
+            body, ctype, final_url, http_status = fetch(r["url"], expected_format=r["format"],
+                                                      robots_deferrals=host_deferrals, host_pacing=host_pacing)
+        except FetchRejected as e:
+            res.update(status="fetch_failed", detail=str(e)[:200], http_status=e.http_status, final_url=e.final_url)
+            if e.final_url is not None:
+                res["url"] = e.final_url
             results.append(res)
             continue
         except Exception as e:
             res.update(status="fetch_failed", detail=f"{type(e).__name__}: {e}"[:200])
             results.append(res)
             continue
-        res.update(url=final_url, final_url=final_url, content_type=ctype)
+        res.update(url=final_url, final_url=final_url, http_status=http_status, content_type=ctype)
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(body)
         digest = sa.sha256_bytes(body)
@@ -648,7 +690,7 @@ def cmd_detect(args):
             _, state = sa.put_raw(raw, body, ctype or "application/octet-stream")
             okey, _ = sa.put_observation(raw, sid, final_url, res["observed_at"], digest, len(body), ctype,
                                          {"detect_status": res["status"], "requested_url": r["url"],
-                                          "final_url": final_url})
+                                          "final_url": final_url, "http_status": http_status})
             res.update(archived_object=state, observation=okey)
         results.append(res)
     # a source that could not be fetched is a failed collection, not a green run (exit 1); a changed

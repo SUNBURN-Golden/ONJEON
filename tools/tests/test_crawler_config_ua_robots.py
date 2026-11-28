@@ -15,6 +15,7 @@ import unittest
 import urllib.error
 import urllib.request
 from email.message import Message
+from email.utils import formatdate
 from pathlib import Path
 from unittest import mock
 
@@ -242,6 +243,29 @@ class RobotsTest(unittest.TestCase):
         self.assertTrue(c.check("https://a.example/tmp123/other").allowed)
         self.assertFalse(c.check("https://a.example/q?a=1&secret=2").allowed)
 
+    def test_reserved_escapes_are_distinct_from_uri_delimiters(self):
+        body = (b"User-agent: *\nDisallow: /parts%2Fmanual$\nAllow: /parts/manual$\n"
+                b"Disallow: /search?field=a%26other=b$\nAllow: /search?field=a&other=b$\n")
+        c, _, _ = make({ROBOTS: (200, {}, body)})
+        for path in ("/parts%2fmanual", "/search?field=a%26other=b"):
+            with self.subTest(path=path):
+                self.assertFalse(c.check("https://a.example" + path).allowed)
+        for path in ("/parts/manual", "/search?field=a&other=b"):
+            with self.subTest(path=path):
+                self.assertTrue(c.check("https://a.example" + path).allowed)
+
+    def test_utf8_and_unreserved_escapes_are_normalized_without_creating_operators(self):
+        body = ("User-agent: *\nDisallow: /교재/~intro$\nDisallow: /escaped%2A/end%24$\n"
+                "Disallow: /empty?$\n").encode()
+        c, _, _ = make({ROBOTS: (200, {}, body)})
+        for path in ("/교재/~intro", "/%ea%b5%90%EC%9E%AC/%7Eintro", "/escaped%2a/end%24",
+                     "/escaped*/end$", "/empty?"):
+            with self.subTest(path=path):
+                self.assertFalse(c.check("https://a.example" + path).allowed)
+        for path in ("/escaped-other/end", "/escaped*/end$more", "/empty"):
+            with self.subTest(path=path):
+                self.assertTrue(c.check("https://a.example" + path).allowed)
+
     def test_matches_helper_edges(self):
         m = r._matches
         self.assertTrue(m("/", "/anything"))
@@ -268,6 +292,37 @@ class RobotsTest(unittest.TestCase):
     def test_other_bots_rules_do_not_apply(self):
         c, _, _ = make({ROBOTS: (200, {}, fixture("robots_other_bot_only.txt"))})
         self.assertTrue(c.check("https://a.example/anything").allowed)
+
+    def test_specific_groups_merge_rules_and_use_the_longest_crawl_delay(self):
+        body = (b"User-agent: *\nDisallow: /unrelated\n"
+                b"User-agent: ONJEON-SourceArchiver\n\nAllow: /public\nDisallow: /folder\nCrawl-delay: 4\n"
+                b"User-agent: onjeon-sourcearchiver\nDisallow: /public/restricted\n"
+                b"Allow: /folder\nCrawl-delay: 7\n")
+        c, _, _ = make({ROBOTS: (200, {}, body)})
+        self.assertFalse(c.check("https://a.example/public/restricted").allowed)
+        self.assertTrue(c.check("https://a.example/folder").allowed)
+        self.assertTrue(c.check("https://a.example/unrelated").allowed)
+        self.assertEqual(c.crawl_delay("https://a.example/public"), 7)
+
+    def test_extension_records_do_not_split_consecutive_user_agents(self):
+        body = (b"Allow: /no-agent\nUser-agent: ONJEON-SourceArchiver\r\nCrawl-delay: 4\n"
+                b"Sitemap: https://a.example/sitemap.xml\nRequest-rate: 1/4\n\n# comment\n"
+                b"User-agent: OtherBot\nDisallow: /restricted\nCrawl-delay: 2\n"
+                b"User-agent: OtherBot2/1.0\nAllow: /restricted\n"
+                b"User-agent: *\nDisallow: /fallback\nCrawl-delay: 9\n")
+        c, _, _ = make({ROBOTS: (200, {}, body)})
+        self.assertFalse(c.check("https://a.example/restricted").allowed)
+        self.assertTrue(c.check("https://a.example/fallback").allowed)
+        self.assertEqual(c.crawl_delay("https://a.example/public"), 4)
+
+    def test_wildcard_groups_merge_and_only_a_full_product_token_matches(self):
+        body = (b"User-agent: SourceArchiver\nAllow: /\n"
+                b"User-agent: *\nDisallow: /a\n"
+                b"User-agent: *\nDisallow: /b\n")
+        c, _, _ = make({ROBOTS: (200, {}, body)})
+        self.assertFalse(c.check("https://a.example/a").allowed)
+        self.assertFalse(c.check("https://a.example/b").allowed)
+        self.assertTrue(c.check("https://a.example/c").allowed)
 
     def test_disallow_all_for_us(self):
         c, _, _ = make({ROBOTS: (200, {}, fixture("robots_disallow_all_us.txt"))})
@@ -364,6 +419,25 @@ class RobotsTest(unittest.TestCase):
         c, _, _ = make({ROBOTS: lambda url: Response(200, {}, boom())})
         self.assertTrue(c.check("https://a.example/x").deferred)
 
+    def test_unusable_success_headers_defer_host_without_reading_body(self):
+        def unreadable_body():
+            self.fail("robots policy body was read")
+            yield b""
+
+        for status, headers in ((206, {}), (206, {"Content-Range": "bytes 0-19/40"}),
+                                (200, {"Content-Range": "bytes 0-19/40"}),
+                                (200, {"Content-Type": "text/html"}),
+                                (200, {"Content-Encoding": "gzip"})):
+            with self.subTest(status=status, headers=headers):
+                response = Response(status, headers, unreadable_body())
+                c, t, _ = make({ROBOTS: lambda url: response})
+                decision = c.check("https://a.example/document")
+                self.assertFalse(decision.allowed)
+                self.assertTrue(decision.deferred)
+                self.assertEqual(decision.reason, "robots_unreachable")
+                self.assertEqual(c.check("https://a.example:8443/later"), decision)
+                self.assertEqual(t.urls, [ROBOTS])
+
     def test_403_and_401_are_blocked_and_deferred_with_reason(self):
         for status in (401, 403):
             with self.subTest(status=status):
@@ -393,6 +467,38 @@ class RobotsTest(unittest.TestCase):
         self.assertEqual(d.reason, "robots_rate_limited")
         c.check("https://a.example/y")
         self.assertEqual(len(t.requests), 1)
+
+    def test_retry_after_extends_robots_hold_from_response_time_across_utc_midnight(self):
+        for status, header, reason in (
+            (429, "600", "robots_rate_limited"),
+            (503, formatdate(86_900, usegmt=True), "robots_server_error"),
+        ):
+            with self.subTest(status=status):
+                def respond(url):
+                    clock.advance(50)
+                    return status, {"Retry-After": header}, b""
+
+                c, t, clock = make({ROBOTS: respond})
+                clock.now = 86_250
+                decision = c.check("https://a.example/x")
+                self.assertEqual((decision.reason, decision.deferred_until), (reason, 86_900))
+
+                clock.now = 86_401
+                self.assertEqual(c.check("https://a.example:8443/y"), decision)
+                self.assertEqual(t.urls, [ROBOTS])
+
+                clock.now = 86_900
+                t.routes[ROBOTS] = (200, {}, b"")
+                self.assertTrue(c.check("https://a.example/x").allowed)
+                self.assertEqual(t.urls, [ROBOTS, ROBOTS])
+
+    def test_missing_invalid_or_short_retry_after_preserves_the_day_end_hold(self):
+        for header in (None, "invalid", "0", "30", formatdate(86_299, usegmt=True)):
+            with self.subTest(header=header):
+                headers = {} if header is None else {"Retry-After": header}
+                c, _, clock = make({ROBOTS: (503, headers, b"")})
+                clock.now = 86_300
+                self.assertEqual(c.check("https://a.example/x").deferred_until, 86_400)
 
     def test_same_host_redirect_followed_cross_host_refused(self):
         c, t, _ = make({ROBOTS: (301, {"Location": "https://a.example/new-robots.txt"}, b""),
@@ -573,6 +679,24 @@ class GateTest(NoSocketCase):
 
 
 class OpenerTest(NoSocketCase):
+    def test_http_requires_complete_headers_before_returning_status(self):
+        def connect(conn):
+            conn.sock = mock.Mock()
+            conn.sock.makefile.return_value = wire
+
+        tr = t.UrllibTransport(cfg())
+        with mock.patch("http.client.HTTPConnection.connect", connect):
+            wire = io.BytesIO(b"HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n")
+            with self.assertRaises(TransportError):
+                tr.request("http://127.0.0.1/robots.txt", None, 5, 10)
+            self.assertTrue(wire.closed)
+
+            wire = io.BytesIO(b"HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 200 OK\nContent-Length: 2\n\nok")
+            with tr.request("http://127.0.0.1/robots.txt", None, 5, 10) as response:
+                self.assertEqual(response.status, 200)
+                self.assertEqual(b"".join(response.body_iter), b"ok")
+            self.assertTrue(wire.closed)
+
     def test_env_proxies_are_ignored(self):
         proxies = {"HTTP_PROXY": "http://proxy.invalid:3128", "HTTPS_PROXY": "http://proxy.invalid:3128",
                    "http_proxy": "http://proxy.invalid:3128", "https_proxy": "http://proxy.invalid:3128",
@@ -600,8 +724,9 @@ class OpenerTest(NoSocketCase):
 
     def test_opener_has_no_redirect_error_or_default_header_handlers(self):
         op = t.UrllibTransport(cfg())._opener
-        kinds = {type(h) for h in op.handlers}
-        self.assertEqual(kinds, {urllib.request.HTTPHandler, urllib.request.HTTPSHandler})
+        self.assertEqual(len(op.handlers), 2)
+        self.assertEqual(sum(isinstance(h, urllib.request.HTTPHandler) for h in op.handlers), 1)
+        self.assertEqual(sum(isinstance(h, urllib.request.HTTPSHandler) for h in op.handlers), 1)
         self.assertFalse(any(isinstance(h, urllib.request.HTTPRedirectHandler) for h in op.handlers))
         self.assertFalse(any(isinstance(h, urllib.request.HTTPErrorProcessor) for h in op.handlers))
         self.assertEqual(op.addheaders, [])  # no Python-urllib default User-agent
@@ -693,16 +818,47 @@ class HeadersAndLimitsTest(NoSocketCase):
         self.assertEqual(resp.read_sizes, [])
         self.assertTrue(resp.closed)
 
-    def test_hostile_content_length_never_raises_valueerror(self):
-        for value, oversize in (("\u00b2", False), ("9" * 5000, True), ("abc", False), ("-5", False)):
+    def test_invalid_content_length_is_rejected_unread(self):
+        for value in ("", "\u00b2", "abc", "-5", "2,", "2, 3", "9" * 5000 + ", " + "8" * 5000):
             resp = FakeHttpResponse(200, {"Content-Length": value}, b"ok")
-            with mock.patch.object(self.tr._opener, "open", return_value=resp):
+            with self.subTest(value=value[:20]), mock.patch.object(self.tr._opener, "open", return_value=resp):
                 r = self.tr.request("http://127.0.0.1:1/x", None, 5, 100)
-                if oversize:
-                    with self.assertRaises(t.BodyTooLargeError):
-                        next(r.body_iter)
+                with self.assertRaises(t.BodyFramingError):
+                    next(r.body_iter)
+                self.assertEqual(resp.read_sizes, [])
+                self.assertTrue(resp.closed)
+
+    def test_equal_comma_joined_content_lengths_use_one_decimal_value(self):
+        for body, value, error in ((b"ok", "2, 02", None), (b"ok", "3, 3", t.BodyFramingError),
+                                   (b"ok", "2" + "0" * 5000, t.BodyTooLargeError)):
+            resp = FakeHttpResponse(200, {"Content-Length": value}, body)
+            with self.subTest(value=value[:20]), mock.patch.object(self.tr._opener, "open", return_value=resp):
+                r = self.tr.request("http://127.0.0.1:1/x", None, 5, 100)
+                if error is None:
+                    self.assertEqual(b"".join(r.body_iter), body)
                 else:
-                    self.assertEqual(b"".join(r.body_iter), b"ok")
+                    with self.assertRaises(error):
+                        b"".join(r.body_iter)
+                self.assertTrue(resp.closed)
+
+    def test_ambiguous_or_unsupported_transfer_encoding_is_rejected_unread(self):
+        for headers in ({"Transfer-Encoding": "chunked", "Content-Length": "2"},
+                        {"Transfer-Encoding": "gzip, chunked"}):
+            resp = FakeHttpResponse(200, headers, b"ok")
+            with self.subTest(headers=headers), mock.patch.object(self.tr._opener, "open", return_value=resp):
+                r = self.tr.request("http://127.0.0.1:1/x", None, 5, 100)
+                with self.assertRaises(t.BodyFramingError):
+                    next(r.body_iter)
+                self.assertEqual(resp.read_sizes, [])
+                self.assertTrue(resp.closed)
+
+    def test_bodyless_response_can_advertise_the_selected_representations_length(self):
+        resp = FakeHttpResponse(304, {"Content-Length": "5000"})
+        with mock.patch.object(self.tr._opener, "open", return_value=resp):
+            r = self.tr.request("http://127.0.0.1:1/x", None, 5, 100)
+            self.assertEqual(list(r.body_iter), [])
+        self.assertEqual(resp.read_sizes, [])
+        self.assertTrue(resp.closed)
 
     def test_close_without_iterating_closes_the_connection(self):
         resp = FakeHttpResponse(200, {}, b"abc")

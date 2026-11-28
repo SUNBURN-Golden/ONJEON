@@ -5,7 +5,7 @@ are combined, the longest matching rule wins, Allow wins a tie, and `*` and a tr
 
 Outcomes per host (RFC 9309, plus the project rule "when in doubt, do not fetch"):
   200            parse; Disallow/Allow honoured for our product token; Crawl-delay returned (else None)
-  206 or another 2xx with Content-Range   partial policy: defer as robots_unreachable
+  partial, non-plain-text, or encoded 2xx policies: defer as robots_unreachable
   remaining 2xx  treated as 200
   4xx except 401/403/429   robots.txt not found => everything allowed
   429            rate limited: host DEFERRED, reason robots_rate_limited
@@ -23,6 +23,7 @@ Not a limiter, not thread-safe by itself (an RLock serialises check()).
 import re
 import threading
 import time
+from codecs import BOM_UTF8
 from dataclasses import dataclass
 from string import ascii_letters, digits
 from typing import Callable, Dict, Mapping, Optional, Tuple
@@ -159,7 +160,7 @@ class RobotsCache:
                         url = target
                         continue
                     success = 200 <= status < 300
-                    if success and (status == 206 or "content-range" in resp.headers):
+                    if success and (status == 206 or not _has_policy_headers(resp.headers)):
                         self._defer(host, now, "robots_unreachable")
                         return None
                     body = _read_capped(resp) if success else b""
@@ -181,12 +182,22 @@ class RobotsCache:
             if body is None:  # over the cap and nothing usable: we cannot know the rules, so do not fetch
                 self._defer(host, now, "robots_too_large")
                 return None
+            # A challenge can be served as text/plain or without a Content-Type header.
+            if any(line.lstrip(b" \t").startswith(b"<") for line in body.removeprefix(BOM_UTF8).splitlines()):
+                self._defer(host, now, "robots_unreachable")
+                return None
             entry = _parse(now, body)
         else:  # 5xx, 1xx, anything unexpected
             self._defer(host, now, "robots_server_error")
             return None
         self._entries[origin] = entry
         return entry
+
+
+def _has_policy_headers(headers: Mapping[str, str]) -> bool:
+    media_type = headers.get("content-type", "text/plain").partition(";")[0].strip().lower()
+    encoding = headers.get("content-encoding", "identity").strip().lower()
+    return media_type == "text/plain" and encoding == "identity" and "content-range" not in headers
 
 
 def _read_capped(resp) -> Optional[bytes]:

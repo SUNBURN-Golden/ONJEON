@@ -419,13 +419,15 @@ class RobotsTest(unittest.TestCase):
         c, _, _ = make({ROBOTS: lambda url: Response(200, {}, boom())})
         self.assertTrue(c.check("https://a.example/x").deferred)
 
-    def test_partial_success_response_defers_host_without_parsing_body(self):
+    def test_unusable_success_headers_defer_host_without_reading_body(self):
         def unreadable_body():
             self.fail("robots policy body was read")
             yield b""
 
         for status, headers in ((206, {}), (206, {"Content-Range": "bytes 0-19/40"}),
-                                (200, {"Content-Range": "bytes 0-19/40"})):
+                                (200, {"Content-Range": "bytes 0-19/40"}),
+                                (200, {"Content-Type": "text/html"}),
+                                (200, {"Content-Encoding": "gzip"})):
             with self.subTest(status=status, headers=headers):
                 response = Response(status, headers, unreadable_body())
                 c, t, _ = make({ROBOTS: lambda url: response})
@@ -677,6 +679,24 @@ class GateTest(NoSocketCase):
 
 
 class OpenerTest(NoSocketCase):
+    def test_http_requires_complete_headers_before_returning_status(self):
+        def connect(conn):
+            conn.sock = mock.Mock()
+            conn.sock.makefile.return_value = wire
+
+        tr = t.UrllibTransport(cfg())
+        with mock.patch("http.client.HTTPConnection.connect", connect):
+            wire = io.BytesIO(b"HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n")
+            with self.assertRaises(TransportError):
+                tr.request("http://127.0.0.1/robots.txt", None, 5, 10)
+            self.assertTrue(wire.closed)
+
+            wire = io.BytesIO(b"HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 200 OK\nContent-Length: 2\n\nok")
+            with tr.request("http://127.0.0.1/robots.txt", None, 5, 10) as response:
+                self.assertEqual(response.status, 200)
+                self.assertEqual(b"".join(response.body_iter), b"ok")
+            self.assertTrue(wire.closed)
+
     def test_env_proxies_are_ignored(self):
         proxies = {"HTTP_PROXY": "http://proxy.invalid:3128", "HTTPS_PROXY": "http://proxy.invalid:3128",
                    "http_proxy": "http://proxy.invalid:3128", "https_proxy": "http://proxy.invalid:3128",
@@ -704,8 +724,9 @@ class OpenerTest(NoSocketCase):
 
     def test_opener_has_no_redirect_error_or_default_header_handlers(self):
         op = t.UrllibTransport(cfg())._opener
-        kinds = {type(h) for h in op.handlers}
-        self.assertEqual(kinds, {urllib.request.HTTPHandler, urllib.request.HTTPSHandler})
+        self.assertEqual(len(op.handlers), 2)
+        self.assertEqual(sum(isinstance(h, urllib.request.HTTPHandler) for h in op.handlers), 1)
+        self.assertEqual(sum(isinstance(h, urllib.request.HTTPSHandler) for h in op.handlers), 1)
         self.assertFalse(any(isinstance(h, urllib.request.HTTPRedirectHandler) for h in op.handlers))
         self.assertFalse(any(isinstance(h, urllib.request.HTTPErrorProcessor) for h in op.handlers))
         self.assertEqual(op.addheaders, [])  # no Python-urllib default User-agent

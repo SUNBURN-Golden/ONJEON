@@ -5,6 +5,7 @@ Only loopback sockets and temporary local archives are used; no insurer or R2 ac
 import argparse
 import csv
 import functools
+import gzip
 import io
 import json
 import os
@@ -446,6 +447,7 @@ class DetectLocalHTTPS(unittest.TestCase):
         self.robots_body = b"User-agent: *\nDisallow:\n"
         self.robots_length = None
         self.robots_range = None
+        self.robots_raw_response = None
         self.server.test = self
         # Loopback hosts are admitted only in this isolated test registry.
         policy_dir = tempfile.TemporaryDirectory()
@@ -471,6 +473,11 @@ class DetectLocalHTTPS(unittest.TestCase):
                 cls.requests.append(self.path)
                 cls.request_headers.append(self.headers)
                 if self.path == "/robots.txt":
+                    raw_response = self.server.test.robots_raw_response
+                    if raw_response is not None:
+                        self.wfile.write(raw_response)
+                        self.close_connection = True
+                        return
                     status = self.server.test.robots_status
                     if not status:
                         self.close_connection = True
@@ -521,9 +528,11 @@ class DetectLocalHTTPS(unittest.TestCase):
                     length = str(len(body) + (self.path == "/truncated-repeated-length"))
                     self.send_header("Content-Length", length)
                     self.send_header("Content-Length", length)
-                elif self.path == "/chunked":
+                elif self.path in ("/chunked", "/truncated-chunked"):
                     self.send_header("Transfer-Encoding", "chunked")
-                    body = f"{len(body):x}\r\n".encode() + body + b"\r\n0\r\n\r\n"
+                    body = f"{len(body):x}\r\n".encode() + body + b"\r\n0\r\n"
+                    if self.path == "/chunked":
+                        body += b"\r\n"
                 elif self.path != "/streamed-large":
                     self.send_header("Content-Length", str(len(body)))
                 try:
@@ -758,6 +767,64 @@ class DetectLocalHTTPS(unittest.TestCase):
             self.assertFalse((root / "downloads").exists())
             self.assertFalse((root / "archive").exists())
 
+    def assert_robots_response_defers_host(self, raw_response):
+        self.robots_raw_response = raw_response
+        rows = [{"sample_id": f"source_{i}", "url": f"{self.origin}/document-{i}", "format": "text_pdf",
+                 "cache_path": f"source/document-{i}", "sha256": "0" * 64} for i in range(2)]
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            before = len(self.requests)
+            code, results = self.run_detect_rows(root, rows)
+            self.assertEqual(self.requests[before:], ["/robots.txt"])
+            self.assertEqual(code, 1)
+            self.assertEqual(len(results), len(rows))
+            for result in results:
+                self.assertEqual((result["status"], result["detail"]), ("fetch_failed", "robots_unreachable"))
+                self.assertIsNone(result["final_url"])
+                self.assertIsNone(result["http_status"])
+            self.assertFalse((root / "downloads").exists())
+            self.assertFalse((root / "archive").exists())
+
+    def test_unusable_robots_response_never_authorizes_document_request(self):
+        compressed_policy = gzip.compress(b"User-agent: *\nDisallow: /document\n", mtime=0)
+        disguised_html = b"\xef\xbb\xbf  \n<!DOCTYPE html><html><h1>Verify you are human</h1></html>"
+        for name, headers, body in (
+            ("HTML challenge", b"Content-Type: text/html; charset=utf-8\r\n", WAF),
+            ("HTML declared plain text", b"Content-Type: text/plain\r\n", disguised_html),
+            ("HTML without content type", b"", disguised_html),
+            ("gzip policy", b"Content-Type: text/plain\r\nContent-Encoding: gzip\r\n", compressed_policy),
+        ):
+            with self.subTest(name=name):
+                self.assert_robots_response_defers_host(
+                    b"HTTP/1.1 200 OK\r\n" + headers + f"Content-Length: {len(body)}\r\n\r\n".encode() + body
+                )
+
+    def test_interrupted_robots_headers_never_authorize_document_request(self):
+        for headers in (b"", b"Content-Type: text/plain\r\n", b"Content-Length: 0\r\n\r"):
+            with self.subTest(headers=headers):
+                self.assert_robots_response_defers_host(b"HTTP/1.1 200 OK\r\n" + headers)
+
+    def test_interrupted_chunked_robots_response_never_authorizes_document_request(self):
+        policy = b"User-agent: *\nAllow: /\n"
+        prefix = (b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nTransfer-Encoding: chunked\r\n\r\n"
+                  + f"{len(policy):x}\r\n".encode() + policy + b"\r\n")
+        for ending in (b"", b"0\r\n", b"0\r\nX-Test: example\r\n", b"0\r\n\r"):
+            with self.subTest(ending=ending):
+                self.assert_robots_response_defers_host(prefix + ending)
+
+    def test_complete_chunked_robots_policy_is_honored(self):
+        policy = b"\xef\xbb\xbf# comment\nUser-agent: *\nDisallow: /document\n"
+        self.robots_raw_response = (
+            b"HTTP/1.1 200 OK\r\nContent-Type: Text/Plain; charset=utf-8\r\n"
+            b"Content-Encoding: identity\r\nTransfer-Encoding: chunked\r\n\r\n"
+            + f"{len(policy):x}\r\n".encode() + policy + b"\r\n0\r\nX-Test: example\r\n\r\n"
+        )
+        with tempfile.TemporaryDirectory() as d:
+            before = len(self.requests)
+            code, result = self.run_detect(Path(d), "/document")
+            self.assertEqual(self.requests[before:], ["/robots.txt"])
+            self.assertEqual((code, result["status"], result["detail"]), (1, "fetch_failed", "robots_disallow"))
+
     def test_robots_rules_disallow_document_request(self):
         for path, body in (
             ("/document", b"User-agent: ONJEON-SourceArchiver\nAllow: /\n\n"
@@ -830,6 +897,7 @@ class DetectLocalHTTPS(unittest.TestCase):
             ("/declared-large", "text_pdf", 10, "too_large"),
             ("/streamed-large", "text_pdf", 10, "too_large"),
             ("/truncated-repeated-length", "text_pdf", vs.MAX_FETCH_BYTES, "length_mismatch"),
+            ("/truncated-chunked", "text_pdf", vs.MAX_FETCH_BYTES, "length_mismatch"),
         ):
             with self.subTest(path=path, fmt=fmt), tempfile.TemporaryDirectory() as d:
                 root = Path(d)

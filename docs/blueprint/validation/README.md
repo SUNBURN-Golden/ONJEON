@@ -45,9 +45,11 @@ ONJEON_CRAWLER_ALLOW_NETWORK=1 ONJEON_CRAWLER_CONTACT="$PUBLIC_CRAWLER_CONTACT" 
 
 `detect`는 `ONJEON_CRAWLER_CONTACT`의 공개 이메일 또는 연락처 URL을 `ONJEON-SourceArchiver` User-Agent에 넣는다. 수동 `sources` 워크플로는 같은 이름의 저장소 변수에서 연락처를 받아 detect 단계에만 제공하며, 해당 단계에 `ONJEON_CRAWLER_ALLOW_NETWORK=1`을 설정한다. 로컬 실행에서도 위 예시의 `PUBLIC_CRAWLER_CONTACT`에 실제 공개 연락처를 지정한다.
 
-[2026-10-10 조사](../../research/2026-10-10_source_survey/A_klia.md#6-접근-제한과-실패)의 전면 금지 기록에 따라 `pub.insure.or.kr` 표본 2건은 요청 없이 `fetch_failed`를 기록한다. 최신 robots 정책 확인은 등록된 나머지 HTTPS 출처에 적용한다. 문서 요청 전에 같은 출처의 `/robots.txt`를 같은 User-Agent로 확인하고 일치하는 그룹들의 규칙을 합쳐 판정한다. robots 요청에서 429나 불완전한 응답 등으로 호스트가 보류되면 같은 실행의 이후 표본에도 UTC 자정까지 보류를 적용한다.
+[2026-10-10 조사](../../research/2026-10-10_source_survey/A_klia.md#6-접근-제한과-실패)의 전면 금지 기록에 따라 `pub.insure.or.kr` 표본 2건은 요청 없이 `fetch_failed`를 기록한다. 최신 robots 정책 확인은 등록된 나머지 HTTPS 출처에 적용한다. 문서 요청 전에 같은 출처의 `/robots.txt`를 같은 User-Agent로 확인하고 일치하는 그룹들의 규칙을 합쳐 판정한다. robots 조회에서 호스트를 보류하면 같은 실행의 이후 표본에도 적용한다. robots 429·503 보류는 응답 시점의 다음 UTC 자정과 유효한 `Retry-After` 중 더 늦은 시각까지 지속한다.
 
-`robots.txt`가 206 또는 `Content-Range`가 있는 다른 2xx를 반환하면 `robots_unreachable`로 호스트를 보류한다. 문서에 대한 429 또는 `Retry-After`를 포함한 503 이후에는 같은 실행에서 해당 호스트의 robots와 문서 요청을 함께 보류한다. `Retry-After`의 미래 시각까지 보류하고, 사용할 수 있는 미래 시각이 없으면 다음 UTC 자정까지 보류한다.
+robots의 206 또는 `Content-Range`가 있는 다른 2xx, HTML 차단 페이지, 지원하지 않는 `Content-Type`·`Content-Encoding`이 붙은 2xx, 불완전한 헤더·본문은 `robots_unreachable`로 호스트를 보류한다. 성공 응답에 `Content-Type`이나 `Content-Encoding`이 있으면 각각 `text/plain`, `identity`를 요구한다.
+
+문서에 대한 429 또는 `Retry-After`를 포함한 503 이후에는 같은 실행에서 해당 호스트의 robots와 문서 요청을 함께 보류한다. `Retry-After`의 미래 시각까지 보류하고, 사용할 수 있는 미래 시각이 없으면 다음 UTC 자정까지 보류한다.
 
 문서와 `robots.txt` 요청은 리다이렉트를 따라가지 않는다. 보고서의 `requested_url`은 입력 URL이고, `final_url`과 `http_status`는 프래그먼트를 제외한 문서 응답 URL과 HTTP 상태다. 문서 응답 메타데이터가 없으면 두 값은 `null`이다. 변경 판정은 계속 `status`에 기록한다. 새 보관 관측에는 입력 URL·문서 응답 URL·HTTP 상태를 함께 남긴다.
 

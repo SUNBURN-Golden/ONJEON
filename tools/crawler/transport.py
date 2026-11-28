@@ -11,6 +11,7 @@ UrllibTransport (stdlib) rules:
   Non-2xx statuses are returned as responses, not raised.
 - environment proxies are ignored (an explicit empty proxy handler); there is no proxy support.
 - the body is streamed in bounded chunks and never exceeds max_bytes (BodyTooLargeError).
+- a response header section must end with a blank line before any status is returned.
 - invalid body framing and a length mismatch fail the stream (BodyFramingError).
 """
 import abc
@@ -123,13 +124,68 @@ def _split(url: str):
     return parts, host
 
 
+class _HeaderReader:
+    """Keep the last raw line that the stdlib's bounded header parser consumed."""
+
+    def __init__(self, source):
+        self.source = source
+        self.last_line = b""
+
+    def readline(self, limit: int) -> bytes:
+        self.last_line = self.source.readline(limit)
+        return self.last_line
+
+    def close(self) -> None:
+        self.source.close()
+
+
+class _CompleteHTTPResponse(http.client.HTTPResponse):
+    def begin(self) -> None:
+        if self.headers is not None:
+            return
+        source = self.fp
+        reader = self.fp = _HeaderReader(source)
+        try:
+            super().begin()
+            if reader.last_line not in (b"\r\n", b"\n"):
+                raise http.client.HTTPException("incomplete response headers")
+        finally:
+            if self.fp is reader:
+                self.fp = source
+
+    def _read_and_discard_trailer(self) -> None:
+        # http.client tolerates EOF after the zero chunk. RFC 9112 requires a final CRLF.
+        reader = _HeaderReader(self.fp)
+        http.client.parse_headers(reader)
+        if reader.last_line != b"\r\n":
+            raise BodyFramingError("incomplete chunked trailer section")
+
+
+class _HTTPConnection(http.client.HTTPConnection):
+    response_class = _CompleteHTTPResponse
+
+
+class _HTTPSConnection(http.client.HTTPSConnection):
+    response_class = _CompleteHTTPResponse
+
+
+class _HTTPHandler(urllib.request.HTTPHandler):
+    def http_open(self, req):
+        return self.do_open(_HTTPConnection, req)
+
+
+class _HTTPSHandler(urllib.request.HTTPSHandler):
+    def https_open(self, req):
+        return self.do_open(_HTTPSConnection, req, context=self._context)
+
+
 def _build_opener() -> urllib.request.OpenerDirector:
     """Minimal opener: no env proxies, no redirect handler, no error processor (3xx/4xx/5xx come back as
     responses), no file/ftp/data handlers, no default User-agent."""
     opener = urllib.request.OpenerDirector()
     opener.add_handler(urllib.request.ProxyHandler({}))
-    opener.add_handler(urllib.request.HTTPHandler())
-    opener.add_handler(urllib.request.HTTPSHandler())
+    opener.add_handler(_HTTPHandler())
+    opener.add_handler(_HTTPSHandler())
     opener.addheaders = []
     return opener
 

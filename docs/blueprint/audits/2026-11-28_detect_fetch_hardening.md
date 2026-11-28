@@ -14,7 +14,9 @@ robots 조회에서 호스트를 보류하면 작업 프로세스가 보류 사�
 
 경로와 쿼리를 비교할 때 비예약 ASCII의 퍼센트 인코딩은 해제하고, `%2F` 같은 예약 문자 이스케이프는 보존한다. URL의 리터럴 `*`와 `$`는 각각 `%2A`와 `%24` 규칙에 일치한다. 규칙에 직접 쓰인 `*`와 끝의 `$`는 와일드카드와 끝 표시로 해석한다. `Crawl-delay` 등 확장 레코드 사이에 놓인 `User-agent` 행들도 규칙이 시작되기 전까지 같은 그룹에 속한다. [RFC 9309 §2.2.2](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.2) · [§2.2.3](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.3) · [§2.2.4](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.4).
 
-공용 전송 계층은 `Content-Length`가 반복되면 같은 숫자 값만 허용하고, 선언 길이와 읽은 본문의 길이가 다르면 실패 처리한다. 불완전하게 전송된 robots 응답은 `robots_unreachable`로 호스트를 보류하며, 본문 길이가 일치하지 않는 문서는 `length_mismatch`로 거부한다. robots의 206 또는 `Content-Range`가 있는 다른 2xx도 본문을 읽기 전에 `robots_unreachable`로 호스트를 보류한다. [RFC 9112 §6.3](https://www.rfc-editor.org/rfc/rfc9112.html#section-6.3) · [RFC 9110 §15.3.7](https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.7).
+공용 전송 계층은 응답 헤더 끝의 빈 줄과 청크 본문의 마지막 청크 뒤 종료 빈 줄을 확인한다. `Content-Length`가 반복되면 같은 숫자 값만 허용하고, 선언 길이와 읽은 본문의 길이가 다르면 실패 처리한다. 헤더 종료 줄, 청크 종료 줄, 선언된 본문 바이트가 빠진 robots 응답은 `robots_unreachable`로 호스트를 보류한다. 본문 길이가 일치하지 않는 문서는 `length_mismatch`로 거부한다. [RFC 9112 §6.3](https://www.rfc-editor.org/rfc/rfc9112.html#section-6.3) · [§7.1](https://www.rfc-editor.org/rfc/rfc9112.html#section-7.1).
+
+robots의 206 또는 `Content-Range`가 있는 다른 2xx, `text/plain` 외의 `Content-Type`이나 `identity` 외의 `Content-Encoding`을 선언한 2xx는 본문을 읽기 전에 `robots_unreachable`로 호스트를 보류한다. 헤더에서 평문으로 표시하거나 유형을 생략한 경우에도 본문에서 HTML 마크업을 확인하면 같은 사유로 보류한다. [RFC 9110 §15.3.7](https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.7) · [RFC 9309 §2.3](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.3) · [출처 조사](../../research/2026-10-10_source_survey/F_history.md#23-회사-사이트).
 
 문서 응답이 429이거나 `Retry-After`가 있는 503이면 해당 호스트의 이후 robots·문서 요청을 같은 실행에서 보류한다. `Retry-After`의 초 또는 HTTP 날짜로 만료 시각을 정하며, 사용할 수 있는 미래 시각이 없으면 다음 UTC 자정을 사용한다. 첫 보고 행은 받은 `final_url`과 `http_status`를 기록하고, 보류로 요청을 건너뛴 행은 두 필드를 `null`로 기록한다. 작업 프로세스가 헤더를 기록한 뒤 시간 초과로 종료돼도 부모는 그 호스트의 보류를 적용한다. [RFC 9110 §10.2.3](https://www.rfc-editor.org/rfc/rfc9110.html#section-10.2.3).
 
@@ -82,5 +84,21 @@ ONJEON_CRAWLER_CONTACT= ONJEON_CRAWLER_ALLOW_NETWORK=1 \
 | `cargo test --all --locked --offline` | 566개 통과, 기존 1개 무시. 삽입 순서·시나리오 API·온톨로지 실행기의 추가 시험은 2·4·4개 통과 |
 
 Rust 형식·린트, 워크플로 정책, 검증 자료·원장·제품 목적·설계 묶음·온톨로지 검사와 설계도 §11 수량 대조도 통과했다.
+
+## 4차 검토 수정 검증
+
+- 검토 기준 `c8e4f1bb`에서 HTML 차단 페이지, 금지 규칙을 담은 gzip 정책, 헤더가 중간에 끊긴 응답, 청크의 종료 빈 줄이 빠진 응답에 대한 루프백 HTTPS 하위 시험 10건이 실패했다. 모두 `/robots.txt` 뒤 문서를 요청했다.
+- 수정 후 각 경우에 같은 호스트에서 표본 두 건을 검사했다. `/robots.txt` 요청은 한 건이었고 문서 요청·캐시·보관 쓰기는 없었다. 두 보고 행 모두 `robots_unreachable`과 `null` 문서 메타데이터를 기록했다. 종료 빈 줄이 있는 청크 응답은 금지 규칙을 적용했고 실제 404 응답은 문서 요청을 허용했다. 문서의 청크 종료 빈 줄이 빠지면 `final_url`과 `http_status=200`을 기록하고 기존 캐시·보관 바이트를 유지했다.
+- 검증 안내는 robots 429·503 보류 마감이 응답 시점의 다음 UTC 자정과 유효한 `Retry-After` 중 더 늦은 시각임을 명시한다. 기존 모의 시계 시험을 다시 실행해 자정 이후에도 보류가 유지되는 두 응답을 확인했다. [검증 안내](../validation/README.md) · [회귀 시험](../../../tools/tests/test_verify_sources_fetch.py) · [robots·전송 시험](../../../tools/tests/test_crawler_config_ua_robots.py).
+
+| 명령 | 결과 |
+|---|---|
+| `python3 -B -m unittest discover -s tools/tests -p 'test_verify_sources*.py' -v` | 80개 통과, 보관본이 필요한 3개 건너뜀 |
+| `python3 -B -m unittest discover -s tools/tests -p 'test_crawler*.py' -v` | 312개 통과 |
+| `python3 -B -m unittest discover -s tools/tests -v` | 1,840개 통과, 보관본이 필요한 5개와 구버전 botocore 전용 1개 건너뜀 |
+| `python3 -B -m unittest discover -s tools/daemon/runner_verify/tests -v` | 81개 통과 |
+| `cargo test --all --locked --offline` | 566개 통과, 기존 1개 무시. 삽입 순서·시나리오 API·온톨로지 실행기의 추가 시험은 2·4·4개 통과 |
+
+워크플로 정책·출처 시험 7개, 공시 원장·어휘 검사, 검증 자료 검사와 변조 자체 시험 40건, 설계 묶음·온톨로지 검사 및 Rust 형식·린트도 통과했다.
 
 로컬 시험은 출처 변경 감지의 전송 경계와 보고서 기록을 검증했다. 실제 공시 확보율, R2 관측 대조와 변경 후 재처리는 각 행에서 증거를 요구한다. [09 제품 목적 대응표](../proposals/설계검토_결과/09_제품목적_대응표.md).

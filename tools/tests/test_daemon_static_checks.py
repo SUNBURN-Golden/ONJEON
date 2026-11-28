@@ -162,6 +162,16 @@ data = {"eval": "description", "system": "label"}
 
 
 class StaticCli(unittest.TestCase):
+    def copy_cli(self, directory):
+        daemon = Path(directory) / "daemon"
+        core = daemon / "core"
+        core.mkdir(parents=True)
+        # The checker reads this file directly, even in a minimal source tree.
+        (core / "rules.py").write_text("", encoding="utf-8")
+        script = daemon / "static_checks.py"
+        shutil.copyfile(static_checks.__file__, script)
+        return script
+
     def run_cli(self, script, *arguments):
         # A different cwd and isolated Python exercise path defaults and the standalone entry point.
         with tempfile.TemporaryDirectory() as directory:
@@ -176,17 +186,15 @@ class StaticCli(unittest.TestCase):
 
     def test_cli_rejects_planted_violations_without_executing_them(self):
         with tempfile.TemporaryDirectory() as directory:
-            daemon = Path(directory) / "daemon"
-            shutil.copytree(static_checks.HERE, daemon,
-                            ignore=shutil.ignore_patterns("runner_verify", "reports", "__pycache__"))
-            script = daemon / "static_checks.py"
+            script = self.copy_cli(directory)
+            probe = script.parent / "core/static_checks.py"
             for source in ('__builtins__["eval"]("1")', 'getattr(os, "system")("unused")',
                            'from os import system as s', 'os.execvpe("unused", [], {})',
                            'os.posix_spawn("unused", [], {})', 'import ctypes', 'while 1:\n    pass',
                            'import pickle as loader', 'import os as op; op.unreviewed_api()',
                            'getattr(__builtins__, "eval")("1")'):
                 with self.subTest(source=source):
-                    (daemon / "core/static_checks.py").write_text(source, encoding="utf-8")
+                    probe.write_text(source, encoding="utf-8")
                     result = self.run_cli(script, "--rules", str(RULES), "--tasks", str(TASKS))
                     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
                     self.assertIn("[FAIL]", result.stdout)
@@ -206,11 +214,9 @@ class StaticCli(unittest.TestCase):
 
     def test_cli_invalid_source_is_an_error(self):
         with tempfile.TemporaryDirectory() as directory:
-            daemon = Path(directory) / "daemon"
-            shutil.copytree(static_checks.HERE, daemon,
-                            ignore=shutil.ignore_patterns("runner_verify", "reports", "__pycache__"))
-            (daemon / "core/broken.py").write_text('if\n', encoding="utf-8")
-            result = self.run_cli(daemon / "static_checks.py", "--rules", str(RULES), "--tasks", str(TASKS))
+            script = self.copy_cli(directory)
+            (script.parent / "core/broken.py").write_text('if\n', encoding="utf-8")
+            result = self.run_cli(script, "--rules", str(RULES), "--tasks", str(TASKS))
             self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
             self.assertIn("[ERROR]", result.stderr)
             self.assertIn("broken.py", result.stderr)

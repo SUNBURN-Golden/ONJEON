@@ -10,6 +10,7 @@
   (products and riders per insurer) is tracked even before it is enumerated
 - adds `product_list_reason_codes` (`;`-separated, see PRODUCT_LIST_REASON_CODES)
   while `product_list_status = unqueried`
+- tracks historical product scope independently of current association membership
 
 Idempotent: running it twice gives the same files.
 Empty files (including header-only CSVs) are left unchanged. Each nonempty CSV
@@ -25,6 +26,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 REG = ROOT / "data/registry"
+HISTORICAL_TABLE = "excluded_or_historical.csv"
 VOCAB = json.loads((ROOT / "packages/schemas/vocabulary.json").read_text(encoding="utf-8"))
 
 
@@ -68,19 +70,25 @@ def disclosure_entry_reachable(row):
 
 
 def disclosure(row):
-    if disclosure_entry_reachable(row):
+    access = row.get("disclosure_access", "not_checked")
+    if access == "reachable":
+        if not disclosure_entry_reachable(row):
+            return "failed", "공시실 접근 결과는 reachable이나 공시 URL이 비어 있음"
         # The registry records access observations, not verified immutable assets.
         # Do not infer archived from host_access.maps_to or a legacy status claim.
         return "unqueried", "공시 URL 접근 확인(reachable). 원문 무결성 검사·불변 보관 전"
-    home = row.get("home_access", "not_checked")
-    if home in ("reachable", "js_shell"):
-        return "failed", "홈페이지는 열리나 정적 HTML에서 공시실 진입점을 찾지 못함(JS 메뉴 등)"
-    maps_to = HOST_CODES[home].get("maps_to")
+    source = "공시실"
+    if access == "not_checked":
+        source = "홈페이지"
+        access = row.get("home_access", "not_checked")
+        if access in ("reachable", "js_shell"):
+            return "failed", "홈페이지는 열리나 정적 HTML에서 공시실 진입점을 찾지 못함(JS 메뉴 등)"
+    maps_to = HOST_CODES[access].get("maps_to")
     if maps_to == "unqueried":
         return "unqueried", "아직 홈페이지·공시실을 조회하지 않음"
     if maps_to not in ("blocked", "failed"):
-        raise SystemExit(f"unsupported acquisition mapping: {home} -> {maps_to}")
-    return maps_to, f"홈페이지 접근 결과: {home}"
+        raise SystemExit(f"unsupported acquisition mapping: {access} -> {maps_to}")
+    return maps_to, f"{source} 접근 결과: {access}"
 
 
 PRODUCT_LIST_REASON_CODES = {
@@ -88,13 +96,24 @@ PRODUCT_LIST_REASON_CODES = {
     "awaiting_domestic_env": "실데이터 열거는 국내 IP 수집 실행 환경(O19) 준비 전",
     "disclosure_entry_missing": "공시 URL이 없거나 disclosure_access가 reachable이 아님",
     "foreign_sandbox_geo_blocked": "해외 IP 샌드박스에서 홈페이지·공시실이 해외 IP 차단됨",
+    "historical_scope_unverified": "과거 개인보험 판매·보유계약 대상 여부를 확인해야 함",
+    "historical_out_of_scope": "기관 유형 근거에 따라 §7.1 상품 수집 범위에서 제외",
 }
+
+HISTORICAL_INACTIVE_REASONS = {
+    "review_required": "historical_scope_unverified",
+    "out_of_scope": "historical_out_of_scope",
+}
+HISTORICAL_SCOPES = {"in_scope", *HISTORICAL_INACTIVE_REASONS}
 
 
 def product_list_codes(row):
-    """Reason codes for a product list that has not been enumerated yet ('' once it has a status)."""
+    """Compute unqueried reason codes and preserve recorded progress."""
     if row.get("product_list_status") != "unqueried":
         return row.get("product_list_reason_codes", "")
+    inactive_reason = HISTORICAL_INACTIVE_REASONS.get(row.get("historical_product_scope"))
+    if inactive_reason:
+        return inactive_reason
     codes = ["awaiting_T-DT-04", "awaiting_domestic_env"]
     if not disclosure_entry_reachable(row):
         codes.append("disclosure_entry_missing")
@@ -130,6 +149,7 @@ def normalize(path, has_disclosure=True):
         rows = list(csv.DictReader(f))
     if not rows:
         return 0
+    historical = path.name == HISTORICAL_TABLE
     out = []
     for r in rows:
         r = dict(r)
@@ -139,19 +159,32 @@ def normalize(path, has_disclosure=True):
         if r.get("entity_evidence") not in EVID_CODES:
             raise SystemExit(f"{path.name}: bad entity_evidence {r.get('entity_evidence')!r}")
         for col in ("disclosure_access", "home_access"):
+            if historical:
+                r.setdefault(col, "not_checked")
             if col in r:
                 raw = r[col]
                 code = host_code(raw)
                 if f"{col}_detail" not in r:
                     r[f"{col}_detail"] = "" if raw == code else raw
                 r[col] = code
-        if has_disclosure:
+        if historical:
+            r.setdefault("historical_product_scope", "review_required")
+            r.setdefault("historical_scope_reason", "기존 기관 근거로 과거 개인보험 판매·보유계약 대상 여부 미확인")
+            r.setdefault("successor_insurer_id", "")
+            r.setdefault("successor_evidence_url", "")
+            if r["historical_product_scope"] not in HISTORICAL_SCOPES:
+                raise SystemExit(f"{path.name}: invalid historical_product_scope {r['historical_product_scope']!r}")
+        if has_disclosure or historical:
             st, why = disclosure(r)
             r["disclosure_status"] = st
             r["disclosure_gap_reason"] = why
             r.setdefault("product_list_status", "unqueried")
             r.setdefault("product_list_reason", "상품·특약 목록 열거 전(M3 어댑터 단계). 표본 검증과 무관하게 전 대상을 추적")
             r["product_list_reason_codes"] = product_list_codes(r)
+            if historical and r["product_list_status"] == "unqueried":
+                inactive_reason = HISTORICAL_INACTIVE_REASONS.get(r["historical_product_scope"])
+                r["product_list_reason"] = (PRODUCT_LIST_REASON_CODES[inactive_reason] if inactive_reason else
+                                            "과거 개인보험 상품·특약·판매본 목록 열거 전(T-DT-04)")
         out.append(r)
     atomic_write_csv(path, out)
     return len(out)
@@ -172,6 +205,5 @@ def normalize_access_log(path):
 if __name__ == "__main__":
     print("insurers", normalize(REG / "insurers.csv"))
     print("cooperatives_and_others", normalize(REG / "cooperatives_and_others.csv"))
-    # These rows document exclusions, not an active product-list denominator.
-    print("excluded_or_historical", normalize(REG / "excluded_or_historical.csv", has_disclosure=False))
+    print("excluded_or_historical", normalize(REG / HISTORICAL_TABLE))
     print("access_log", normalize_access_log(REG / "access_log.csv"))

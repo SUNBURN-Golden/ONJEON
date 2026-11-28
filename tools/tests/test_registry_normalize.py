@@ -52,13 +52,12 @@ class AccessCodes(unittest.TestCase):
         self.assertEqual(status, "unqueried")
         self.assertIn("공시 URL 접근 확인", reason)
         self.assertIn("불변 보관 전", reason)
-        for url, access in (("", "reachable"), ("   ", "reachable"),
-                            ("https://example.invalid", "origin_denied")):
-            with self.subTest(url=url, access=access):
-                status, reason = rn.disclosure(dict(disclosure_url=url, disclosure_access=access,
-                                                    home_access="reachable"))
+        for url in ("", "   "):
+            with self.subTest(url=url):
+                status, reason = rn.disclosure(dict(disclosure_url=url, disclosure_access="reachable",
+                                                    home_access="not_checked"))
                 self.assertEqual(status, "failed")
-                self.assertTrue(reason)
+                self.assertIn("공시 URL이 비어 있음", reason)
 
     def test_access_results_alone_never_prove_archival(self):
         for home in rn.HOST_CODES:
@@ -78,6 +77,17 @@ class AccessCodes(unittest.TestCase):
                 self.assertEqual(status, expected)
                 self.assertTrue(reason)
         self.assertEqual(rn.disclosure({})[0], "unqueried")
+
+    def test_recorded_disclosure_attempt_takes_precedence_over_home_access(self):
+        for access, home, expected in (("geo_blocked", "not_checked", "blocked"),
+                                       ("origin_denied", "reachable", "blocked"),
+                                       ("timeout", "geo_blocked", "failed"),
+                                       ("js_shell", "not_checked", "failed")):
+            with self.subTest(access=access, home=home):
+                status, reason = rn.disclosure(dict(disclosure_url="https://example.invalid/terms",
+                                                    disclosure_access=access, home_access=home))
+                self.assertEqual(status, expected)
+                self.assertIn(f"공시실 접근 결과: {access}", reason)
 
 
 class RegistryCsv(unittest.TestCase):
@@ -135,6 +145,18 @@ class RegistryCsv(unittest.TestCase):
         rn.normalize(self.path)
         self.assertEqual(self.path.read_bytes(), first)
 
+    def test_historical_disclosure_attempt_survives_csv_normalization(self):
+        self.path = self.path.with_name(rn.HISTORICAL_TABLE)
+        self.write([dict(entity_evidence="one_source", historical_product_scope="in_scope",
+                         disclosure_url="https://example.invalid/terms", disclosure_access="geo_blocked",
+                         home_access="not_checked")])
+        self.assertEqual(rn.normalize(self.path), 1)
+        row = self.read()[0]
+        self.assertEqual(row["disclosure_access"], "geo_blocked")
+        self.assertEqual(row["home_access"], "not_checked")
+        self.assertEqual(row["disclosure_status"], "blocked")
+        self.assertIn("공시실 접근 결과: geo_blocked", row["disclosure_gap_reason"])
+
     def test_all_evidence_aliases_and_canonical_values(self):
         cases = [("verified_2_sources", "two_or_more_sources"), ("verified_1_source", "one_source"),
                  ("unverified_seed", "seed"), ("seed", "seed"),
@@ -163,6 +185,42 @@ class RegistryCsv(unittest.TestCase):
         self.assertEqual(rn.normalize(self.path, has_disclosure=False), 1)
         self.assertEqual(self.read(), [dict(entity_evidence="seed", home_access="origin_denied",
                                           home_access_detail="403_origin")])
+
+    def test_historical_normalization_preserves_curated_scope_and_refreshes_pending_reason(self):
+        self.path = self.path.with_name(rn.HISTORICAL_TABLE)
+        self.write([dict(entity_evidence="one_source", home_access="200", disclosure_access="200",
+                         disclosure_url="https://example.invalid/terms")])
+        rn.normalize(self.path)
+        row = self.read()[0]
+        self.assertEqual(row["historical_product_scope"], "review_required")
+        self.assertEqual(row["disclosure_status"], "unqueried")
+        self.assertEqual(row["product_list_reason_codes"], "historical_scope_unverified")
+
+        row.update(historical_product_scope="in_scope", historical_scope_reason="transfer confirmed",
+                   successor_insurer_id="successor", successor_evidence_url="https://example.invalid/notice")
+        self.write([row])
+        rn.normalize(self.path)
+        updated = self.read()[0]
+        self.assertEqual(updated["product_list_reason_codes"], "awaiting_T-DT-04;awaiting_domestic_env")
+        self.assertIn("과거 개인보험", updated["product_list_reason"])
+        self.assertEqual(row.keys(), updated.keys())
+        for field in row.keys() - {"product_list_reason", "product_list_reason_codes"}:
+            self.assertEqual(updated[field], row[field], field)
+
+        updated.update(product_list_status="failed", product_list_reason="enumeration attempted",
+                       product_list_reason_codes="")
+        self.write([updated])
+        rn.normalize(self.path)
+        self.assertEqual(self.read(), [updated])
+
+    def test_invalid_historical_scope_aborts_without_rewriting_csv(self):
+        self.path = self.path.with_name(rn.HISTORICAL_TABLE)
+        self.write([dict(entity_evidence="one_source", historical_product_scope="in_scope"),
+                    dict(entity_evidence="one_source", historical_product_scope="excluded")])
+        before = self.path.read_bytes()
+        with self.assertRaisesRegex(SystemExit, "invalid historical_product_scope"):
+            rn.normalize(self.path)
+        self.assertEqual(self.path.read_bytes(), before)
 
     def test_invalid_evidence_or_access_leaves_whole_input_untouched(self):
         for bad in (dict(entity_evidence="invalid", home_access="200"),
@@ -334,10 +392,18 @@ class RegistryCsv(unittest.TestCase):
             self.assertEqual(next(csv.DictReader(f))["host_access"], "rate_limited")
         with excluded.open(encoding="utf-8", newline="") as f:
             excluded_rows = list(csv.DictReader(f))
-        expected = [dict((k, v) for k, v in row.items() if k != "status") for row in original_excluded]
-        for row, value in zip(expected, ("two_or_more_sources", "one_source")):
-            row["entity_evidence"] = value
-        self.assertEqual(excluded_rows, expected)
+        for before, after, evidence in zip(original_excluded, excluded_rows,
+                                           ("two_or_more_sources", "one_source"), strict=True):
+            self.assertNotIn("status", after)
+            self.assertEqual(after["entity_evidence"], evidence)
+            self.assertEqual(after["home_access"], "not_checked")
+            self.assertEqual(after["disclosure_access"], "not_checked")
+            self.assertEqual(after["disclosure_status"], "unqueried")
+            self.assertEqual(after["product_list_status"], "unqueried")
+            self.assertEqual(after["historical_product_scope"], "review_required")
+            self.assertEqual(after["product_list_reason_codes"], "historical_scope_unverified")
+            for field in before.keys() - {"status"}:
+                self.assertEqual(after[field], before[field], field)
         before = {p.name: p.read_bytes() for p in registry.glob("*.csv")}
         with redirect_stdout(io.StringIO()):
             runpy.run_path(str(script), run_name="__main__")

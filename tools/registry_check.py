@@ -2,7 +2,7 @@
 """Read-only registry, access and supervisory evidence checks (stdlib only).
 
 Usage (repository root): python3 -I tools/registry_check.py
-Add --denominator to emit the validated institution IDs, one per line.
+Add --denominator to emit the validated V0 institution IDs, one per line.
 Only homepage, homepage_redirect and disclosure purposes identify entities.
 The dated supervisory snapshot has its own recorded list artifact names.
 """
@@ -22,7 +22,8 @@ ROOT = Path(__file__).resolve().parents[1]
 INSURERS = "insurers.csv"
 OTHER_INSTITUTIONS = "cooperatives_and_others.csv"
 SCOPE_TABLES = (INSURERS, OTHER_INSTITUTIONS)
-ENTITY_TABLES = (*SCOPE_TABLES, "excluded_or_historical.csv")
+ENTITY_TABLES = (*SCOPE_TABLES, rn.HISTORICAL_TABLE)
+INSURER_SECTORS = {"life", "non_life", "reinsurance", "guarantee"}
 SCOPE_COLUMNS = {"in_denominator", "scope_adr"}
 SCOPE_ADR = "ADR-0018"
 EPOST = "public-epost"
@@ -39,7 +40,7 @@ FINE_CATEGORIES = {
     "nonlife_foreign": ("외국손해보험회사", 2),
 }
 REQUIRED = {
-    **{name: {"insurer_id", "name_ko", "listed_in", "home_access", "disclosure_access"}
+    **{name: {"insurer_id", "name_ko", "sector", "listed_in", "home_access", "disclosure_access"}
        for name in ENTITY_TABLES},
     "sources.csv": {"source_id", "url", "retrieved_at", "http_status", "sha256"},
     "access_log.csv": {"purpose", "url", "attempted_at", "result", "host_access", "host",
@@ -49,6 +50,11 @@ REQUIRED = {
 }
 for name in SCOPE_TABLES:
     REQUIRED[name].update(SCOPE_COLUMNS)
+REQUIRED[rn.HISTORICAL_TABLE].update({
+    "in_current_assoc_list", "historical_product_scope", "historical_scope_reason",
+    "successor_insurer_id", "successor_evidence_url", "disclosure_gap_reason",
+    "product_list_status", "product_list_reason", "product_list_reason_codes",
+})
 
 
 def check(root=ROOT):
@@ -164,6 +170,7 @@ def _inspect(root):
                        for _, attempt in tables["access_log.csv"]):
                 fail(name, line, f"no matching access_log observation for {purpose!r}")
             break
+    check_historical_scope(tables[rn.HISTORICAL_TABLE], entities, fail)
     check_authority_crosscheck(tables, entities, sources, fail)
     return problems, denominator_ids
 
@@ -188,6 +195,43 @@ def check_scope(tables, fail):
             if flag == "true":
                 included.append(key)
     return included
+
+
+def check_historical_scope(rows, entities, fail):
+    name = rn.HISTORICAL_TABLE
+    for line, row in rows:
+        scope = row["historical_product_scope"]
+        if scope not in rn.HISTORICAL_SCOPES:
+            fail(name, line, f"invalid historical_product_scope {scope!r}")
+        if row["in_current_assoc_list"] != "false":
+            fail(name, line, "historical evidence requires in_current_assoc_list=false")
+        for field in ("historical_scope_reason", "disclosure_gap_reason", "product_list_reason"):
+            if not row[field].strip():
+                fail(name, line, f"missing {field}")
+
+        if row["product_list_status"] == "unqueried":
+            expected = rn.product_list_codes(row)
+            if row["product_list_reason_codes"] != expected:
+                fail(name, line, f"product_list_reason_codes must be {expected!r} for {scope!r}")
+        elif scope in rn.HISTORICAL_INACTIVE_REASONS:
+            fail(name, line, f"{scope!r} requires product_list_status='unqueried'")
+
+        successor = row["successor_insurer_id"]
+        evidence = row["successor_evidence_url"]
+        if not successor and not evidence:
+            continue
+        entity = entities.get(successor)
+        if (successor == row["insurer_id"] or entity is None or entity[0] == OTHER_INSTITUTIONS
+                or entity[2]["sector"] not in INSURER_SECTORS):
+            fail(name, line, f"invalid successor_insurer_id {successor!r}")
+        try:
+            url = urlsplit(evidence)
+            valid_url = (url.scheme == "https" and url.hostname and url.username is None
+                         and not any(ch.isspace() for ch in evidence))
+        except ValueError:
+            valid_url = False
+        if not valid_url:
+            fail(name, line, "successor_evidence_url must be a public HTTPS source")
 
 
 def check_authority_crosscheck(tables, entities, sources, fail):
@@ -244,7 +288,7 @@ def check_authority_crosscheck(tables, entities, sources, fail):
                 fail(CROSSCHECK, line, f"{ref} disagrees with {column} and supervisory category {category!r}")
 
         table, key, name = (row[column] for column in ("registry_table", "registry_id", "registry_name"))
-        comparison = {"insurers.csv": "matched", "excluded_or_historical.csv": "excluded", "": "missing"}
+        comparison = {"insurers.csv": "matched", rn.HISTORICAL_TABLE: "excluded", "": "missing"}
         if table not in comparison or row["comparison"] != comparison[table]:
             fail(CROSSCHECK, line, f"invalid comparison for registry_table {table!r}")
         if not row["fisis_id"] and not row["fine_id"]:
@@ -281,7 +325,7 @@ def access_matches(name, line, column, code, raw, fail):
 
 def main():
     parser = argparse.ArgumentParser(description="Validate the institution registry.")
-    parser.add_argument("--denominator", action="store_true", help="print the validated institution IDs")
+    parser.add_argument("--denominator", action="store_true", help="print the validated V0 institution IDs")
     args = parser.parse_args()
     problems, denominator_ids = _inspect(ROOT)
     if problems:
@@ -291,7 +335,7 @@ def main():
     if args.denominator:
         print("\n".join(denominator_ids))
     else:
-        print("registry check passed (IDs, ADR-0018 scope, vocabulary, access and supervisory evidence)")
+        print("registry check passed (IDs, ADR-0018 scope, historical scope, vocabulary, access and supervisory evidence)")
     return 0
 
 

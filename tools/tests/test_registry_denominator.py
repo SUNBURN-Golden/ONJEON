@@ -57,7 +57,7 @@ class RegistryCounts(unittest.TestCase):
 
 
 class RegistryConsistency(unittest.TestCase):
-    TABLES = ("insurers", "cooperatives_and_others")
+    TABLES = ("insurers", "cooperatives_and_others", "excluded_or_historical")
 
     def each(self):
         for name in self.TABLES:
@@ -78,6 +78,12 @@ class RegistryConsistency(unittest.TestCase):
                 self.assertTrue(r["product_list_reason"].strip())
                 got = codes(r)
                 self.assertTrue(set(got) <= set(rn.PRODUCT_LIST_REASON_CODES), got)
+                if r.get("historical_product_scope") == "review_required":
+                    self.assertEqual(got, ["historical_scope_unverified"])
+                    continue
+                if r.get("historical_product_scope") == "out_of_scope":
+                    self.assertEqual(got, ["historical_out_of_scope"])
+                    continue
                 self.assertEqual(got[:2], ["awaiting_T-DT-04", "awaiting_domestic_env"])
                 reachable = bool(r["disclosure_url"].strip()) and r["disclosure_access"] == "reachable"
                 self.assertEqual("disclosure_entry_missing" in got, not reachable)
@@ -179,21 +185,24 @@ class DomesticEnvironmentGate(unittest.TestCase):
         self.task = next(t for t in tasks if t["id"] == "T-DT-04")
         self.tasks = tasks
 
+    def test_t_dt_04_tracks_historical_products_and_keeps_epost_in_the_institution_denominator(self):
+        registry_inputs = {path for path in self.task["consumes"] if path.startswith("path:data/registry/")}
+        self.assertEqual(registry_inputs, {"path:data/registry/insurers.csv",
+                                           "path:data/registry/cooperatives_and_others.csv",
+                                           f"path:data/registry/{rn.HISTORICAL_TABLE}"})
+        criteria = next(c for c in self.task["done_criteria"] if "in_scope" in c)
+        for phrase in ("원판매사 ID", "승계 기관", "review_required", "out_of_scope", "P01"):
+            self.assertIn(phrase, criteria)
+        institution_criteria = next(c for c in self.task["done_criteria"] if "in_denominator=true" in c)
+        self.assertIn("우체국보험을 포함", institution_criteria)
+        self.assertIn("공제는 분모에서 제외", institution_criteria)
+
     def test_t_dt_04_real_data_still_waits_for_o19_after_d04_resolution(self):
         self.assertEqual(self.task["decision_gates"]["real_data"], ["O19"])
         self.assertEqual(self.task["decision_gates"]["start"], [])
         self.assertIn("O19", self.task["blocked_by"])
         self.assertIn("국내 IP", self.task["blocked_by"])
         self.assertIn("P01·P02", self.task["notes"])
-
-    def test_t_dt_04_consumes_both_registry_inputs_and_keeps_epost(self):
-        registry_inputs = {path for path in self.task["consumes"] if path.startswith("path:data/registry/")}
-        self.assertEqual(registry_inputs, {"path:data/registry/insurers.csv",
-                                           "path:data/registry/cooperatives_and_others.csv"})
-        criteria = "\n".join(self.task["done_criteria"])
-        self.assertIn("in_denominator=true", criteria)
-        self.assertIn("우체국보험을 포함", criteria)
-        self.assertIn("공제는 분모에서 제외", criteria)
 
     def test_o19_is_gated_only_on_t_dt_04_real_data(self):
         users = {(t["id"], k) for t in self.tasks for k, v in t["decision_gates"].items() if "O19" in (v or [])}

@@ -17,13 +17,13 @@
 |---|---|
 | `insurers.csv` | 협회 **현행** 목록(KLIA 회원사, KNIA 정회원·준회원·비회원사)에 있는 보험회사 53곳. 기관 분모에 53곳 모두 포함 |
 | `cooperatives_and_others.csv` | 공제조합·우체국보험·한국무역보험공사 16행(시드 1 포함). 기관 분모에는 우체국보험 1곳 포함 |
-| `excluded_or_historical.csv` | 가져온 페이지에는 있으나 현행 협회 목록에 없는 49행: 과거·합병 추정 보험사, DART 업종 목록의 비보험 법인, KIDI '공영보험'의 사회보험 기관. 제외 사유를 남기려고 둔 파일이며 분모가 아니다 |
+| `excluded_or_historical.csv` | 현행 협회 목록에 없는 49행. 과거 판매본 추적 대상, 기관 유형·승계 이력 확인 대상, 범위 밖 기관을 행별로 기록 |
 | `sources.csv` | 사용한 모든 페이지(목록 출처, 탐색용 페이지, 회사 홈페이지·공시 페이지) 75건과 응답 본문 sha256. 2026-11-10 감독당국 재조회 9건 포함 |
 | `source_fetch_hosts.json` | `verify_sources.py detect`의 명시적 호스트 허용 목록. HTTPS·같은 출처 리다이렉트·robots 제한을 함께 적용한다 |
 | `access_log.csv` | 기록한 요청 112건(실패 포함)과 결과 분류. 2026-11-10 감독당국 재조회 14건 포함 |
 | `authority_crosscheck_2026-11-10.csv` | FISIS·파인 보험회사 목록과 `insurers.csv`·`excluded_or_historical.csv`의 기관별 대조 결과 57행 및 조회 출처 ID |
 
-`excluded_or_historical.csv` 49행도 `entity_evidence`로 정규화했다(`two_or_more_sources` 2, `one_source` 47). 기관 ID·출처·관측 시각·제외 사유는 보존한다. 제외 기록에는 공시 보관·상품 목록 추적 열을 추가하지 않는다. 이 파일은 현행 보험사 분모가 아니며, 과거 계약 약관의 대상 여부는 아래 알려진 공백 4번대로 미확정이다. 재생성은 `python3 tools/registry_normalize.py`, 정정·회귀 증거는 [Audit 2 기록](../../docs/blueprint/audits/2026-10-27_registry_excluded_not_normalized.md)을 따른다.
+`excluded_or_historical.csv`는 기존 기관 ID·출처·관측 시각·조사 메모를 보존하고 `disclosure_status`와 `product_list_status`를 추적한다. `notes`는 `observed_at` 당시 조사 기록이며 이후 확인한 승계 이력은 별도 열에 있다. 과거 `status` 열의 `entity_evidence` 전환은 [Audit 2](../../docs/blueprint/audits/2026-10-27_registry_excluded_not_normalized.md)에서 완료했다. 현재 49행은 `two_or_more_sources` 2, `one_source` 47이다. 범위와 승계 기록의 검증은 [Audit 8](../../docs/blueprint/audits/2026-11-28_historical_insurers_normalize.md)에 있다.
 
 `source_fetch_hosts.json`은 `sources.csv`의 URL, `insurers.csv`의 홈페이지·공시 URL,
 우체국보험 홈페이지와 V1 법령 표본(`fss_std_terms_byl15`, `www.law.go.kr`)의 정확한 호스트를
@@ -39,14 +39,18 @@
 
 ## 범위 (ADR-0018, 2026-10-10)
 
-기관 분모는 `insurers.csv`와 `cooperatives_and_others.csv`의 행 중 `in_denominator`가 소문자 `true`인 행으로 만든다. `false`는 제외이며, `scope_adr`는 각 행의 결정 근거 `ADR-0018`을 담는다. 우체국보험(`public-epost`)의 `sector=other`, `in_current_assoc_list=false`는 기관 분류와 협회 소속을 나타낸다. 기관 분모는 보험사 53곳과 우체국보험 1곳, 총 54곳이다.
+V0 기관 분모는 `insurers.csv`와 `cooperatives_and_others.csv`의 행 중 `in_denominator`가 소문자 `true`인 행으로 만든다. `false`는 제외이며, `scope_adr`는 각 행의 결정 근거 `ADR-0018`을 담는다. 우체국보험(`public-epost`)의 `sector=other`, `in_current_assoc_list=false`는 기관 분류와 협회 소속을 나타낸다. V0 기관 분모는 보험사 53곳과 우체국보험 1곳, 총 54곳이다.
 
-저장소 루트에서 `python3 -I tools/registry_check.py --denominator`를 실행하면 검증을 통과한 기관 ID를 한 줄에 하나씩 출력한다. CI의 기본 검사도 두 열의 누락과 ADR-0018에 어긋나는 값을 거부한다. 상품·특약·판매본의 열거는 T-DT-04에서 진행한다.
+저장소 루트에서 `python3 -I tools/registry_check.py --denominator`를 실행하면 과거 보험사 원장을 포함한 전체 원장을 검증한 뒤 V0 기관 ID를 한 줄에 하나씩 출력한다. 원장에 오류가 있으면 종료 코드 1을 반환하며 기관 ID 출력은 비운다. CI의 기본 검사도 두 열의 누락과 ADR-0018에 어긋나는 값을 거부한다.
+
+T-DT-04는 과거 보험사 원장의 `historical_product_scope`도 읽어 상품·특약·판매본을 열거한다.
 
 | 행 | 범위 | 확보율 분모 | 이유 |
 |---|---|---|---|
 | `insurers.csv` 53곳 | 기관 추적 대상. 개인보험 상품이 대상 | 대상 상품군의 판매본 | 보험사의 개인보험은 포함 |
 | 그중 재보험 전업사 8곳, 서울보증보험 | 기관은 추적. 개인보험 대상 상품이 없으면 0과 근거를 기록 | 대상 상품 0이면 분모 기여 없음 | 기관 누락과 대상 상품 없음을 구분(구현자 해석) |
+| 과거 보험사 `in_scope` 8곳 | 과거 개인보험의 상품·특약·판매본을 추적. 보유계약과 승계 포함 | 상품 범위와 판매본을 확인한 뒤 편입 | 원판매사 ID로 추적하고, 확인된 승계 기관 ID를 공시 탐색 후보로 연결 |
+| 과거·제외 목록 `review_required` 35곳, `out_of_scope` 6곳 | 각각 근거 확인 대기, 범위 밖 | 확인 대기는 별도 공백으로 공개. 범위 밖은 제외 | DART 분류·현행 협회 등재 여부와 상품 범위 판정은 별개 |
 | `public-epost` 우체국보험 | **포함**. 기관 유형은 보험사와 구분 | 포함 | 사용자 결정 |
 | 공제 13곳 + 농협(구 공제) 시드 | **제외** | 제외 | 사용자 결정. NH농협생명·NH농협손해보험은 보험사로 포함 |
 | `public-ksure` 한국무역보험공사 | 제외 | 제외 | 기업 대상 정책보험, 개인보험 상품군 아님(구현자 해석) |
@@ -138,6 +142,7 @@ CI 원장 검사기는 기관 CSV의 `disclosure_status=archived`를 파일·행
 - 파인 제도권 금융회사 조회: 국내생명 14, 외국생명 8, 국내손해 18, 외국손해 16으로 56행. 페이지별 조회 시각·URL·응답 sha256은 `sources.csv`의 `fine_20261110_*` 일곱 건.
 - 두 목록은 55곳이 동일하고 서로 한 곳씩 다르다. FISIS에만 젠워스 모기지 인슈어런스 코퍼레이션 한국지점이, 파인에만 동경해상일동화재보험(주)서울지점이 있다.
 - 합집합 57곳 중 `insurers.csv` 53곳은 모두 두 목록에 있다. 나머지 4곳은 MG손해보험·캐롯손해보험(두 목록에 있고 `excluded_or_historical.csv`에 기록), 동경해상일동화재보험(파인에만 있고 `excluded_or_historical.csv`의 DART 영문명 `AioiNissayDowaInsuranceCo.,Ltd.`와 같은 기관으로 추정), 젠워스(두 파일 모두에 없음)다.
+- 대조표의 `comparison=excluded`는 2026-11-10 당시 `insurers.csv` 바깥 행과 대조했다는 뜻이다. 과거 판매본 범위는 `historical_product_scope`로 판정한다.
 - `registry_table=insurers.csv`, `registry_id=insurer_id`로 조인하면 `two_or_more_sources` 43/43곳과 `one_source` 10/10곳에서 두 목록의 기관 ID를 확인할 수 있다. `entity_evidence`는 기존 협회·KIDI·DART 조사 기준으로 계산했다.
 - `fisis_source_id`는 생명·손해보험 조회 1건, `fine_source_ids`는 해당 분류에서 조회한 전체 페이지를 세미콜론으로 연결한다. 파인 근거는 분류 단위이며 개별 기관의 페이지 번호는 미확인이다. 기관 ID가 비면 해당 사이트의 출처 참조도 비운다. 각 참조를 `sources.csv`의 URL·시각·응답 SHA-256과 `access_log.csv`의 정상 조회 기록으로 추적한다. `python3 -I tools/registry_check.py`가 이 연결과 53곳의 양쪽 목록 ID를 검사한다.
 - 동경해상일동화재보험은 파인이 현행 외국손해보험회사로 조회하므로 현행 기관 편입 여부가 미확정이다. 젠워스는 FISIS에만 있으므로 기관 편입 근거를 따로 확인해야 한다(공백 10).
@@ -145,13 +150,13 @@ CI 원장 검사기는 기관 CSV의 `disclosure_status=archived`를 파일·행
 
 ## 알려진 공백
 
-2. **DART는 허가를 증명하지 않는다.** DART는 법인 등록 정보다. 그래서 업종 목록에는 국민생명, 리젠트화재, 그린손보, 한덕생명, 한일생명, 오렌지라이프 등 현행 협회 목록에 없는 회사(폐업·합병 추정)와 펀드·보증기금이 섞여 있다. DART에만 있는 이름은 `excluded_or_historical.csv`로 보냈다.
-3. **KIDI 링크 목록은 일부 오래됐다.** DGB생명(현 iM라이프 표기와 매칭), MG손해보험, 캐롯손해보험이 들어 있다. MG손보와 캐롯은 KNIA 현행 목록에 없어 `excluded_or_historical.csv`로 보냈다. 영업 중단, 계약이전, 합병 여부는 출처로 확인하지 못했다. 예별손해보험과 MG손보의 관계도 확인하지 못했다.
-4. **판매중지 상품의 분모**(ADR-0004: 판매 중지 포함)는 과거 회사를 포함할 수 있다. MG손보와 캐롯처럼 사라졌거나 이전된 회사의 기존 계약 약관을 어느 회사 공시실에서 찾을지는 아직 정하지 않았다.
+2. **DART는 허가를 증명하지 않는다.** DART는 법인 등록 정보다. 업종 목록에는 국민생명, 리젠트화재, 그린손보, 한덕생명, 한일생명, 오렌지라이프 등 현행 협회 목록에 없는 회사와 펀드·보증기금이 섞여 있다. 1차 조사에서 DART에만 있던 이름은 `excluded_or_historical.csv`에 기록했다.
+3. **KIDI 링크 목록은 일부 오래됐다.** DGB생명(현 iM라이프 표기와 매칭), MG손해보험, 캐롯손해보험이 들어 있다. MG손보와 캐롯은 KNIA 현행 목록에 없으며, 계약이전·합병 이력과 해당 승계 기관 ID를 과거 목록에 연결했다.
+4. **판매중지 상품의 분모**는 과거 회사의 개인보험 판매본을 포함한다(ADR-0004·0018). 그린손보에서 MG손보를 거쳐 예별손보로, 캐롯에서 한화손보로, 한일생명에서 KB생명을 거쳐 KB라이프생명으로 이어지는 공시 탐색 경로를 기록했다. 각 판매본의 실제 공시 URL·상품 범위·문서 보존과 `review_required` 35곳의 기관 유형·과거 개인보험 판매 여부는 추가 확인이 필요하다.
 5. **외국 재보험사와 기업보험 지점 8곳의 근거는 원래 KNIA 비회원 목록뿐이었다.** 2026-11-10 FISIS·파인 조회에서는 8곳 모두 기관으로 확인됐다. 다만 SCOR는 한글 정식명이 없고, 법인인지 지점인지도 대부분 추정이다. 재보험사는 개인 상품공시 대상이 아니라고 보고 공시실을 탐색하지 않았으며, 이 가정도 확인이 필요하다.
 6. **영문명(`name_en`)은 대부분 비어 있다.** 출처에 영문 표기가 있는 경우(Munich Re, Hannover Re, SCOR, RGA)만 채웠다.
-7. **공시실 URL 45곳이 비어 있다**(53곳 중 `archived` 0, `failed` 31, `blocked` 3, `unqueried` 19. `unqueried`는 접근 확인 후 보관 전 8곳과 미조회 11곳). SPA, 해외 IP 차단, 연결 거부가 원인이다. 국내 IP의 렌더링 브라우저나 XHR 분석이 필요하다. 국내 IP 수집 실행 환경은 열린 관문 O19(결정 원장 §3)이고, T-DT-04의 실데이터 관문(`decision_gates.real_data`: D-04, O19)이다. 그 전의 결과는 상품·문서 분모(09 P01·P02) 증거가 아니다.
-8. **명칭 변경과 합병 이력(기관 별칭)은 확보하지 못했다.** KLIA 회원사변천과정은 JS로 렌더링되고, KNIA에는 해당 페이지를 찾지 못했다.
+7. **공시실 URL 45곳이 비어 있다**(53곳 중 `archived` 0, `failed` 31, `blocked` 3, `unqueried` 19. `unqueried`는 접근 확인 후 보관 전 8곳과 미조회 11곳). SPA, 해외 IP 차단, 연결 거부가 원인이다. 국내 IP의 렌더링 브라우저나 XHR 분석이 필요하다. 국내 IP 수집 실행 환경 O19(결정 원장 §3)는 T-DT-04의 열린 실데이터 관문이다. 그 전의 결과는 상품·문서 분모(09 P01·P02) 증거가 아니다.
+8. **계약이전과 합병 이력은 일부 확인했다.** 과거 목록에서 8건을 근거와 함께 연결했다. KLIA 회원사변천과정은 JS로 렌더링되고, KNIA에는 해당 페이지를 찾지 못했다.
 9. **공제는 KIDI 링크 목록 한 곳에만 근거한다.** 군인공제회 등 KIDI에 없는 공제는 조사하지 않았다. 공제는 ADR-0018로 범위·확보율 분모에서 제외됐으므로 공제 상품공시 URL은 탐색하지 않는다. 정규화기가 유지하는 `product_list_status`와 사유 코드는 행의 조사 상태를 기록한다. 분모 편입은 `in_denominator`로 판단한다.
 10. **KNIA 비회원사 목록 밖의 소형·신설 보험사가 더 있을 수 있다.** 2026-11-10 교차검증에서 FISIS에만 있는 젠워스 모기지 인슈어런스 코퍼레이션 한국지점과 파인에만 있는 동경해상일동화재보험(주)서울지점을 확인했다. 전자는 두 registry CSV 어디에도 없고, 후자는 `excluded_or_historical.csv`의 Aioi 영문명과 같은 기관으로 추정된다. 두 기관을 `insurers.csv` 분모에 넣을지는 편입 근거와 동경해상일동=Aioi 중복 여부를 확인한 뒤 결정한다.
 
@@ -173,19 +178,25 @@ CI 원장 검사기는 기관 CSV의 `disclosure_status=archived`를 파일·행
 | `entity_evidence` | `entity_evidence` | 기관 존재 근거. `seed`는 분모에 넣지 않는다 |
 | `disclosure_access`, `home_access` | `host_access` | 이 환경에서의 접근 결과. 원문은 `*_detail` |
 | `disclosure_status` | `acquisition_status` | 공시 원문 보관 상태. 접근 확인만으로 `archived`가 되지 않으며 현재 `failed`·`blocked`·`unqueried`만 있음 |
-| `disclosure_gap_reason` | - | 보관 전 또는 접근하지 못한 이유. `unqueried`의 접근 확인 후 보관 전·미조회를 구별 |
+| `disclosure_gap_reason` | - | 보관 전 또는 접근하지 못한 이유. 기록된 공시실 접근 결과를 우선하며 `unqueried`의 접근 확인 후 보관 전·미조회를 구별 |
 | `product_list_status` | `acquisition_status` | 이 회사의 상품·특약 목록 열거 여부. 현재 전부 `unqueried` |
 | `product_list_reason` | - | 열거하지 않은 이유. 설계 검증 표본과 무관하게 전 대상을 추적한다 |
 | `product_list_reason_codes` | - | `unqueried`인 동안의 사유 코드(`;` 구분, `tools/registry_normalize.py`가 계산). 아래 표 |
+| `historical_product_scope`, `historical_scope_reason` | 과거·제외 목록 전용 | `in_scope`는 과거 개인보험 추적, `review_required`는 근거 확인 대기, `out_of_scope`는 근거 있는 제외. 범위 열이 없는 과거 CSV를 정규화하면 `review_required`로 시작 |
+| `successor_insurer_id`, `successor_evidence_url` | 과거·제외 목록 전용 | 해당 이전·합병의 직접 승계 보험사 ID와 공고·공시 URL. 승계 ID는 현행 또는 과거 원장의 보험사 업종을 가리킨다. 판매 당시 보험사 ID, 실제 공시 위치, 상품별 판매본은 각각의 근거로 추적 |
 
 | 사유 코드 | 붙는 행 | 뜻 |
 |---|---|---|
-| `awaiting_T-DT-04` | `unqueried` 전부 | 상품·특약 목록 열거는 T-DT-04 몫이고 아직 실행 전 |
-| `awaiting_domestic_env` | `unqueried` 전부 | 실데이터 열거는 국내 IP 수집 실행 환경(O19) 준비 전 |
-| `disclosure_entry_missing` | `disclosure_url`이 없거나 `disclosure_access`가 `reachable`이 아닌 행 | 접근 가능한 공시 진입점을 확보하지 못함. 원문 보관 상태와 별개 |
-| `foreign_sandbox_geo_blocked` | `home_access` 또는 `disclosure_access`가 `geo_blocked`인 행 | 해외 IP 샌드박스에서 해외 IP 차단 |
+| `awaiting_T-DT-04` | 일반 기관 CSV와 과거 `in_scope`의 `unqueried` | 상품·특약 목록 열거는 T-DT-04 몫이고 아직 실행 전 |
+| `awaiting_domestic_env` | 위와 동일 | 실데이터 열거는 국내 IP 수집 실행 환경(O19) 준비 전 |
+| `disclosure_entry_missing` | 위 대상 중 `disclosure_url`이 없거나 `disclosure_access`가 `reachable`이 아닌 행 | 접근 가능한 공시 진입점 미확인 |
+| `foreign_sandbox_geo_blocked` | 위 대상 중 `home_access` 또는 `disclosure_access`가 `geo_blocked`인 행 | 해외 IP 샌드박스에서 해외 IP 차단 |
+| `historical_scope_unverified` | 과거 `review_required` | 과거 개인보험 판매·보유계약 대상 여부 확인 대기 |
+| `historical_out_of_scope` | 과거 `out_of_scope` | §7.1 범위 밖 기관이라 상품 목록 미조회 |
 
 현재 `insurers.csv` 53행 모두 `unqueried`이고, 45행에 `disclosure_entry_missing`, 그중 3행에 `foreign_sandbox_geo_blocked`가 붙는다. 우체국보험도 `unqueried`이며 `disclosure_entry_missing`이 붙어 있다. 이 수치와 코드 규칙은 `tools/tests/test_registry_denominator.py`가 실제 CSV로 검사한다.
+
+과거·제외 목록 49행도 공시와 상품 목록이 모두 `unqueried`다. T-DT-04는 `in_scope` 행의 과거 판매본을 열거하고, `review_required` 행은 확인할 공백으로 둔다. 범위 밖 6행에는 수집 대기 코드를 부여하지 않는다. `python3 -I tools/registry_check.py`가 이 구분과 사유, 승계 ID의 참조 무결성 및 근거 URL 형식을 확인한다.
 
 전 보험사·전 상품·전 특약이 확정 범위다(ADR-0004·0013). 설계 검증 표본(`docs/blueprint/validation/`)은 이 목록의 일부만 쓰지만 범위를 줄이는 것이 아니다. 이 표의 모든 행이 수집·처리될 때까지 상태와 사유를 갱신한다.
 

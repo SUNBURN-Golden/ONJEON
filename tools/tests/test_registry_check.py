@@ -8,9 +8,11 @@ import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
+from urllib.parse import urlencode
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import registry_check as rc
+from registry_normalize import HISTORICAL_TABLE
 
 ROOT = Path(__file__).resolve().parents[2]
 REG = ROOT / "data/registry"
@@ -56,16 +58,121 @@ class RegistryCheck(unittest.TestCase):
         for name in ("registry_check.py", "registry_normalize.py", "vocab_check.py"):
             shutil.copy2(ROOT / "tools" / name, scripts / name)
 
-    def test_repository_passes_without_writing_and_historical_rows_stay_excluded(self):
+    def test_repository_passes_without_writing_and_historical_scope_is_independent_of_membership(self):
         before = self.snapshot()
         self.assertEqual(rc.check(self.root), [])
         self.assertEqual(self.snapshot(), before)
-        excluded = self.rows("excluded_or_historical.csv")
-        self.assertNotIn("status", excluded[0])
-        self.assertNotIn("product_list_status", excluded[0])
-        self.assertEqual(Counter(r["entity_evidence"] for r in excluded),
+        historical = self.rows(HISTORICAL_TABLE)
+        self.assertNotIn("status", historical[0])
+        self.assertEqual(Counter(r["entity_evidence"] for r in historical),
                          Counter(two_or_more_sources=2, one_source=47))
-        self.assertTrue(all(r["in_current_assoc_list"] == "false" for r in excluded))
+        self.assertTrue(all(r["in_current_assoc_list"] == "false" for r in historical))
+        self.assertEqual(Counter(r["historical_product_scope"] for r in historical),
+                         Counter(in_scope=8, review_required=35, out_of_scope=6))
+        for field in ("disclosure_status", "product_list_status"):
+            self.assertEqual(Counter(r[field] for r in historical), Counter(unqueried=49))
+
+        expected_successors = {
+            "hist-nonlife-mg": "nonlife-yebyeol", "hist-nonlife-carrot": "nonlife-hanwha",
+            "dart-592232da": "hist-nonlife-mg",
+            "dart-9027ec66": "life-miraeasset", "dart-d8d5621b": "life-shinhan",
+            "dart-da28807a": "dart-a3a75abb", "dart-a3a75abb": "life-kb",
+            "dart-6da11385": "nonlife-hanwha",
+        }
+        self.assertEqual({r["insurer_id"]: r["successor_insurer_id"] for r in historical
+                          if r["historical_product_scope"] == "in_scope"}, expected_successors)
+        self.assertTrue(all((r["historical_product_scope"] == "out_of_scope") ==
+                            r["insurer_id"].startswith("kidi-public-") for r in historical))
+
+    def test_green_enters_historical_discovery_under_its_original_seller_id(self):
+        green = next(r for r in self.rows(HISTORICAL_TABLE) if r["name_ko"] == "그린손해보험")
+        self.assertEqual(green["insurer_id"], "dart-592232da")
+        self.assertEqual(green["historical_product_scope"], "in_scope")
+        self.assertEqual(green["product_list_status"], "unqueried")
+        self.assertIn("awaiting_T-DT-04", green["product_list_reason_codes"].split(";"))
+        self.assertEqual(green["successor_evidence_url"], "https://www.fsc.go.kr/po010103/70689")
+
+    def test_hanil_awaits_t_dt_04_enumeration_after_scope_confirmation(self):
+        hanil = next(r for r in self.rows(HISTORICAL_TABLE) if r["insurer_id"] == "dart-da28807a")
+        self.assertEqual(hanil["product_list_status"], "unqueried")
+        self.assertIn("awaiting_T-DT-04", hanil["product_list_reason_codes"].split(";"))
+
+    def test_historical_successor_evidence_points_to_issuer_filings(self):
+        rows = {r["insurer_id"]: r for r in self.rows(HISTORICAL_TABLE)}
+        expected = {
+            "dart-9027ec66": "https://kind.krx.co.kr/external/2026/04/20/000545/20260420001513/11011.htm",
+            "dart-da28807a": "https://www.kblife.co.kr/api/archive/archives/download/posting/130933/0",
+            "dart-a3a75abb": "https://www.kbfg.com/common/jsp/fileDownUtil.jsp?" + urlencode({
+                "filepath": "/kor/ir/disclosure/sales/__attachFile/2022회계연도_KB금융지주_영업보고서.pdf",
+            }),
+        }
+        for insurer, filing in expected.items():
+            with self.subTest(insurer=insurer):
+                self.assertEqual(rows[insurer]["successor_evidence_url"], filing)
+
+    def test_historical_registry_counts_match_readme_and_p01_evidence(self):
+        rows = self.rows(HISTORICAL_TABLE)
+        scopes = Counter(row["historical_product_scope"] for row in rows)
+        linked = sum(bool(row["successor_insurer_id"]) for row in rows)
+        readme = (REG / "README.md").read_text(encoding="utf-8")
+        purpose = ROOT / "docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md"
+        p01 = next(line for line in purpose.read_text(encoding="utf-8").splitlines()
+                   if line.startswith("- P01의 과거 보험사 근거는"))
+
+        for scope, count in scopes.items():
+            with self.subTest(scope=scope):
+                self.assertIn(f"`{scope}` {count}곳", readme)
+        self.assertIn(f"`review_required` {scopes['review_required']}곳의 기관 유형", readme)
+        self.assertIn(f"과거 목록에서 {linked}건을 근거와 함께 연결했다.", readme)
+        self.assertIn(f"현행 협회 목록 밖 {len(rows)}행", p01)
+        self.assertIn(f"{linked}곳에는 승계 기관을 연결했고", p01)
+        self.assertIn(f"{scopes['review_required']}곳은 확인 대기", p01)
+        self.assertIn(f"{scopes['out_of_scope']}곳은 범위 밖", p01)
+
+    def test_historical_scope_rejects_invalid_disposition_reasons_and_progress(self):
+        name = HISTORICAL_TABLE
+        original = self.rows(name)
+        cases = (
+            ("hist-nonlife-mg", {"historical_product_scope": "excluded"}, "invalid historical_product_scope"),
+            ("hist-nonlife-mg", {"in_current_assoc_list": "true"}, "requires in_current_assoc_list=false"),
+            ("hist-nonlife-mg", {"historical_scope_reason": " "}, "missing historical_scope_reason"),
+            ("hist-nonlife-mg", {"disclosure_gap_reason": ""}, "missing disclosure_gap_reason"),
+            ("hist-nonlife-mg", {"product_list_reason": ""}, "missing product_list_reason"),
+            ("hist-nonlife-carrot", {"product_list_reason_codes": ""}, "product_list_reason_codes must be"),
+            ("kidi-public-5e3f7f", {"product_list_reason_codes": "awaiting_T-DT-04"}, "historical_out_of_scope"),
+            ("dart-df7015d9", {"product_list_status": "archived"},
+             "'review_required' requires product_list_status='unqueried'"),
+        )
+        for insurer, changes, expected in cases:
+            with self.subTest(changes=changes):
+                self.write(name, original)
+                self.change(name, "insurer_id", insurer, **changes)
+                self.assertFinding(expected)
+
+    def test_historical_successor_requires_distinct_registered_insurer_and_evidence(self):
+        name = HISTORICAL_TABLE
+        original = self.rows(name)
+        for successor in ("", "hist-nonlife-mg", "missing-insurer", "public-epost",
+                          "kidi-public-326323", "dart-968e6028"):
+            with self.subTest(successor=successor):
+                self.write(name, original)
+                self.change(name, "insurer_id", "hist-nonlife-mg", successor_insurer_id=successor)
+                self.assertFinding(f"invalid successor_insurer_id {successor!r}")
+        for url in ("", "http://example.invalid/notice", "https://", "https://[invalid",
+                    "https://example.invalid/url with spaces"):
+            with self.subTest(url=url):
+                self.write(name, original)
+                self.change(name, "insurer_id", "hist-nonlife-carrot", successor_evidence_url=url)
+                self.assertFinding("successor_evidence_url must be a public HTTPS source")
+
+    def test_successor_sector_column_is_required(self):
+        for name in rc.ENTITY_TABLES:
+            with self.subTest(name=name):
+                original = self.rows(name)
+                self.write(name, [{key: value for key, value in row.items() if key != "sector"}
+                                  for row in original])
+                self.assertFinding(f"{name}:1: missing required columns: sector")
+                self.write(name, original)
 
     def test_hyundai_note_describes_initial_js_shell_and_failed_tls_followup(self):
         row = next(r for r in self.rows("insurers.csv") if r["insurer_id"] == "nonlife-hyundai")
@@ -199,6 +306,17 @@ class RegistryCheck(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertEqual(result.stdout, "")
         self.assertIn("in_denominator='false' for 'public-epost'", result.stderr)
+        self.assertEqual(self.snapshot(), snapshot)
+
+    def test_denominator_cli_rejects_invalid_historical_evidence_without_emitting_ids(self):
+        self.copy_scripts()
+        self.change(HISTORICAL_TABLE, "insurer_id", "hist-nonlife-mg", successor_insurer_id="missing-insurer")
+        snapshot = self.snapshot()
+        result = subprocess.run([sys.executable, "-I", "tools/registry_check.py", "--denominator"],
+                                cwd=self.root, capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("invalid successor_insurer_id 'missing-insurer'", result.stderr)
         self.assertEqual(self.snapshot(), snapshot)
 
     def test_legacy_status_column_and_values_fail_without_rewriting(self):
@@ -397,6 +515,8 @@ class RegistryCheck(unittest.TestCase):
             ("sources.csv", b"homepage_nonlife-mitsuisumitomo-kr,", b"homepage_nonlife-mitsuisumitomo,",
              "source_id references unknown insurer_id 'nonlife-mitsuisumitomo'"),
             ("excluded_or_historical.csv", b"entity_evidence,", b"status,", "deprecated field `status`"),
+            ("excluded_or_historical.csv", b",historical_product_scope,", b",unknown_scope,",
+             "missing required columns: historical_product_scope"),
             ("cooperatives_and_others.csv", b",in_denominator,scope_adr\r\n", b",scope_adr\r\n",
              "missing required columns: in_denominator"),
             (rc.CROSSCHECK, b",life-hanwha,", b",unmatched-hanwha,",

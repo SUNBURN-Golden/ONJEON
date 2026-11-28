@@ -219,6 +219,38 @@ class RegistryCheck(unittest.TestCase):
         self.change("access_log.csv", "purpose", "homepage:life-aia", host_access="tls_error")
         self.assertFinding("host_access='tls_error' disagrees with raw access evidence '200'")
 
+    def test_reachable_disclosures_with_response_hashes_cannot_claim_archival(self):
+        name = "insurers.csv"
+        rows = self.rows(name)
+        sources = {r["source_id"]: r for r in self.rows("sources.csv")}
+        mislabelled = []
+        for line, row in enumerate(rows, start=2):
+            if row["disclosure_access"] != "reachable":
+                continue
+            insurer_id = row["insurer_id"]
+            source = sources[f"disclosure_{insurer_id}"]
+            self.assertEqual(source["http_status"], "200")
+            self.assertRegex(source["sha256"], r"^[0-9a-f]{64}$")
+            row.update(disclosure_status="archived", disclosure_gap_reason="")
+            mislabelled.append((line, insurer_id))
+        self.assertEqual(len(mislabelled), 8)
+        self.write(name, rows)
+
+        before = self.snapshot()
+        self.assertEqual(rc.check(self.root), [
+            f"data/registry/{name}:{line}: disclosure_status='archived' is unsupported "
+            f"in the access registry for {insurer_id!r}"
+            for line, insurer_id in mislabelled
+        ])
+        self.assertEqual(self.snapshot(), before)
+
+    def test_disclosure_archive_check_is_independent_of_product_list_status(self):
+        name = "cooperatives_and_others.csv"
+        self.change(name, "insurer_id", "coop-suhyup", product_list_status="archived")
+        self.assertEqual(rc.check(self.root), [])
+        self.change(name, "insurer_id", "coop-suhyup", disclosure_status="archived")
+        self.assertFinding("disclosure_status='archived' is unsupported in the access registry for 'coop-suhyup'")
+
     def test_unknown_raw_evidence_fails_cleanly(self):
         self.change("access_log.csv", "purpose", "homepage:life-aia", result="mystery")
         self.assertFinding("unmapped raw access evidence 'mystery'")
@@ -353,8 +385,11 @@ class RegistryCheck(unittest.TestCase):
         self.assertLess(match.start(), workflow.index("run: cargo build"))
         self.copy_scripts()
         baseline = self.snapshot()
+        aia_row = next(row for row in baseline["insurers.csv"].splitlines() if row.startswith(b"life-aia,"))
         cases = (
             (None, None, None, "registry check passed"),
+            ("insurers.csv", aia_row, aia_row.replace(b",unqueried,", b",archived,", 1),
+             "disclosure_status='archived' is unsupported in the access registry for 'life-aia'"),
             ("access_log.csv", b"homepage:public-epost,", b"homepage:other-epost,",
              "purpose references unknown insurer_id 'other-epost'"),
             ("access_log.csv", b"homepage:nonlife-mitsuisumitomo-kr,", b"homepage:nonlife-mitsuisumitomo,",

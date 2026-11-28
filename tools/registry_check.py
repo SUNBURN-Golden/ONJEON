@@ -114,6 +114,10 @@ def _inspect(root):
     denominator_ids = check_scope(tables, fail)
     for name in ENTITY_TABLES:
         for line, row in tables[name]:
+            # These CSVs track access evidence. Archival requires a verified archive record.
+            if row.get("disclosure_status") == "archived":
+                fail(name, line, "disclosure_status='archived' is unsupported in the access registry "
+                     f"for {row['insurer_id']!r}")
             # Empty listed_in is legitimate for an explicitly unverified seed.
             for source in row["listed_in"].split(";") if row["listed_in"] else ():
                 if source not in sources:

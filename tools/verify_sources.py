@@ -20,7 +20,8 @@ Originals come from the raw archive (tools/source_archive.py layout; file:// or 
 cache directory laid out by samples.csv `cache_path`. Downloads are untrusted input: HTTPS-only,
 exact hosts in data/registry/source_fetch_hosts.json, same-origin
 redirects only, final URL recorded, MIME/signature and known HTML block-page checks before any
-write. Redirect response bodies are closed unread. Final bodies over MAX_FETCH_BYTES are refused
+write. HTML checks include recorded HTTP 200 notice hashes and geographic denial phrases.
+Redirect response bodies are closed unread. Final bodies over MAX_FETCH_BYTES are refused
 (streaming stops at cap + 1 byte). TLS verification stays on; only network errors are retried.
 Each fetch has one wall-clock deadline across redirects, body reads and retries. Rejections are
 `fetch_failed`. Reproduction bounds extractor subprocesses and removes its temporary files.
@@ -363,6 +364,7 @@ MAX_FETCH_BYTES = 256 * 1024 * 1024  # ~8x the largest recorded sample (32 MB); 
 FETCH_DEADLINE_SECONDS = 120
 FETCH_SOCKET_TIMEOUT_SECONDS = 30
 SOURCE_HOST_REGISTRY = ROOT / "data/registry/source_fetch_hosts.json"
+SOURCE_RESPONSE_REGISTRY = ROOT / "data/registry/sources.csv"
 # Conservative hold from the 2026-10-10 survey, not a live robots.txt observation.
 # Removing a hold requires reviewing the recorded policy; detect never overrides it.
 ROBOTS_DISALLOWED_HOSTS = frozenset({"pub.insure.or.kr"})
@@ -469,6 +471,14 @@ SOURCE_MIMES = {
     "pdf": {"application/pdf", "application/octet-stream", "binary/octet-stream"},
     "html": {"text/html", "application/xhtml+xml"},
 }
+HTML_CHECK_BYTES = 64 * 1024
+HTML_SIGNATURE = re.compile(
+    r"\ufeff?\s*(?:<\?xml\s+[^>]*\?>\s*)?(?:<!--(?:(?!-->).)*-->\s*)*"
+    r"(?:<!doctype\s+html|<(?:html|head|body|title|meta|table|div|p|a|form|iframe|script))"
+    r"(?=[\s/>])[^>]*>",
+    re.IGNORECASE | re.DOTALL,
+)
+RECORDED_NOTICE_STATUSES = {"200_geoblock_notice", "200_service_outage_notice"}
 # Specific denial/challenge phrases, not bare "login" links in ordinary site navigation.
 BLOCK_PAGE_MARKERS = (
     "access denied", "request rejected", "verify you are human", "unusual traffic",
@@ -476,8 +486,33 @@ BLOCK_PAGE_MARKERS = (
     "automated requests", "the requested url was rejected", "enable javascript and cookies to continue",
     "login required", "please log in", "sign in to continue",
     "로그인이 필요", "접근이 차단", "접근 차단", "비정상적인 접근", "자동화된 접근",
-    "서비스 점검", "service unavailable", "internal server error",
+    "해외 ip 차단 안내", "해외ip 차단 안내", "서비스 점검", "서비스 중단 안내",
+    "service unavailable", "internal server error",
 )
+GEO_BLOCK_NOTICE = re.compile(
+    r"(?:해외|국외)\s*(?:ip\s*)?(?:에서(?:의)?\s*|의\s*|로부터\s*)?"
+    r"(?:접속|접근)\s*(?:이\s*|을\s*|은\s*|는\s*)?"
+    r"(?:(?:차단|제한)(?:됩|되|합|\s+안내|(?=\s*(?:$|[.!?:|])))|하실 수 없|할 수 없|불가)"
+    r"|(?:not available|unavailable|restricted|blocked) (?:in|from) (?:your|this) (?:country|region|location)"
+    r"|access from (?:your (?:country|region|location)|outside (?:south )?korea) "
+    r"(?:is|has been) (?:denied|restricted|blocked)"
+)
+
+
+def check_recorded_notice(body):
+    """Reject an exact copy of a 200 denial or outage body observed in the registry."""
+    digest = sa.sha256_bytes(body)
+    try:
+        with SOURCE_RESPONSE_REGISTRY.open(encoding="utf-8", newline="") as f:
+            rows = csv.DictReader(f)
+            if not {"http_status", "sha256"}.issubset(rows.fieldnames or ()):
+                raise ValueError("missing status or digest column")
+            known_notice = any(row["http_status"] in RECORDED_NOTICE_STATUSES and row["sha256"] == digest
+                               for row in rows)
+    except (OSError, ValueError, csv.Error) as e:
+        raise FetchRejected("notice_registry_unavailable: cannot read recorded source responses") from e
+    if known_notice:
+        raise FetchRejected("block_page: matches a recorded HTTP 200 notice")
 
 
 def check_source_body(body, kind):
@@ -487,9 +522,10 @@ def check_source_body(body, kind):
         if not body.startswith(b"%PDF-"):
             raise FetchRejected("wrong_signature: expected PDF")
         return
-    if not body.lstrip().startswith(b"<"):
+    text, _ = hch.decode(body[:HTML_CHECK_BYTES])
+    if not HTML_SIGNATURE.match(text):
         raise FetchRejected("wrong_signature: expected HTML markup")
-    text, _ = hch.decode(body[:64 * 1024])
+    check_recorded_notice(body)
     text = text.lower()
     # Check challenge markup before removing scripts; visible text catches split tags/entities.
     challenge = any(marker in text for marker in (
@@ -498,8 +534,8 @@ def check_source_body(body, kind):
     password = re.search(r"<input\b[^>]*\btype\s*=\s*['\"]?password\b", text)
     text = re.sub(r"<!--.*?-->|<script\b.*?</script\s*>|<style\b.*?</style\s*>", " ", text, flags=re.S)
     text = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", text)))
-    if challenge or password or any(marker in text for marker in BLOCK_PAGE_MARKERS):
-        raise FetchRejected("block_page: challenge, login or denial HTML")
+    if challenge or password or GEO_BLOCK_NOTICE.search(text) or any(marker in text for marker in BLOCK_PAGE_MARKERS):
+        raise FetchRejected("block_page: challenge, login, denial or outage HTML")
 
 
 def _validate_fetch_request(url, attempts, max_bytes, expected_format):
@@ -569,8 +605,11 @@ def _fetch_https(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format=
                     check_redirect(url, final_url)
                     if r.status != 200:
                         raise FetchRejected(f"unexpected_status: {r.status}")
-                    # Do not use get_content_type(): it silently defaults a missing header to HTML.
-                    ctype = (r.headers.get("Content-Type") or "").split(";", 1)[0].strip().lower()
+                    # Content-Type is a single header. get_content_type() defaults missing values to HTML.
+                    content_types = r.headers.get_all("Content-Type", [])
+                    if len(content_types) > 1:
+                        raise FetchRejected("content_type_mismatch: duplicate Content-Type headers")
+                    ctype = (content_types[0] if content_types else "").split(";", 1)[0].strip().lower()
                     if ctype not in SOURCE_MIMES[kind]:
                         raise FetchRejected(f"content_type_mismatch: expected {kind}, received {ctype or 'missing'}")
                     body = read_capped(r, max_bytes)
@@ -645,7 +684,7 @@ def cmd_detect(args):
         else:
             res["status"] = "changed"
         if raw is not None and args.archive_new:
-            _, state = sa.put_raw(raw, body, ctype or "application/octet-stream")
+            _, state = sa.put_raw(raw, body, ctype)
             okey, _ = sa.put_observation(raw, sid, final_url, res["observed_at"], digest, len(body), ctype,
                                          {"detect_status": res["status"], "requested_url": r["url"],
                                           "final_url": final_url})
@@ -713,7 +752,7 @@ def main():
     s = sub.add_parser("detect")
     s.add_argument("--out", required=True)
     s.add_argument("--raw")
-    s.add_argument("--archive-new", action="store_true")
+    s.add_argument("--archive-new", action="store_true", help="archive only admitted documents and their observations")
     s.add_argument("--report")
     args = ap.parse_args()
     if not shutil.which("pdftotext"):

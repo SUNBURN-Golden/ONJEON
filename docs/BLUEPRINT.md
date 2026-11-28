@@ -120,6 +120,8 @@ flowchart TD
 
 부분 구현의 근거와 남은 관문은 §11 및 [Audit 2 계층 상태 검증](blueprint/audits/2026-10-27_blueprint_layer_status.md)을 따른다. V1 표본의 R2 보존·다운로드 대조는 2026-10-09 관측 기록이다. 첫 출시 완료는 [09_제품목적_대응표](blueprint/proposals/설계검토_결과/09_제품목적_대응표.md)의 완료 증거와 T-OP-08 관문으로 별도 판정한다.
 
+L1 보관 도구의 예산 예외는 HTTP(S) `localhost`·`127.0.0.1` 에뮬레이터에만 적용한다. 원격 저장소는 HTTPS R2와 예산 작업을 요구하며, 호스트 해석이 엇갈릴 수 있는 역슬래시가 주소의 호스트 구간에 있으면 SDK 클라이언트 생성 전에 거부한다. [Audit 8 보관소 제공자 회귀 검증](blueprint/audits/2026-11-28_emulator_provider_bypass.md).
+
 L1 보관 도구는 마지막 허용 입장에서 월별 마감을 기록하고, 모든 예약·정산 append에 체크포인트 이후 100건 상한을 적용한다. 정상·거부·실패 경로 및 두 경계의 변이 검출은 [Audit 5 비용 통제 검증](blueprint/audits/2026-11-10_r2_budget_admission_cap.md)을 따른다. 지정 환경 하나·동시 1개·수동 운영 범위의 로컬 도구 증거이며 P02·P03의 실제 수집·화면·첫 출시 완료 판정을 바꾸지 않는다.
 
 원장 클라이언트는 `ACTIVE` 등록 전에 세션 정책·계량기를 받아 생성하며, HTTP 총 시도 횟수는 정책의 `max_attempts`를 따른다. 예약 전·정산 중 원장 GET 바이트와 정책별 실제 요청 횟수의 로컬 검증은 [Audit 5 원장 계측·재시도](blueprint/audits/2026-11-10_r2_budget_ledger_metering.md)에 기록한다. P02·P03 전체 완료 증거는 아니다.

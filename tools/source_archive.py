@@ -210,6 +210,9 @@ def provider_of(endpoint_url):
         host = (u.hostname or "").rstrip(".").lower()
     except ValueError:
         raise SystemExit(refused) from None
+    # The SDK can treat a backslash as the end of the authority; urlparse does not.
+    if "\\" in u.netloc:
+        raise SystemExit(refused)
     if host.endswith(R2_HOST_SUFFIX):
         if u.scheme != "https":
             raise SystemExit("R2 endpoint must be https")

@@ -568,9 +568,13 @@ class FetchSizeCap(unittest.TestCase):
     class Resp:
         def __init__(self, data, length=None):
             import io
+            from email.message import Message
+
             self.buf, self.reads = io.BytesIO(data), 0
-            self.headers = mock_headers(length)
+            self.headers = Message()
             self.headers["Content-Type"] = "application/pdf"
+            if length is not None:
+                self.headers["Content-Length"] = str(length)
             self.status = 200
 
         def geturl(self):
@@ -588,7 +592,6 @@ class FetchSizeCap(unittest.TestCase):
 
     def fetch_with(self, resp, max_bytes):
         from unittest import mock
-        resp.headers.get_content_type = lambda: "application/pdf"
         opener = mock.Mock()
         opener.open.return_value = resp
         with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener):
@@ -609,16 +612,6 @@ class FetchSizeCap(unittest.TestCase):
         with self.assertRaises(vs.FetchTooLarge):
             self.fetch_with(resp, 10)
         self.assertEqual(resp.reads, 0)
-
-
-def mock_headers(length):
-    class H(dict):
-        def get_content_type(self):
-            return "application/pdf"
-    h = H()
-    if length is not None:
-        h["Content-Length"] = length
-    return h
 
 
 if __name__ == "__main__":

@@ -2,7 +2,6 @@
 
 Only loopback sockets and temporary local archives are used; no insurer or R2 access.
 """
-import argparse
 import csv
 import functools
 import io
@@ -28,6 +27,8 @@ import verify_sources as vs
 PDF = b"%PDF-1.7\nnew disclosure bytes\n%%EOF"
 HTML = b"<html><title>Disclosure</title><a href='/login'>Login</a><table><tr><td>123</td></tr></table></html>"
 WAF = b"<html><title>Access Denied</title><p>Your IP has been blocked</p></html>"
+GEO_BLOCK = "<html><title>공지</title><p>해외&nbsp;<b>IP</b>에서의 접속이 제한됩니다.</p></html>".encode("euc-kr")
+RECORDED_NOTICE = "<html><title>안내</title><p>고객센터에 문의해 주세요.</p></html>".encode()
 
 
 class SourceHostRegistry(unittest.TestCase):
@@ -249,6 +250,21 @@ class ResponseAdmission(unittest.TestCase):
             with self.subTest(reason=reason, mime=mime), self.assertRaisesRegex(vs.FetchRejected, reason):
                 self.fetch_with(Response(body, mime, length=length), expected_format=fmt)
 
+    def test_html_mime_requires_recognizable_markup(self):
+        for body in (b"<", b"<html ", b"<html-like>text</html-like>", b"<error>Not available</error>",
+                     b'<?xml version="1.0"?><error><html></html></error>',
+                     b"<!-- <html>some text</html> -->"):
+            with self.subTest(body=body), self.assertRaisesRegex(vs.FetchRejected, "wrong_signature"):
+                self.fetch_with(Response(body, "text/html"), expected_format="html")
+
+    def test_html_signature_accepts_bom_comments_doctype_fragments_and_xhtml(self):
+        for body, mime in ((b"\xef\xbb\xbf \n<!-- note -->\n<!DOCTYPE HTML><html></html>", "text/html"),
+                           (b'<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml"/>',
+                            "application/xhtml+xml"),
+                           (b"<table><tr><td>Disclosure</td></tr></table>", "text/html")):
+            with self.subTest(body=body, mime=mime):
+                self.assertEqual(self.fetch_with(Response(body, mime), expected_format="html")[0], body)
+
     def test_known_200_waf_challenge_and_login_html_are_rejected(self):
         pages = [WAF, b"<html><title>Just a moment...</title></html>",
                  b"<html><title>Attention Required! | Cloudflare</title></html>",
@@ -267,12 +283,35 @@ class ResponseAdmission(unittest.TestCase):
                 self.fetch_with(Response(page, "text/html"), expected_format="html")
             self.assertEqual(raised.exception.final_url, "https://www.kyobo.com/final")
 
+    def test_geographic_denial_and_outage_notices_are_rejected(self):
+        for body in (GEO_BLOCK, "<html><p>국외에서 접속할 수 없습니다.</p></html>".encode(),
+                     "<title>해외 IP 차단 안내</title>".encode(),
+                     "<title>해외 IP 접속 차단</title>".encode(),
+                     "<html><p>서비스 중단 안내</p></html>".encode(),
+                     b"<html><p>This site is not available in your region.</p></html>",
+                     b"<html><p>Access from outside Korea is blocked.</p></html>"):
+            with self.subTest(body=body), self.assertRaisesRegex(vs.FetchRejected, "block_page"):
+                self.fetch_with(Response(body, "text/html"), expected_format="html")
+
+    def test_recorded_notice_registry_is_required_for_html(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "sources.csv"
+            for content in (None, "unexpected,columns\nfoo,bar\n"):
+                with self.subTest(content=content), mock.patch.object(vs, "SOURCE_RESPONSE_REGISTRY", path):
+                    if content is not None:
+                        path.write_text(content, encoding="utf-8")
+                    with self.assertRaisesRegex(vs.FetchRejected, "notice_registry_unavailable") as raised:
+                        self.fetch_with(Response(HTML, "text/html"), expected_format="html")
+                    self.assertEqual(raised.exception.final_url, "https://www.kyobo.com/final")
+
     def test_public_html_navigation_and_binary_pdf_words_are_not_block_pages(self):
         for mime in ("text/html; charset=utf-8", "application/xhtml+xml"):
             with self.subTest(mime=mime):
                 self.assertEqual(self.fetch_with(Response(HTML, mime), expected_format="html")[0], HTML)
         pdf = PDF + b" captcha access denied login required"
         self.assertEqual(self.fetch_with(Response(pdf))[0], pdf)
+        disclosure = "<html><p>해외 IP 차단 서비스 가입 안내</p><p>해외 접속 시 유의사항</p></html>".encode()
+        self.assertEqual(self.fetch_with(Response(disclosure, "text/html"), expected_format="html")[0], disclosure)
 
     def test_unexpected_success_status_and_final_origin_are_refused_unread(self):
         for status, url, reason in ((204, "https://www.kyobo.com/final", "unexpected_status"),
@@ -396,12 +435,23 @@ class DetectLocalHTTPS(unittest.TestCase):
                         self.send_header("Content-Length", str(vs.MAX_FETCH_BYTES + 1))
                     self.end_headers()
                     return
-                mime = "text/html" if self.path in ("/waf", "/public") else "application/pdf"
-                body = WAF if self.path in ("/waf", "/fake-pdf") else HTML if self.path == "/public" else PDF
+                mime, body = {
+                    "/waf": ("text/html", WAF),
+                    "/geo-block": ("text/html", GEO_BLOCK),
+                    "/notice": ("text/html", RECORDED_NOTICE),
+                    "/public": ("text/html", HTML),
+                    "/missing-mime": (None, HTML),
+                    "/duplicate-mime": ("text/html", HTML),
+                    "/fake-html": ("text/html", b"<error>Temporary response</error>"),
+                    "/fake-pdf": ("application/pdf", WAF),
+                }.get(self.path, ("application/pdf", PDF))
                 if self.path == "/drip":
                     body = PDF + b" " * 100
                 self.send_response(403 if self.path == "/denied" else 200)
-                self.send_header("Content-Type", mime)
+                if mime is not None:
+                    self.send_header("Content-Type", mime)
+                if self.path == "/duplicate-mime":
+                    self.send_header("Content-Type", "application/xml")
                 if self.path == "/declared-large":
                     self.send_header("Content-Length", "100000")
                 elif self.path != "/streamed-large":
@@ -443,8 +493,9 @@ class DetectLocalHTTPS(unittest.TestCase):
         cls.worker.join()
 
     def run_detect(self, root, path, fmt="text_pdf", cap=vs.MAX_FETCH_BYTES, baseline="0" * 64):
-        args = argparse.Namespace(raw=(root / "archive").as_uri(), out=str(root / "downloads"),
-                                  archive_new=True, endpoint_url=None, report=str(root / "report.json"))
+        report = root / "report.json"
+        argv = ["verify_sources.py", "detect", "--raw", (root / "archive").as_uri(),
+                "--out", str(root / "downloads"), "--archive-new", "--report", str(report)]
         row = {"sample_id": "source", "url": self.origin + path, "format": fmt,
                "cache_path": "source/document", "sha256": baseline}
         bounded_fetch = functools.partial(vs.fetch, max_bytes=cap)
@@ -456,17 +507,21 @@ class DetectLocalHTTPS(unittest.TestCase):
             script = ("import sys; from pathlib import Path; "
                       "sys.path.insert(0, sys.argv[1]); import verify_sources as vs; "
                       "vs.SOURCE_HOST_REGISTRY = Path(sys.argv[2]); "
+                      "vs.SOURCE_RESPONSE_REGISTRY = Path(sys.argv[3]); "
                       "vs._fetch_worker(sys.stdin.buffer, sys.stdout.buffer)")
-            return run([sys.executable, "-I", "-c", script, str(vs.ROOT / "tools"), str(self.policy)], **kwargs)
+            return run([sys.executable, "-I", "-c", script, str(vs.ROOT / "tools"), str(self.policy),
+                        str(vs.SOURCE_RESPONSE_REGISTRY)], **kwargs)
 
         with mock.patch.object(vs, "rows", return_value=[row]), \
                 mock.patch.object(vs, "fetch", bounded_fetch), \
                 mock.patch.object(vs.subprocess, "run", side_effect=run_worker), \
                 mock.patch.object(vs, "tool_version", return_value=None), \
+                mock.patch.object(vs.shutil, "which", return_value="pdftotext"), \
                 mock.patch.dict("os.environ", {"SSL_CERT_FILE": str(self.cert), "no_proxy": "127.0.0.1,localhost"}), \
+                mock.patch.object(sys, "argv", argv), \
                 mock.patch("sys.stdout", new_callable=io.StringIO):
-            code = vs.cmd_detect(args)
-        return code, json.loads(Path(args.report).read_text())["results"][0]
+            code = vs.main()
+        return code, json.loads(report.read_text())["results"][0]
 
     def test_deadline_covers_redirect_then_continuously_streamed_body(self):
         with tempfile.TemporaryDirectory() as d, mock.patch.object(vs, "FETCH_DEADLINE_SECONDS", 1.5):
@@ -571,6 +626,10 @@ class DetectLocalHTTPS(unittest.TestCase):
             ("/loop", "text_pdf", vs.MAX_FETCH_BYTES, "HTTPError"),
             ("/waf", "text_pdf", vs.MAX_FETCH_BYTES, "content_type_mismatch"),
             ("/waf", "html", vs.MAX_FETCH_BYTES, "block_page"),
+            ("/geo-block", "html", vs.MAX_FETCH_BYTES, "block_page"),
+            ("/missing-mime", "html", vs.MAX_FETCH_BYTES, "content_type_mismatch"),
+            ("/duplicate-mime", "html", vs.MAX_FETCH_BYTES, "content_type_mismatch"),
+            ("/fake-html", "html", vs.MAX_FETCH_BYTES, "wrong_signature"),
             ("/fake-pdf", "scanned_pdf", vs.MAX_FETCH_BYTES, "wrong_signature"),
             ("/declared-large", "text_pdf", 10, "too_large"),
             ("/streamed-large", "text_pdf", 10, "too_large"),
@@ -587,14 +646,46 @@ class DetectLocalHTTPS(unittest.TestCase):
                 code, result = self.run_detect(root, path, fmt, cap)
                 self.assertEqual((code, result["status"]), (1, "fetch_failed"))
                 self.assertTrue(result["detail"].startswith(reason), result)
-                if path in ("/waf", "/fake-pdf", "/declared-large", "/streamed-large"):
+                if reason in ("content_type_mismatch", "block_page", "wrong_signature", "too_large"):
                     self.assertEqual(result["final_url"], self.origin + path)
+                if path in ("/geo-block", "/missing-mime", "/duplicate-mime", "/fake-html"):
+                    self.assertEqual(self.requests.count(path), 1)
                 for key in ("sha256_now", "archived_object", "observation"):
                     self.assertNotIn(key, result)
                 after = {str(p.relative_to(root)): p.read_bytes() for p in root.rglob("*")
                          if p.is_file() and p.name != "report.json"}
                 self.assertEqual(before, after)
         self.assertNotIn("/must-not-fetch", self.requests)
+
+    def test_recorded_200_notices_are_rejected_even_when_baseline_matches(self):
+        good_digest, notice_digest = map(vs.sa.sha256_bytes, (HTML, RECORDED_NOTICE))
+        for status in ("200_geoblock_notice", "200_service_outage_notice"):
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as d:
+                root = Path(d)
+                registry = root / "sources.csv"
+                with registry.open("w", encoding="utf-8", newline="") as f:
+                    writer = csv.writer(f)
+                    writer.writerow(["http_status", "sha256"])
+                    writer.writerow([status, notice_digest])
+                    writer.writerow(["200", good_digest])
+                with mock.patch.object(vs, "SOURCE_RESPONSE_REGISTRY", registry):
+                    code, good = self.run_detect(root, "/public", "html")
+                    self.assertEqual((code, good["status"]), (0, "changed"))
+                    observation = json.loads((root / "archive" / good["observation"]).read_text())
+                    self.assertEqual(observation["sha256"], good_digest)
+                    self.assertEqual((root / "archive" / observation["object_key"]).read_bytes(), HTML)
+                    before = {p: p.read_bytes() for p in (root / "archive").rglob("*") if p.is_file()}
+
+                    code, rejected = self.run_detect(root, "/notice", "html", baseline=notice_digest)
+                    self.assertEqual((code, rejected["status"]), (1, "fetch_failed"))
+                    self.assertEqual(rejected["detail"], "block_page: matches a recorded HTTP 200 notice")
+                    self.assertEqual(rejected["baseline_sha256"], notice_digest)
+                    self.assertEqual(rejected["final_url"], self.origin + "/notice")
+                    self.assertNotIn("sha256_now", rejected)
+                    self.assertNotIn("observation", rejected)
+                    self.assertEqual((root / "downloads/source/document").read_bytes(), HTML)
+                    after = {p: p.read_bytes() for p in (root / "archive").rglob("*") if p.is_file()}
+                    self.assertEqual(after, before)
 
     def test_admitted_pdf_unchanged_and_public_html_still_archive(self):
         for path, fmt, body in (("/document", "text_pdf", PDF), ("/public", "html", HTML)):

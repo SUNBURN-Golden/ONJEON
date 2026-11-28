@@ -53,7 +53,7 @@ class RegistryCounts(unittest.TestCase):
 
 
 class RegistryConsistency(unittest.TestCase):
-    TABLES = ("insurers", "cooperatives_and_others")
+    TABLES = ("insurers", "cooperatives_and_others", "excluded_or_historical")
 
     def each(self):
         for name in self.TABLES:
@@ -74,6 +74,12 @@ class RegistryConsistency(unittest.TestCase):
                 self.assertTrue(r["product_list_reason"].strip())
                 got = codes(r)
                 self.assertTrue(set(got) <= set(rn.PRODUCT_LIST_REASON_CODES), got)
+                if r.get("historical_product_scope") == "review_required":
+                    self.assertEqual(got, ["historical_scope_unverified"])
+                    continue
+                if r.get("historical_product_scope") == "out_of_scope":
+                    self.assertEqual(got, ["historical_out_of_scope"])
+                    continue
                 self.assertEqual(got[:2], ["awaiting_T-DT-04", "awaiting_domestic_env"])
                 reachable = bool(r["disclosure_url"].strip()) and r["disclosure_access"] == "reachable"
                 self.assertEqual("disclosure_entry_missing" in got, not reachable)
@@ -174,6 +180,12 @@ class DomesticEnvironmentGate(unittest.TestCase):
         tasks = json.loads((BUNDLE / "tasks.json").read_text(encoding="utf-8"))["tasks"]
         self.task = next(t for t in tasks if t["id"] == "T-DT-04")
         self.tasks = tasks
+
+    def test_t_dt_04_uses_historical_registry_as_a_denominator_input(self):
+        self.assertIn(f"path:data/registry/{rn.HISTORICAL_TABLE}", self.task["consumes"])
+        criteria = next(c for c in self.task["done_criteria"] if "in_scope" in c)
+        for phrase in ("원판매사 ID", "승계 기관", "review_required", "out_of_scope", "P01"):
+            self.assertIn(phrase, criteria)
 
     def test_t_dt_04_real_data_still_waits_for_o19_after_d04_resolution(self):
         self.assertEqual(self.task["decision_gates"]["real_data"], ["O19"])

@@ -62,10 +62,11 @@ REGISTRY_AXES = {
     "disclosure_status": "acquisition_status",
     "product_list_status": "acquisition_status",
 }
-REGISTRY_ENTITY_COLUMNS = ("entity_evidence", "home_access", "disclosure_access")
+REGISTRY_ENTITY_COLUMNS = ("entity_evidence", "home_access", "disclosure_access",
+                           "disclosure_status", "product_list_status")
 REGISTRY_REQUIRED = {
-    "insurers.csv": REGISTRY_ENTITY_COLUMNS + ("disclosure_status", "product_list_status"),
-    "cooperatives_and_others.csv": REGISTRY_ENTITY_COLUMNS + ("disclosure_status", "product_list_status"),
+    "insurers.csv": REGISTRY_ENTITY_COLUMNS,
+    "cooperatives_and_others.csv": REGISTRY_ENTITY_COLUMNS,
     "excluded_or_historical.csv": REGISTRY_ENTITY_COLUMNS,
     "access_log.csv": ("host_access",),
 }

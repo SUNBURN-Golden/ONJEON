@@ -11,6 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import registry_check as rc
+from registry_normalize import HISTORICAL_TABLE
 
 ROOT = Path(__file__).resolve().parents[2]
 REG = ROOT / "data/registry"
@@ -50,16 +51,64 @@ class RegistryCheck(unittest.TestCase):
     def snapshot(self):
         return {p.name: p.read_bytes() for p in self.reg.glob("*.csv")}
 
-    def test_repository_passes_without_writing_and_historical_rows_stay_excluded(self):
+    def test_repository_passes_without_writing_and_historical_scope_is_independent_of_membership(self):
         before = self.snapshot()
         self.assertEqual(rc.check(self.root), [])
         self.assertEqual(self.snapshot(), before)
-        excluded = self.rows("excluded_or_historical.csv")
-        self.assertNotIn("status", excluded[0])
-        self.assertNotIn("product_list_status", excluded[0])
-        self.assertEqual(Counter(r["entity_evidence"] for r in excluded),
+        historical = self.rows(HISTORICAL_TABLE)
+        self.assertNotIn("status", historical[0])
+        self.assertEqual(Counter(r["entity_evidence"] for r in historical),
                          Counter(two_or_more_sources=2, one_source=47))
-        self.assertTrue(all(r["in_current_assoc_list"] == "false" for r in excluded))
+        self.assertTrue(all(r["in_current_assoc_list"] == "false" for r in historical))
+        self.assertEqual(Counter(r["historical_product_scope"] for r in historical),
+                         Counter(in_scope=6, review_required=37, out_of_scope=6))
+        for field in ("disclosure_status", "product_list_status"):
+            self.assertEqual(Counter(r[field] for r in historical), Counter(unqueried=49))
+
+        expected_successors = {
+            "hist-nonlife-mg": "nonlife-yebyeol", "hist-nonlife-carrot": "nonlife-hanwha",
+            "dart-9027ec66": "life-miraeasset", "dart-d8d5621b": "life-shinhan",
+            "dart-a3a75abb": "life-kb", "dart-6da11385": "nonlife-hanwha",
+        }
+        self.assertEqual({r["insurer_id"]: r["successor_insurer_id"] for r in historical
+                          if r["historical_product_scope"] == "in_scope"}, expected_successors)
+        self.assertTrue(all((r["historical_product_scope"] == "out_of_scope") ==
+                            r["insurer_id"].startswith("kidi-public-") for r in historical))
+
+    def test_historical_scope_rejects_invalid_disposition_reasons_and_progress(self):
+        name = HISTORICAL_TABLE
+        original = self.rows(name)
+        cases = (
+            ("hist-nonlife-mg", {"historical_product_scope": "excluded"}, "invalid historical_product_scope"),
+            ("hist-nonlife-mg", {"in_current_assoc_list": "true"}, "requires in_current_assoc_list=false"),
+            ("hist-nonlife-mg", {"historical_scope_reason": " "}, "missing historical_scope_reason"),
+            ("hist-nonlife-mg", {"disclosure_gap_reason": ""}, "missing disclosure_gap_reason"),
+            ("hist-nonlife-mg", {"product_list_reason": ""}, "missing product_list_reason"),
+            ("hist-nonlife-carrot", {"product_list_reason_codes": ""}, "product_list_reason_codes must be"),
+            ("kidi-public-5e3f7f", {"product_list_reason_codes": "awaiting_T-DT-04"}, "historical_out_of_scope"),
+            ("dart-df7015d9", {"product_list_status": "archived"},
+             "'review_required' requires product_list_status='unqueried'"),
+        )
+        for insurer, changes, expected in cases:
+            with self.subTest(changes=changes):
+                self.write(name, original)
+                self.change(name, "insurer_id", insurer, **changes)
+                self.assertFinding(expected)
+
+    def test_historical_successor_requires_distinct_registered_insurer_and_evidence(self):
+        name = HISTORICAL_TABLE
+        original = self.rows(name)
+        for successor in ("", "hist-nonlife-mg", "missing-insurer", "public-epost"):
+            with self.subTest(successor=successor):
+                self.write(name, original)
+                self.change(name, "insurer_id", "hist-nonlife-mg", successor_insurer_id=successor)
+                self.assertFinding("invalid successor_insurer_id")
+        for url in ("", "http://example.invalid/notice", "https://", "https://[invalid",
+                    "https://example.invalid/url with spaces"):
+            with self.subTest(url=url):
+                self.write(name, original)
+                self.change(name, "insurer_id", "hist-nonlife-carrot", successor_evidence_url=url)
+                self.assertFinding("successor_evidence_url must be a public HTTPS source")
 
     def test_hyundai_note_describes_initial_js_shell_and_failed_tls_followup(self):
         row = next(r for r in self.rows("insurers.csv") if r["insurer_id"] == "nonlife-hyundai")
@@ -339,6 +388,8 @@ class RegistryCheck(unittest.TestCase):
             ("sources.csv", b"homepage_nonlife-mitsuisumitomo-kr,", b"homepage_nonlife-mitsuisumitomo,",
              "source_id references unknown insurer_id 'nonlife-mitsuisumitomo'"),
             ("excluded_or_historical.csv", b"entity_evidence,", b"status,", "deprecated field `status`"),
+            ("excluded_or_historical.csv", b",historical_product_scope,", b",unknown_scope,",
+             "missing required columns: historical_product_scope"),
             (rc.CROSSCHECK, b",life-hanwha,", b",unmatched-hanwha,",
              "no supervisory cross-check for 'life-hanwha'"),
         )

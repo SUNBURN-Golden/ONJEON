@@ -170,7 +170,8 @@ class RegistryLint(unittest.TestCase):
                              "disclosure_status", "product_list_status"],
             "cooperatives_and_others.csv": ["entity_evidence", "home_access", "disclosure_access",
                                            "disclosure_status", "product_list_status"],
-            "excluded_or_historical.csv": ["entity_evidence", "home_access", "disclosure_access"],
+            "excluded_or_historical.csv": ["entity_evidence", "home_access", "disclosure_access",
+                                           "disclosure_status", "product_list_status"],
             "access_log.csv": ["host_access"],
         }
         for name, columns in required.items():
@@ -207,7 +208,7 @@ class RegistryLint(unittest.TestCase):
         self.assertEqual(len(problems), 1)
         self.assertIn("data/registry/sample.csv:4: entity_evidence=", problems[0])
 
-    def test_repository_registries_are_canonical_and_excluded_rows_remain_excluded(self):
+    def test_repository_registries_use_canonical_vocabulary_for_historical_rows(self):
         root = Path(__file__).resolve().parents[2]
         with mock.patch.object(vc, "ROOT", root):
             self.assertEqual(vc.lint_registry(self.vocab), [])
@@ -215,7 +216,8 @@ class RegistryLint(unittest.TestCase):
             reader = csv.DictReader(f)
             rows = list(reader)
         self.assertNotIn("status", reader.fieldnames)
-        self.assertNotIn("product_list_status", reader.fieldnames)
+        self.assertIn("disclosure_status", reader.fieldnames)
+        self.assertIn("product_list_status", reader.fieldnames)
         self.assertEqual(len(rows), 49)
         self.assertEqual(sum(r["entity_evidence"] == "two_or_more_sources" for r in rows), 2)
         self.assertEqual(sum(r["entity_evidence"] == "one_source" for r in rows), 47)

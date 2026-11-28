@@ -164,6 +164,42 @@ class RegistryCsv(unittest.TestCase):
         self.assertEqual(self.read(), [dict(entity_evidence="seed", home_access="origin_denied",
                                           home_access_detail="403_origin")])
 
+    def test_historical_normalization_preserves_curated_scope_and_refreshes_pending_reason(self):
+        self.path = self.path.with_name(rn.HISTORICAL_TABLE)
+        self.write([dict(entity_evidence="one_source", home_access="200", disclosure_access="200",
+                         disclosure_url="https://example.invalid/terms")])
+        rn.normalize(self.path)
+        row = self.read()[0]
+        self.assertEqual(row["historical_product_scope"], "review_required")
+        self.assertEqual(row["disclosure_status"], "unqueried")
+        self.assertEqual(row["product_list_reason_codes"], "historical_scope_unverified")
+
+        row.update(historical_product_scope="in_scope", historical_scope_reason="transfer confirmed",
+                   successor_insurer_id="successor", successor_evidence_url="https://example.invalid/notice")
+        self.write([row])
+        rn.normalize(self.path)
+        updated = self.read()[0]
+        self.assertEqual(updated["product_list_reason_codes"], "awaiting_T-DT-04;awaiting_domestic_env")
+        self.assertIn("과거 개인보험", updated["product_list_reason"])
+        self.assertEqual(row.keys(), updated.keys())
+        for field in row.keys() - {"product_list_reason", "product_list_reason_codes"}:
+            self.assertEqual(updated[field], row[field], field)
+
+        updated.update(product_list_status="failed", product_list_reason="enumeration attempted",
+                       product_list_reason_codes="")
+        self.write([updated])
+        rn.normalize(self.path)
+        self.assertEqual(self.read(), [updated])
+
+    def test_invalid_historical_scope_aborts_without_rewriting_csv(self):
+        self.path = self.path.with_name(rn.HISTORICAL_TABLE)
+        self.write([dict(entity_evidence="one_source", historical_product_scope="in_scope"),
+                    dict(entity_evidence="one_source", historical_product_scope="excluded")])
+        before = self.path.read_bytes()
+        with self.assertRaisesRegex(SystemExit, "invalid historical_product_scope"):
+            rn.normalize(self.path)
+        self.assertEqual(self.path.read_bytes(), before)
+
     def test_invalid_evidence_or_access_leaves_whole_input_untouched(self):
         for bad in (dict(entity_evidence="invalid", home_access="200"),
                     dict(entity_evidence="seed", home_access="unknown"), dict(home_access="200")):
@@ -334,10 +370,18 @@ class RegistryCsv(unittest.TestCase):
             self.assertEqual(next(csv.DictReader(f))["host_access"], "rate_limited")
         with excluded.open(encoding="utf-8", newline="") as f:
             excluded_rows = list(csv.DictReader(f))
-        expected = [dict((k, v) for k, v in row.items() if k != "status") for row in original_excluded]
-        for row, value in zip(expected, ("two_or_more_sources", "one_source")):
-            row["entity_evidence"] = value
-        self.assertEqual(excluded_rows, expected)
+        for before, after, evidence in zip(original_excluded, excluded_rows,
+                                           ("two_or_more_sources", "one_source"), strict=True):
+            self.assertNotIn("status", after)
+            self.assertEqual(after["entity_evidence"], evidence)
+            self.assertEqual(after["home_access"], "not_checked")
+            self.assertEqual(after["disclosure_access"], "not_checked")
+            self.assertEqual(after["disclosure_status"], "unqueried")
+            self.assertEqual(after["product_list_status"], "unqueried")
+            self.assertEqual(after["historical_product_scope"], "review_required")
+            self.assertEqual(after["product_list_reason_codes"], "historical_scope_unverified")
+            for field in before.keys() - {"status"}:
+                self.assertEqual(after[field], before[field], field)
         before = {p.name: p.read_bytes() for p in registry.glob("*.csv")}
         with redirect_stdout(io.StringIO()):
             runpy.run_path(str(script), run_name="__main__")

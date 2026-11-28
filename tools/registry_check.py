@@ -17,7 +17,7 @@ import registry_normalize as rn
 import vocab_check as vc
 
 ROOT = Path(__file__).resolve().parents[1]
-ENTITY_TABLES = ("insurers.csv", "cooperatives_and_others.csv", "excluded_or_historical.csv")
+ENTITY_TABLES = ("insurers.csv", "cooperatives_and_others.csv", rn.HISTORICAL_TABLE)
 PREFIXES = ("homepage_redirect", "homepage", "disclosure")
 CROSSCHECK_DATE = "2026-11-10"
 CROSSCHECK = f"authority_crosscheck_{CROSSCHECK_DATE}.csv"
@@ -39,6 +39,11 @@ REQUIRED = {
     CROSSCHECK: {"category", "fisis_id", "fine_id", "registry_table", "registry_id",
                  "registry_name", "comparison", "fisis_source_id", "fine_source_ids"},
 }
+REQUIRED[rn.HISTORICAL_TABLE].update({
+    "in_current_assoc_list", "historical_product_scope", "historical_scope_reason",
+    "successor_insurer_id", "successor_evidence_url", "disclosure_gap_reason",
+    "product_list_status", "product_list_reason", "product_list_reason_codes",
+})
 
 
 def check(root=ROOT):
@@ -148,8 +153,45 @@ def check(root=ROOT):
                        for _, attempt in tables["access_log.csv"]):
                 fail(name, line, f"no matching access_log observation for {purpose!r}")
             break
+    check_historical_scope(tables[rn.HISTORICAL_TABLE], entities, fail)
     check_authority_crosscheck(tables, entities, sources, fail)
     return problems
+
+
+def check_historical_scope(rows, entities, fail):
+    name = rn.HISTORICAL_TABLE
+    for line, row in rows:
+        scope = row["historical_product_scope"]
+        if scope not in rn.HISTORICAL_SCOPES:
+            fail(name, line, f"invalid historical_product_scope {scope!r}")
+        if row["in_current_assoc_list"] != "false":
+            fail(name, line, "historical evidence requires in_current_assoc_list=false")
+        for field in ("historical_scope_reason", "disclosure_gap_reason", "product_list_reason"):
+            if not row[field].strip():
+                fail(name, line, f"missing {field}")
+
+        if row["product_list_status"] == "unqueried":
+            expected = rn.product_list_codes(row)
+            if row["product_list_reason_codes"] != expected:
+                fail(name, line, f"product_list_reason_codes must be {expected!r} for {scope!r}")
+        elif scope in rn.HISTORICAL_INACTIVE_REASONS:
+            fail(name, line, f"{scope!r} requires product_list_status='unqueried'")
+
+        successor = row["successor_insurer_id"]
+        evidence = row["successor_evidence_url"]
+        if not successor and not evidence:
+            continue
+        entity = entities.get(successor)
+        if successor == row["insurer_id"] or entity is None or entity[0] == "cooperatives_and_others.csv":
+            fail(name, line, f"invalid successor_insurer_id {successor!r}")
+        try:
+            url = urlsplit(evidence)
+            valid_url = (url.scheme == "https" and url.hostname and url.username is None
+                         and not any(ch.isspace() for ch in evidence))
+        except ValueError:
+            valid_url = False
+        if not valid_url:
+            fail(name, line, "successor_evidence_url must be a public HTTPS source")
 
 
 def check_authority_crosscheck(tables, entities, sources, fail):
@@ -206,7 +248,7 @@ def check_authority_crosscheck(tables, entities, sources, fail):
                 fail(CROSSCHECK, line, f"{ref} disagrees with {column} and supervisory category {category!r}")
 
         table, key, name = (row[column] for column in ("registry_table", "registry_id", "registry_name"))
-        comparison = {"insurers.csv": "matched", "excluded_or_historical.csv": "excluded", "": "missing"}
+        comparison = {"insurers.csv": "matched", rn.HISTORICAL_TABLE: "excluded", "": "missing"}
         if table not in comparison or row["comparison"] != comparison[table]:
             fail(CROSSCHECK, line, f"invalid comparison for registry_table {table!r}")
         if not row["fisis_id"] and not row["fine_id"]:
@@ -246,7 +288,7 @@ def main():
     if problems:
         print("registry check failed:\n  " + "\n  ".join(problems))
         return 1
-    print("registry check passed (IDs, vocabulary, access and supervisory evidence)")
+    print("registry check passed (IDs, vocabulary, access, historical scope and supervisory evidence)")
     return 0
 
 

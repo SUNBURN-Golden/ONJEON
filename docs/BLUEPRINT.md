@@ -130,14 +130,14 @@ L1 보관 도구는 마지막 허용 입장에서 월별 마감을 기록하고,
 
 정산 순번 경합은 기존 정책 시도 횟수 안에서 새 꼬리·사용량으로 재시도하며, 조건부 PUT의 412는 저장 바이트 전체가 이번 기록과 같을 때 성공으로 확인한다. 확인 GET 비용을 정산 최악값에 포함하고, 시간 초과 후 요약·초기화 원장 계량·`IsTruncated` 페이지 비용을 [Audit 6 정산 안정성 검증](blueprint/audits/2026-11-15_r2_budget_settle_robustness.md)으로 대조한다. P02·P03의 로컬 비용 통제 finding 증거이며 실제 수집·트윈·소비자 UX·첫 출시 완료를 뜻하지 않는다.
 
-출처 변경 감지는 HTTPS와 `data/registry/source_fetch_hosts.json`의 정확한 호스트만 허용하며,
-등록된 다른 호스트로의 이동도 기존 같은 출처 리다이렉트 제한으로 거부한다.
-최초 요청 전·리다이렉트·최종 URL의 검증과 실패 시 캐시·보관 쓰기 없음은
-[Audit 6 출처 호스트 제한](blueprint/audits/2026-11-16_verify_sources_url_allowlist.md)에 기록한다.
+출처 변경 감지는 HTTPS와 `data/registry/source_fetch_hosts.json`의 정확한 호스트만 허용한다.
+공용 크롤러 전송 계층으로 봇 식별자와 공개 연락처를 보내고, 문서 요청 전에 `robots.txt` 정책을 확인한다.
+문서와 `robots.txt`의 리다이렉트는 따라가지 않는다. 문서 응답의 `final_url`과 `http_status`를 변경 판정과 별도로 기록한다.
+[Audit 8 출처 변경 감지 검증](blueprint/audits/2026-11-28_detect_fetch_hardening.md).
 
 동적 HTML의 현재 본문 해시 규칙은 `html-visible-text-v3`이다. `DATA_PIPELINE_CONTRACT` §3·§3.1의 규칙 버전 표기에는 이 기준을 적용한다. 본문 해시는 같은 규칙으로 계산한 기준값과 비교하는 보조 지표다. 바이트 SHA-256이 다르고 본문 해시가 같으면 `bytes_changed_content_same`으로 기록하고, 수집한 바이트와 그 SHA-256은 별도로 보존한다. 표본 기준값 갱신과 실측 상태는 [V1 검증 자료](blueprint/validation/README.md#html-본문-해시)를 따르며, 갱신에 필요한 원본 사본 제공은 [위임 결정](decisions/audit7-pipeline-contract-hash-rule.md)으로 기록했다.
 
-출처 하나의 연결·리다이렉트·본문 읽기·재시도에는 120초를 함께 적용한다. 보관본 재현은
+출처 하나의 robots 조회·문서 연결·본문 읽기·재시도에는 120초를 함께 적용한다. 보관본 재현은
 추출·OCR 명령당 120초, 도구 버전 조회당 10초를 적용하고 임시 원본과 OCR 이미지를 정리한다.
 [Audit 7 다운로드·재현 시간 제한](blueprint/audits/2026-11-20_verify_sources_deadlines.md)은 P02·P03의 수집·재현 도구 로컬 증거다.
 

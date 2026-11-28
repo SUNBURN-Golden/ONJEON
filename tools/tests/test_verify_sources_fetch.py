@@ -1,4 +1,4 @@
-"""Audits 2/3: bounded source admission and redirect handling before permanent writes.
+"""Detect source admission through the shared crawler transport.
 
 Only loopback sockets and temporary local archives are used; no insurer or R2 access.
 """
@@ -7,6 +7,7 @@ import csv
 import functools
 import io
 import json
+import os
 import ssl
 import subprocess
 import sys
@@ -15,7 +16,6 @@ import threading
 import time
 import unittest
 import urllib.error
-import urllib.request
 from email.message import Message
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -23,10 +23,14 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import verify_sources as vs
+from crawler import transport
+from crawler.useragent import build_user_agent
 
 
 PDF = b"%PDF-1.7\nnew disclosure bytes\n%%EOF"
 HTML = b"<html><title>Disclosure</title><a href='/login'>Login</a><table><tr><td>123</td></tr></table></html>"
+CONTACT = "archive@example.org"
+SOURCE_URL = "https://www.kyobo.com/start"
 WAF = b"<html><title>Access Denied</title><p>Your IP has been blocked</p></html>"
 
 
@@ -56,7 +60,7 @@ class SourceHostRegistry(unittest.TestCase):
             url = f"https://{host}/www.kyobo.com?next=https://www.kyobo.com/"
             with self.subTest(host=host), \
                     mock.patch.object(vs.subprocess, "run", side_effect=AssertionError("worker started")) as run, \
-                    mock.patch.object(vs.urllib.request, "build_opener", side_effect=AssertionError("opener built")), \
+                    mock.patch.object(transport, "_build_opener", side_effect=AssertionError("opener built")), \
                     mock.patch.object(vs.time, "sleep") as sleep:
                 with self.assertRaisesRegex(vs.FetchRejected, "url_disallowed: host"):
                     vs.fetch(url)
@@ -91,114 +95,37 @@ class SourceHostRegistry(unittest.TestCase):
 
 
 class Response(io.BytesIO):
-    def __init__(self, body, mime="application/pdf", url="https://www.kyobo.com/final", status=200, length=None):
+    def __init__(self, body, mime="application/pdf", status=200, length=None):
         super().__init__(body)
         self.headers = Message()
         if mime is not None:
             self.headers["Content-Type"] = mime
         if length is not None:
             self.headers["Content-Length"] = str(length)
-        self.url, self.status = url, status
+        self.status = status
         self.read_sizes = []
-
-    def geturl(self):
-        return self.url
 
     def read(self, size=-1):
         self.read_sizes.append(size)
         return super().read(size)
 
 
-class RedirectPolicy(unittest.TestCase):
-    def test_redirect_bodies_are_closed_unread_for_every_code_and_length(self):
-        for code in (301, 302, 303, 307, 308):
-            for length in (None, "invalid", 1, vs.MAX_FETCH_BYTES + 1):
-                with self.subTest(code=code, length=length):
-                    req = urllib.request.Request("https://www.kyobo.com/start")
-                    req.timeout = 120
-                    response = Response(b"untrusted redirect body", length=length)
-                    headers = Message()
-                    headers["Location"] = "/document"
-                    handler = vs.PolicyRedirectHandler()
-                    handler.parent = mock.Mock()
-                    handler.parent.open.return_value = sentinel = object()
-                    result = getattr(handler, f"http_error_{code}")(req, response, code, "redirect", headers)
-                    self.assertIs(result, sentinel)
-                    self.assertTrue(response.closed)
-                    self.assertEqual(response.read_sizes, [])
-                    redirected = handler.parent.open.call_args.args[0]
-                    self.assertEqual(redirected.full_url, "https://www.kyobo.com/document")
-                    self.assertEqual(redirected.redirect_dict, {redirected.full_url: 1})
-
-    def test_redirect_bodies_close_on_rejection_without_opening_target(self):
-        for code in (301, 302, 303, 307, 308):
-            for target in ("//other.org/document", "http://www.kyobo.com/document", "file:///tmp/document"):
-                with self.subTest(code=code, target=target):
-                    req = urllib.request.Request("https://www.kyobo.com/start")
-                    response = Response(b"untrusted redirect body")
-                    headers = Message()
-                    headers["Location"] = target
-                    handler = vs.PolicyRedirectHandler()
-                    handler.parent = mock.Mock()
-                    with self.assertRaises((vs.FetchRejected, urllib.error.HTTPError)):
-                        getattr(handler, f"http_error_{code}")(req, response, code, "redirect", headers)
-                    handler.parent.open.assert_not_called()
-                    self.assertTrue(response.closed)
-                    self.assertEqual(response.read_sizes, [])
-
-    def test_every_redirect_code_refuses_cross_origin_before_standard_handler(self):
-        source = urllib.request.Request("https://www.kyobo.com/source")
-        targets = (
-            "https://other.org/file", "https://sub.www.kyobo.com/file", "https://www.kyobo.com.evil.org/file",
-            "https://www.kbinsure.co.kr/file",  # Registered, but a different origin is still refused.
-            "http://www.kyobo.com/file", "https://www.kyobo.com:444/file", "ftp://www.kyobo.com/file",
-            "file:///tmp/document", "https://user@www.kyobo.com/file", "https://www.kyobo.com:bad/file",
-        )
-        for code in (301, 302, 303, 307, 308):
-            for target in targets:
-                with self.subTest(code=code, target=target), mock.patch.object(
-                        urllib.request.HTTPRedirectHandler, "redirect_request") as follow:
-                    fp = mock.Mock()
-                    with self.assertRaises(vs.FetchRejected):
-                        vs.PolicyRedirectHandler().redirect_request(source, fp, code, "redirect", {}, target)
-                    follow.assert_not_called()
-                    fp.close.assert_called_once()
-
-    def test_same_origin_and_default_port_are_allowed(self):
-        for code in (301, 302, 303, 307, 308):
-            for target in ("https://www.kyobo.com/new?version=2", "https://WWW.KYOBO.com:443/new"):
-                with self.subTest(code=code, target=target):
-                    req = urllib.request.Request("https://www.kyobo.com/start")
-                    new = vs.PolicyRedirectHandler().redirect_request(req, None, code, "redirect", {}, target)
-                    self.assertEqual(new.full_url, target)
-
-    def test_same_origin_redirect_still_requires_registered_host(self):
-        for code in (301, 302, 303, 307, 308):
-            with self.subTest(code=code), mock.patch.object(
-                    urllib.request.HTTPRedirectHandler, "redirect_request") as follow:
-                req = urllib.request.Request("https://example.org/start")
-                response = Response(b"untrusted redirect body")
-                with self.assertRaisesRegex(vs.FetchRejected, "url_disallowed: host"):
-                    vs.PolicyRedirectHandler().redirect_request(
-                        req, response, code, "redirect", {}, "https://example.org/document")
-                follow.assert_not_called()
-                self.assertTrue(response.closed)
-                self.assertEqual(response.read_sizes, [])
-
+class URLAdmission(unittest.TestCase):
     def test_non_https_and_credentialed_initial_urls_never_open(self):
         for url in ("http://www.kyobo.com/file", "file:///tmp/document", "ftp://www.kyobo.com/file",
                     "https://user:pass@www.kyobo.com/file", "https:///file", "https://www.kyobo.com:0/file",
-                    " https://www.kyobo.com/file", "https://www.kyobo.com/\nfile", "data:text/plain,body"):
+                    " https://www.kyobo.com/file", "https://www.kyobo.com/\nfile", "data:text/plain,body",
+                    "https://[broken/"):
             with self.subTest(url=url), \
                     mock.patch.object(vs.subprocess, "run", side_effect=AssertionError("worker started")) as run, \
-                    mock.patch.object(vs.urllib.request, "build_opener", side_effect=AssertionError("opener built")):
+                    mock.patch.object(transport, "_build_opener", side_effect=AssertionError("opener built")):
                 with self.assertRaises(vs.FetchRejected):
                     vs.fetch(url)
                 run.assert_not_called()
 
     def test_worker_entry_point_revalidates_source_url(self):
         command = [sys.executable, "-I", str(Path(vs.__file__).resolve()), "--fetch-worker"]
-        for url in ("file:///must-not-read", "data:text/plain,body", "https://localhost/"):
+        for url in ("file:///must-not-read", "ftp://www.kyobo.com/file", "data:text/plain,body", "https://localhost/"):
             with self.subTest(url=url):
                 proc = subprocess.run(command, input=json.dumps([url, 1, 1024, "html"]).encode(),
                                       capture_output=True, check=True, timeout=5)
@@ -208,17 +135,54 @@ class RedirectPolicy(unittest.TestCase):
 
 
 class ResponseAdmission(unittest.TestCase):
+    def setUp(self):
+        patch = mock.patch.dict(os.environ, {vs.CONTACT_ENV: CONTACT, transport.ENV_ALLOW_NETWORK: "1"})
+        patch.start()
+        self.addCleanup(patch.stop)
+
     def fetch_with(self, response, **kwargs):
+        robots = Response(b"", status=404)
         opener = mock.Mock()
-        opener.open.return_value = response
-        with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener), \
+        opener.open.side_effect = [robots, response]
+        with mock.patch.object(transport, "_build_opener", return_value=opener), \
                 mock.patch.object(vs.time, "sleep") as sleep:
             try:
-                return vs._fetch_https("https://www.kyobo.com/start", **kwargs)
+                return vs._fetch_https(SOURCE_URL, **kwargs)
             finally:
-                opener.open.assert_called_once()
+                self.assertEqual([c.args[0].full_url for c in opener.open.call_args_list],
+                                 ["https://www.kyobo.com/robots.txt", SOURCE_URL])
                 sleep.assert_not_called()
+                self.assertTrue(robots.closed)
                 self.assertTrue(response.closed)
+
+    def test_invalid_contact_never_opens_a_connection(self):
+        for contact in ("", "Mozilla/5.0", "not a public contact", "a" * 201):
+            with self.subTest(contact=contact), mock.patch.dict(os.environ, {vs.CONTACT_ENV: contact}), \
+                    mock.patch.object(transport, "_build_opener") as build:
+                with self.assertRaisesRegex(vs.FetchRejected, "crawler_contact"):
+                    vs._fetch_https(SOURCE_URL)
+                build.assert_not_called()
+
+    def test_non_loopback_needs_explicit_network_opt_in(self):
+        with mock.patch.dict(os.environ, {transport.ENV_ALLOW_NETWORK: ""}), \
+                mock.patch.object(transport, "_build_opener") as build:
+            with self.assertRaisesRegex(vs.FetchRejected, transport.ENV_ALLOW_NETWORK):
+                vs._fetch_https(SOURCE_URL)
+            build.return_value.open.assert_not_called()
+
+    def test_redirect_bodies_close_unread_and_targets_are_never_opened(self):
+        for code in (301, 302, 303, 304, 307, 308):
+            for target in (None, "/document", "https://www.kbinsure.co.kr/file",
+                           "https://pub.insure.or.kr/file", "http://www.kyobo.com/file",
+                           "ftp://www.kyobo.com/file", "file:///must-not-read"):
+                with self.subTest(code=code, target=target):
+                    response = Response(b"redirect body", status=code, length=vs.MAX_FETCH_BYTES + 1)
+                    if target is not None:
+                        response.headers["Location"] = target
+                    with self.assertRaisesRegex(vs.FetchRejected, "redirect_disallowed") as error:
+                        self.fetch_with(response)
+                    self.assertEqual((error.exception.final_url, error.exception.http_status), (SOURCE_URL, code))
+                    self.assertEqual(response.read_sizes, [])
 
     def test_pdf_aliases_and_generic_download_mimes_require_pdf_signature(self):
         for fmt in ("pdf", "text_pdf", "scanned_pdf"):
@@ -226,7 +190,7 @@ class ResponseAdmission(unittest.TestCase):
                          "Application/PDF; charset=binary"):
                 with self.subTest(fmt=fmt, mime=mime):
                     result = self.fetch_with(Response(PDF, mime), expected_format=fmt)
-                    self.assertEqual(result, (PDF, mime.split(";")[0].lower(), "https://www.kyobo.com/final"))
+                    self.assertEqual(result, (PDF, mime.split(";")[0].lower(), SOURCE_URL, 200))
 
     def test_mismatched_or_missing_mime_is_rejected_unread(self):
         for fmt, mime in (("pdf", "text/html"), ("pdf", "text/plain"), ("pdf", None),
@@ -265,7 +229,7 @@ class ResponseAdmission(unittest.TestCase):
         for page in pages:
             with self.subTest(page=page), self.assertRaisesRegex(vs.FetchRejected, "block_page") as raised:
                 self.fetch_with(Response(page, "text/html"), expected_format="html")
-            self.assertEqual(raised.exception.final_url, "https://www.kyobo.com/final")
+            self.assertEqual((raised.exception.final_url, raised.exception.http_status), (SOURCE_URL, 200))
 
     def test_public_html_navigation_and_binary_pdf_words_are_not_block_pages(self):
         for mime in ("text/html; charset=utf-8", "application/xhtml+xml"):
@@ -274,23 +238,23 @@ class ResponseAdmission(unittest.TestCase):
         pdf = PDF + b" captcha access denied login required"
         self.assertEqual(self.fetch_with(Response(pdf))[0], pdf)
 
-    def test_unexpected_success_status_and_final_origin_are_refused_unread(self):
-        for status, url, reason in ((204, "https://www.kyobo.com/final", "unexpected_status"),
-                                    (206, "https://www.kyobo.com/final", "unexpected_status"),
-                                    (200, "https://example.org/final", "redirect_disallowed"),
-                                    (200, "https://www.kbinsure.co.kr/final", "redirect_disallowed"),
-                                    (200, "http://www.kyobo.com/final", "redirect_disallowed")):
-            with self.subTest(status=status, url=url):
-                response = Response(PDF, url=url, status=status)
-                with self.assertRaisesRegex(vs.FetchRejected, reason):
+    def test_non_200_responses_are_not_read_or_retried(self):
+        for status in (204, 206, 403, 404, 429, 503):
+            with self.subTest(status=status):
+                response = Response(PDF, status=status)
+                with self.assertRaisesRegex(vs.FetchRejected, "unexpected_status") as error:
                     self.fetch_with(response)
+                self.assertEqual((error.exception.final_url, error.exception.http_status), (SOURCE_URL, status))
                 self.assertEqual(response.read_sizes, [])
+
+    def test_body_at_the_cap_is_returned(self):
+        self.assertEqual(self.fetch_with(Response(PDF), max_bytes=len(PDF))[0], PDF)
 
     def test_size_limit_is_bounded_with_missing_false_or_malformed_length(self):
         for length in (None, 1, "invalid"):
             with self.subTest(length=length):
                 response = Response(PDF * 20, length=length)
-                with self.assertRaises(vs.FetchTooLarge):
+                with self.assertRaisesRegex(vs.FetchRejected, "too_large"):
                     self.fetch_with(response, max_bytes=10)
                 self.assertEqual(sum(response.read_sizes), 11)
 
@@ -302,18 +266,18 @@ class ResponseAdmission(unittest.TestCase):
                 run.assert_not_called()
 
     def test_default_cap_rejects_declared_oversize_without_reading(self):
-        self.assertEqual(vs.MAX_FETCH_BYTES, 256 * 1024 * 1024)
+        self.assertEqual(vs.MAX_FETCH_BYTES, 64 * 1024 * 1024)
         response = Response(PDF, length=vs.MAX_FETCH_BYTES + 1)
-        with self.assertRaises(vs.FetchTooLarge):
+        with self.assertRaisesRegex(vs.FetchRejected, "too_large"):
             self.fetch_with(response)
         self.assertEqual(response.read_sizes, [])
 
     def test_streaming_cap_applies_across_multiple_chunks(self):
-        cap = 1024 * 1024 + len(PDF)
+        cap = transport.CHUNK_BYTES + len(PDF)
         response = Response(PDF + b"x" * (cap + 100))
-        with self.assertRaises(vs.FetchTooLarge):
+        with self.assertRaisesRegex(vs.FetchRejected, "too_large"):
             self.fetch_with(response, max_bytes=cap)
-        self.assertEqual(response.read_sizes, [1024 * 1024, len(PDF) + 1])
+        self.assertEqual(response.read_sizes, [transport.CHUNK_BYTES, len(PDF) + 1])
         self.assertEqual(sum(response.read_sizes), cap + 1)
 
     def test_unsupported_expectation_never_opens(self):
@@ -329,28 +293,25 @@ class ResponseAdmission(unittest.TestCase):
                     vs.fetch("https://www.kyobo.com/start", attempts=attempts)
                 run.assert_not_called()
 
-    def test_network_failures_are_retried_but_http_errors_are_not(self):
+    def test_only_document_connection_errors_retry_after_robots_and_its_crawl_delay(self):
+        robots = Response(b"User-agent: *\nCrawl-delay: 5\n", "text/plain")
         opener = mock.Mock()
-        opener.open.side_effect = [urllib.error.URLError("offline"), Response(PDF)]
-        with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener), \
+        opener.open.side_effect = [robots, urllib.error.URLError("offline"), Response(PDF)]
+        with mock.patch.object(transport, "_build_opener", return_value=opener), \
                 mock.patch.object(vs.time, "sleep") as sleep:
-            self.assertEqual(vs._fetch_https("https://www.kyobo.com/start")[0], PDF)
-        self.assertEqual(opener.open.call_count, 2)
+            self.assertEqual(vs._fetch_https(SOURCE_URL)[0], PDF)
+        self.assertEqual([c.args[0].full_url for c in opener.open.call_args_list],
+                         ["https://www.kyobo.com/robots.txt", SOURCE_URL, SOURCE_URL])
         self.assertTrue(all(c.kwargs["timeout"] == vs.FETCH_SOCKET_TIMEOUT_SECONDS
-                            for c in opener.open.call_args_list))
-        sleep.assert_called_once_with(2)
-        opener.reset_mock()
-        opener.open.side_effect = urllib.error.HTTPError("https://www.kyobo.com/start", 403, "denied", {}, None)
-        with mock.patch.object(vs.urllib.request, "build_opener", return_value=opener), \
-                mock.patch.object(vs.time, "sleep") as sleep:
-            with self.assertRaises(urllib.error.HTTPError):
-                vs._fetch_https("https://www.kyobo.com/start")
-        opener.open.assert_called_once()
-        sleep.assert_not_called()
+                            for c in opener.open.call_args_list[1:]))
+        self.assertEqual(sleep.call_args_list, [mock.call(5), mock.call(5)])
 
 
 class DetectLocalHTTPS(unittest.TestCase):
     def setUp(self):
+        self.robots_status = 200
+        self.robots_body = b"User-agent: *\nDisallow:\n"
+        self.server.test = self
         # Loopback hosts are admitted only in this isolated test registry.
         policy_dir = tempfile.TemporaryDirectory()
         self.addCleanup(policy_dir.cleanup)
@@ -363,6 +324,7 @@ class DetectLocalHTTPS(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.requests = []
+        cls.request_headers = []
 
         class Handler(BaseHTTPRequestHandler):
             def log_message(self, *args):
@@ -370,29 +332,35 @@ class DetectLocalHTTPS(unittest.TestCase):
 
             def do_GET(self):
                 cls.requests.append(self.path)
+                cls.request_headers.append(self.headers)
+                if self.path == "/robots.txt":
+                    status = self.server.test.robots_status
+                    if not status:
+                        self.close_connection = True
+                        return
+                    body = self.server.test.robots_body
+                    self.send_response(status)
+                    self.send_header("Content-Type", "text/plain")
+                    self.send_header("Content-Length", str(len(body)))
+                    if status == 302:
+                        self.send_header("Location", "/must-not-fetch")
+                    self.end_headers()
+                    self.wfile.write(body)
+                    return
                 if self.path == "/disconnect":
                     self.close_connection = True
                     return
-                if self.path in ("/slow-redirect", "/slow-redirect-then-pdf"):
-                    time.sleep(0.65)
                 if self.path == "/slow-pdf":
-                    time.sleep(1.2)
-                targets = {"/start": "/middle", "/middle": "/document?edition=2",
-                           "/slow-redirect": "/drip",
-                           "/slow-redirect-then-pdf": "/slow-pdf",
-                           "/redirect-body": "/document", "/chain-external": "/external",
+                    time.sleep(2.0)
+                targets = {"/start": "/must-not-fetch",
+                           "/redirect-body": "/must-not-fetch",
                            "/relative-external": f"//localhost:{self.server.server_port}/must-not-fetch",
                            "/robots-redirect": "https://pub.insure.or.kr/must-not-fetch",
-                           "/denied-start": "/denied",
-                           "/downgrade": f"http://127.0.0.1:{self.server.server_port}/must-not-fetch",
-                           "/external": f"http://localhost:{self.server.server_port}/must-not-fetch",
-                           "/loop": "/loop"}
+                           "/downgrade": f"http://127.0.0.1:{self.server.server_port}/must-not-fetch"}
                 if self.path in targets:
                     self.send_response(302)
                     self.send_header("Location", targets[self.path])
                     if self.path == "/redirect-body":
-                        # Never send this body: following the redirect must not wait
-                        # for or buffer its declared bytes, even at the default cap.
                         self.send_header("Content-Length", str(vs.MAX_FETCH_BYTES + 1))
                     self.end_headers()
                     return
@@ -463,21 +431,23 @@ class DetectLocalHTTPS(unittest.TestCase):
                 mock.patch.object(vs, "fetch", bounded_fetch), \
                 mock.patch.object(vs.subprocess, "run", side_effect=run_worker), \
                 mock.patch.object(vs, "tool_version", return_value=None), \
-                mock.patch.dict("os.environ", {"SSL_CERT_FILE": str(self.cert), "no_proxy": "127.0.0.1,localhost"}), \
+                mock.patch.dict("os.environ", {"SSL_CERT_FILE": str(self.cert), vs.CONTACT_ENV: CONTACT,
+                                               "https_proxy": "http://127.0.0.1:1", "no_proxy": ""}), \
                 mock.patch("sys.stdout", new_callable=io.StringIO):
             code = vs.cmd_detect(args)
         return code, json.loads(Path(args.report).read_text())["results"][0]
 
-    def test_deadline_covers_redirect_then_continuously_streamed_body(self):
+    def test_deadline_covers_continuously_streamed_body(self):
         with tempfile.TemporaryDirectory() as d, mock.patch.object(vs, "FETCH_DEADLINE_SECONDS", 1.5):
             root = Path(d)
             start = time.monotonic()
             before = len(self.requests)
-            code, result = self.run_detect(root, "/slow-redirect")
+            code, result = self.run_detect(root, "/drip")
             self.assertLess(time.monotonic() - start, 3.5)
-            self.assertEqual(self.requests[before:], ["/slow-redirect", "/drip"])
+            self.assertEqual(self.requests[before:], ["/robots.txt", "/drip"])
             self.assertEqual((code, result["status"]), (1, "fetch_failed"))
             self.assertTrue(result["detail"].startswith("deadline_exceeded:"), result)
+            self.assertEqual((result["final_url"], result["http_status"]), (self.origin + "/drip", 200))
             self.assertFalse((root / "downloads").exists())
             self.assertFalse((root / "archive").exists())
 
@@ -487,30 +457,68 @@ class DetectLocalHTTPS(unittest.TestCase):
             code, result = self.run_detect(Path(d), "/disconnect")
             self.assertEqual((code, result["status"]), (1, "fetch_failed"))
             self.assertTrue(result["detail"].startswith("deadline_exceeded:"), result)
-            self.assertEqual(self.requests[before:], ["/disconnect"])
+            self.assertEqual(self.requests[before:], ["/robots.txt", "/disconnect"])
+            self.assertIsNone(result["final_url"])
+            self.assertIsNone(result["http_status"])
 
-    def test_redirect_does_not_reset_deadline_for_final_response_headers(self):
+    def test_deadline_applies_while_waiting_for_document_headers(self):
         with tempfile.TemporaryDirectory() as d, mock.patch.object(vs, "FETCH_DEADLINE_SECONDS", 1.5):
             before = len(self.requests)
-            code, result = self.run_detect(Path(d), "/slow-redirect-then-pdf")
+            code, result = self.run_detect(Path(d), "/slow-pdf")
             self.assertEqual((code, result["status"]), (1, "fetch_failed"))
             self.assertTrue(result["detail"].startswith("deadline_exceeded:"), result)
-            self.assertEqual(self.requests[before:], ["/slow-redirect-then-pdf", "/slow-pdf"])
+            self.assertEqual(self.requests[before:], ["/robots.txt", "/slow-pdf"])
 
-    def test_redirect_chain_records_final_url_in_report_and_actual_archive(self):
+    def test_live_robots_precedes_document_and_both_send_honest_ua_without_proxy(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
-            code, result = self.run_detect(root, "/start")
-            self.assertEqual((code, result["status"]), (0, "changed"))
-            self.assertEqual(result["requested_url"], self.origin + "/start")
+            before = len(self.requests)
+            code, result = self.run_detect(root, "/document?edition=2#page=1")
+            self.assertEqual(self.requests[before:], ["/robots.txt", "/document?edition=2"])
+            robots_headers, document_headers = self.request_headers[before:]
+            for headers in (robots_headers, document_headers):
+                self.assertEqual(headers["User-Agent"], build_user_agent(CONTACT))
+            self.assertEqual(robots_headers["Accept"], "text/plain")
+            self.assertEqual((code, result["status"], result["http_status"]), (0, "changed", 200))
+            self.assertEqual(result["requested_url"], self.origin + "/document?edition=2#page=1")
             self.assertEqual(result["url"], self.origin + "/document?edition=2")
             self.assertEqual(result["final_url"], result["url"])
             self.assertEqual((root / "downloads/source/document").read_bytes(), PDF)
             observation = json.loads((root / "archive" / result["observation"]).read_text())
-            self.assertEqual(observation["url"], result["final_url"])
-            self.assertEqual(observation["final_url"], result["final_url"])
-            self.assertEqual(observation["requested_url"], result["requested_url"])
+            for key in ("url", "final_url", "requested_url", "http_status"):
+                self.assertEqual(observation[key], result[key])
             self.assertEqual((root / "archive" / observation["object_key"]).read_bytes(), PDF)
+
+    def test_robots_disallow_redirect_forbidden_and_unreachable_only_request_robots(self):
+        for status, body, reason in (
+            (200, b"User-agent: *\nAllow: /\n\nUser-agent: ONJEON-SourceArchiver\nDisallow: /*.pdf$\n",
+             "robots_disallow"),
+            (302, b"redirect", "robots_redirect_refused"),
+            (401, b"denied", "robots_forbidden"),
+            (403, b"denied", "robots_forbidden"),
+            (429, b"wait", "robots_rate_limited"),
+            (503, b"outage", "robots_server_error"),
+            (0, b"", "robots_unreachable"),
+        ):
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as d:
+                root = Path(d)
+                self.robots_status, self.robots_body = status, body
+                before = len(self.requests)
+                code, result = self.run_detect(root, "/document.pdf")
+                self.assertEqual((code, result["status"], result["detail"]), (1, "fetch_failed", reason))
+                self.assertEqual(self.requests[before:], ["/robots.txt"])
+                self.assertIsNone(result["final_url"])
+                self.assertIsNone(result["http_status"])
+                self.assertFalse((root / "downloads").exists())
+                self.assertFalse((root / "archive").exists())
+
+    def test_missing_robots_permits_document_request(self):
+        self.robots_status = 404
+        with tempfile.TemporaryDirectory() as d:
+            before = len(self.requests)
+            code, result = self.run_detect(Path(d), "/document")
+            self.assertEqual((code, result["http_status"]), (0, 200))
+            self.assertEqual(self.requests[before:], ["/robots.txt", "/document"])
 
     def test_initial_http_url_fails_without_request_cache_or_archive(self):
         with tempfile.TemporaryDirectory() as d:
@@ -539,36 +547,25 @@ class DetectLocalHTTPS(unittest.TestCase):
                 self.assertFalse((root / "archive").exists())
                 self.assertNotIn("sha256_now", result)
 
-    def test_redirected_http_error_records_final_url_without_archiving(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            code, result = self.run_detect(root, "/denied-start")
-            self.assertEqual((code, result["status"]), (1, "fetch_failed"))
-            self.assertEqual(result["requested_url"], self.origin + "/denied-start")
-            self.assertEqual(result["url"], self.origin + "/denied")
-            self.assertEqual(result["final_url"], result["url"])
-            self.assertFalse((root / "downloads").exists())
-            self.assertEqual(list((root / "archive").rglob("*")), [])
-
-    def test_redirect_body_is_ignored_and_only_final_document_is_archived(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            code, result = self.run_detect(root, "/redirect-body", cap=len(PDF))
-            self.assertEqual((code, result["status"]), (0, "changed"))
-            self.assertEqual(result["final_url"], self.origin + "/document")
-            self.assertEqual((root / "downloads/source/document").read_bytes(), PDF)
-            observation = json.loads((root / "archive" / result["observation"]).read_text())
-            self.assertEqual(observation["bytes"], len(PDF))
-            self.assertEqual((root / "archive" / observation["object_key"]).read_bytes(), PDF)
+    def test_redirect_and_http_error_record_responding_url_without_following_or_writing(self):
+        for path, status in (("/start", 302), ("/redirect-body", 302), ("/denied", 403)):
+            with self.subTest(path=path), tempfile.TemporaryDirectory() as d:
+                root = Path(d)
+                before = len(self.requests)
+                code, result = self.run_detect(root, path, cap=len(PDF))
+                self.assertEqual(self.requests[before:], ["/robots.txt", path])
+                self.assertEqual((code, result["status"], result["http_status"]), (1, "fetch_failed", status))
+                self.assertEqual(result["requested_url"], self.origin + path)
+                self.assertEqual(result["url"], self.origin + path)
+                self.assertEqual(result["final_url"], result["url"])
+                self.assertFalse((root / "downloads").exists())
+                self.assertFalse((root / "archive").exists())
 
     def test_rejected_fetch_never_changes_cache_or_permanent_archive(self):
         for path, fmt, cap, reason in (
-            ("/external", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
-            ("/chain-external", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
             ("/relative-external", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
-            ("/robots-redirect", "text_pdf", vs.MAX_FETCH_BYTES, "robots_disallow"),
+            ("/robots-redirect", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
             ("/downgrade", "text_pdf", vs.MAX_FETCH_BYTES, "redirect_disallowed"),
-            ("/loop", "text_pdf", vs.MAX_FETCH_BYTES, "HTTPError"),
             ("/waf", "text_pdf", vs.MAX_FETCH_BYTES, "content_type_mismatch"),
             ("/waf", "html", vs.MAX_FETCH_BYTES, "block_page"),
             ("/fake-pdf", "scanned_pdf", vs.MAX_FETCH_BYTES, "wrong_signature"),
@@ -587,8 +584,8 @@ class DetectLocalHTTPS(unittest.TestCase):
                 code, result = self.run_detect(root, path, fmt, cap)
                 self.assertEqual((code, result["status"]), (1, "fetch_failed"))
                 self.assertTrue(result["detail"].startswith(reason), result)
-                if path in ("/waf", "/fake-pdf", "/declared-large", "/streamed-large"):
-                    self.assertEqual(result["final_url"], self.origin + path)
+                self.assertEqual(result["final_url"], self.origin + path)
+                self.assertEqual(result["http_status"], 302 if reason == "redirect_disallowed" else 200)
                 for key in ("sha256_now", "archived_object", "observation"):
                     self.assertNotIn(key, result)
                 after = {str(p.relative_to(root)): p.read_bytes() for p in root.rglob("*")

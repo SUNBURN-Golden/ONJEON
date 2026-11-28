@@ -19,7 +19,7 @@
 | `cooperatives_and_others.csv` | 공제조합·우체국보험·한국무역보험공사 16행(시드 1 포함). 기관 분모에는 우체국보험 1곳 포함 |
 | `excluded_or_historical.csv` | 가져온 페이지에는 있으나 현행 협회 목록에 없는 49행: 과거·합병 추정 보험사, DART 업종 목록의 비보험 법인, KIDI '공영보험'의 사회보험 기관. 제외 사유를 남기려고 둔 파일이며 분모가 아니다 |
 | `sources.csv` | 사용한 모든 페이지(목록 출처, 탐색용 페이지, 회사 홈페이지·공시 페이지) 75건과 응답 본문 sha256. 2026-11-10 감독당국 재조회 9건 포함 |
-| `source_fetch_hosts.json` | `verify_sources.py detect`의 명시적 호스트 허용 목록. HTTPS·같은 출처 리다이렉트·robots 제한을 함께 적용한다 |
+| `source_fetch_hosts.json` | `verify_sources.py detect`의 명시적 호스트 허용 목록. HTTPS, 리다이렉트 거부, robots 정책 검사를 함께 적용한다 |
 | `access_log.csv` | 기록한 요청 112건(실패 포함)과 결과 분류. 2026-11-10 감독당국 재조회 14건 포함 |
 | `authority_crosscheck_2026-11-10.csv` | FISIS·파인 보험회사 목록과 `insurers.csv`·`excluded_or_historical.csv`의 기관별 대조 결과 57행 및 조회 출처 ID |
 

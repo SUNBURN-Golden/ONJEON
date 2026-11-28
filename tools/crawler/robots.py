@@ -58,12 +58,14 @@ class _Entry:
 
 class RobotsCache:
     def __init__(self, transport: Transport, user_agent: str, *, ttl_s: float = DAY_S,
-                 clock: Callable[[], float] = time.time, timeout_s: float = 20.0):
+                 clock: Callable[[], float] = time.time, timeout_s: float = 20.0,
+                 follow_redirects: bool = True):
         self._transport = transport
         self._ua = user_agent
         self._ttl = ttl_s
         self._clock = clock
         self._timeout = timeout_s
+        self._follow_redirects = follow_redirects
         self._entries: Dict[Tuple[str, str, int], _Entry] = {}
         self._deferred: Dict[str, Tuple[float, str, bool]] = {}
         self._lock = threading.RLock()
@@ -133,6 +135,9 @@ class RobotsCache:
                 with (request or self._transport.request)(url, req_headers, self._timeout, ROBOTS_MAX_BYTES) as resp:
                     status = resp.status
                     if 300 <= status < 400:
+                        if not self._follow_redirects:
+                            self._defer(host, now, "robots_redirect_refused")
+                            return None
                         target = urljoin(url, resp.headers.get("location", ""))
                         t = urlsplit(target)
                         if t.scheme not in ("http", "https") or (t.hostname or "").lower() != host:

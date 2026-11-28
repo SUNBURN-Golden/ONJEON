@@ -10,8 +10,12 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[3]
 BASELINE = "94c8b64cefb1ced5341d3e24e690915d085b3d5b"
+AUDIT6 = "89fbd7e13b8b97c248c60688fab077cc7fd7323e"
 sys.path[:0] = [str(ROOT / "tools"), str(ROOT / "tools/tests")]
-import test_verify_sources_fetch as tests  # noqa: E402
+
+
+def snapshot(revision, path):
+    return subprocess.check_output(["git", "show", f"{revision}:{path}"], cwd=ROOT, text=True)
 
 
 def check(name, source, cases):
@@ -27,8 +31,14 @@ def check(name, source, cases):
         raise AssertionError(f"{name}: expected assertion failures, no errors/skips")
 
 
-source = (ROOT / "tools/verify_sources.py").read_text()
-baseline = subprocess.check_output(["git", "show", f"{BASELINE}:tools/verify_sources.py"], cwd=ROOT, text=True)
+# Replay the original tests with the sources they exercised. Audit 8 replaced
+# the same-origin redirect handler and its test cases with a no-redirect policy.
+tests = types.ModuleType("test_verify_sources_fetch_audit6")
+test_path = "tools/tests/test_verify_sources_fetch.py"
+tests.__file__ = str(ROOT / test_path)
+exec(compile(snapshot(AUDIT6, test_path), tests.__file__, "exec"), tests.__dict__)
+source = snapshot(AUDIT6, "tools/verify_sources.py")
+baseline = snapshot(BASELINE, "tools/verify_sources.py")
 host_check = '''    if origin[1] not in registered_source_hosts():
         raise FetchRejected("url_disallowed: host is not in the source host registry")
 '''

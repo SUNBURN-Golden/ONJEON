@@ -35,20 +35,21 @@ python3 tools/validation_check.py --selftest   # 변조마다 의도한 오류�
 python3 -m unittest discover -s tools/tests    # 본문 해시 규칙, 보관 쓰기 충돌, 재현 판정 시험
 cargo test --manifest-path packages/rules-engine/Cargo.toml --test real_clauses
 python3 -I tools/verify_sources.py reproduce --raw file:///…/raw --derived file:///…/derived --ocr --report r.json
-python3 -I tools/verify_sources.py detect --out NEW_DIR --raw file:///…/raw --archive-new --report d.json
+ONJEON_CRAWLER_ALLOW_NETWORK=1 ONJEON_CRAWLER_CONTACT="$PUBLIC_CRAWLER_CONTACT" \
+  python3 -I tools/verify_sources.py detect --out NEW_DIR --raw file:///…/raw --archive-new --report d.json
 ```
 
 원본은 공개 저장소에 넣지 않는다. 보관소는 Cloudflare R2 비공개 버킷이다(ADR-0015·0016, `infra/r2/`). 2026-10-09 원본과 파생 v2를 R2에 보존하고 다시 받아 대조했다(아래 기록). 사용자에게 비공개로 전달한 묶음은 별도 사본이다. `samples.csv`의 `cache_path`는 캐시 기준 상대 경로이고, 보관소 키는 `sha256`에서 정해진다.
 
 `pdfplumber`는 PDF 인용을 재추출하는 `reproduce`에만 필수다. `detect`는 PDF 바이트를 해시로 비교하므로 `pdfplumber` 없이 실행할 수 있으며 보고서의 해당 도구 버전은 `null`로 기록된다. 회귀 시험은 `tools/tests/test_verify_sources.py`의 `CliDependencies`에 있다. 공통 진입점의 `pdftotext` 필수 검사는 유지한다. [Audit 1 수정 검증 기록](REVERIFY_AUDIT1_DETECT_DEPENDENCY.md)에 실행 결과와 환경 제약을 적었다.
 
-`detect`는 [2026-10-10 조사](../../research/2026-10-10_source_survey/A_klia.md#6-접근-제한과-실패)에 `User-agent: *; Disallow: /`로 기록된 `pub.insure.or.kr`을 요청하지 않는다. 해당 호스트의 표본 2건은 분모·기준 해시를 유지하며 `fetch_failed`, `detail: robots_disallow: …`와 조사 근거를 기록하고 종료 코드 1을 낸다. 다운로드·새 원본 보존·성공 관측을 만들지 않으며, 다른 출처에서 이 호스트로 리다이렉트되어도 차단한다. 이는 조사에 근거한 보수적 보류이며 실시간 robots 검사나 전체 호스트 정책 검사를 뜻하지 않는다. 정책 해제는 근거 재검토가 필요하고 실행 옵션으로 우회할 수 없다. `reproduce`의 보관본 재현 범위와 과거 관측 기록은 그대로다. [Audit 2 수정·검증 근거](../audits/2026-10-26_detect_robots_disallowed.md).
+`detect`는 `ONJEON_CRAWLER_CONTACT`의 공개 이메일 또는 연락처 URL을 `ONJEON-SourceArchiver` User-Agent에 넣는다. 수동 `sources` 워크플로는 같은 이름의 저장소 변수에서 연락처를 받아 detect 단계에만 제공하며, 해당 단계에 `ONJEON_CRAWLER_ALLOW_NETWORK=1`을 설정한다. 로컬 실행에서도 위 예시의 `PUBLIC_CRAWLER_CONTACT`에 실제 공개 연락처를 지정한다.
 
-`detect`의 최초 출처 URL은 HTTPS만 허용하며, 리다이렉트는 같은 scheme·host·유효 port에서만 허용한다(기본 포트 명시는 동일하게 취급). 다른 호스트·포트·프로토콜로의 이동은 다음 요청 전에 거부하며 HTTPS→HTTP도 포함한다. 성공 보고서와 새 보관 관측의 `url`·`final_url`은 실제 최종 응답 URL이고 `requested_url`은 입력 URL이다. 응답은 HTTP 200, 표본 형식에 맞는 MIME, 비어 있지 않은 본문과 PDF/HTML 시그니처를 검사한 뒤 저장한다. PDF는 공시 다운로드의 `application/octet-stream`·`binary/octet-stream`을 `%PDF-` 시그니처와 함께 허용한다. HTML은 앞 64 KiB에서 알려진 WAF·챌린지·로그인·접근 거부 신호를 검사한다. 기존 256 MiB 상한은 유지하며 선언 길이가 넘으면 본문을 읽지 않고, 실제 스트림이 넘으면 상한 + 1바이트에서 멈춘다. 거부된 응답은 `fetch_failed`·종료 1이고 `--archive-new`로도 캐시·원본·성공 관측을 쓰지 않는다. 이는 완전한 문서 파싱이나 모든 차단 페이지의 탐지를 보증하지 않는다. [Audit 2 로컬 검증 증거](../audits/2026-10-26_fetch_redirect_blockpage.md).
+[2026-10-10 조사](../../research/2026-10-10_source_survey/A_klia.md#6-접근-제한과-실패)의 전면 금지 기록에 따라 `pub.insure.or.kr` 표본 2건은 요청 없이 `fetch_failed`를 기록한다. 최신 robots 정책 확인은 등록된 나머지 HTTPS 출처에 적용한다. 문서 요청 전에 같은 출처의 `/robots.txt`를 같은 User-Agent로 확인하며, 공용 robots 정책의 경로 금지·접근 거부·실패·리다이렉트 판정에 따라 문서 요청을 중단한다.
 
-Audit 4에서는 `samples.csv`의 `sha256`이 정확히 64자리 ASCII 16진수인지, `url`이 호스트가 있고 자격증명·공백·제어문자·역슬래시가 없는 HTTPS URL인지 검사한다. `object_key`도 잘못된 해시를 저장소 조회 전에 거부한다. 최초 HTTP·FTP·file URL을 받지 않으며 HTTPS→HTTP 이동은 다음 요청 전에 차단한다. 로컬 보관소를 지정하는 `--raw file://…`는 출처 URL과 별개로 계속 지원한다. [수정·회귀 증거](../audits/2026-11-03_samples_csv_validation.md).
+문서와 `robots.txt` 요청은 리다이렉트를 따라가지 않는다. 보고서의 `requested_url`은 입력 URL이고, `final_url`과 `http_status`는 프래그먼트를 제외한 문서 응답 URL과 HTTP 상태다. 문서 응답 메타데이터가 없으면 두 값은 `null`이다. 변경 판정은 계속 `status`에 기록한다. 새 보관 관측에는 입력 URL·문서 응답 URL·HTTP 상태를 함께 남긴다.
 
-Audit 3에서는 표준 urllib가 다음 URL을 열기 전에 중간 30x 본문을 무제한 `read()`하는 경로도 제거했다. 301·302·303·307·308 본문은 읽지 않고 연결을 닫으며, URL 정규화·출처 제한·루프 제한은 유지한다. 최종 문서만 위의 256 MiB 검사를 거쳐 해시·다운로드·보관 대상이 된다. [기준 코드 실패 재현과 회귀 검증](../audits/2026-10-28_verify_sources_redirect_cap.md).
+출처별 120초 안에 robots 조회, 문서 다운로드와 연결 오류 재시도를 완료해야 한다. HTTP 200, MIME, PDF/HTML 시그니처를 확인하고, HTML의 앞 64 KiB에서 알려진 차단 페이지를 검사한다. 최종 응답에는 공용 전송 계층의 64 MiB 제한을 적용한다. 초과 길이를 선언하면 읽기 전에 거부하고, 실제 스트림이 상한을 넘으면 한 바이트를 더 읽어 초과를 판정한다. 실패한 출처는 `fetch_failed`·종료 코드 1로 집계하고 캐시·원본·성공 관측을 쓰지 않는다. [Audit 8 수집 경계 검증](../audits/2026-11-28_detect_fetch_hardening.md).
 
 ### HTML 본문 해시
 

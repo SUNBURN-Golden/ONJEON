@@ -52,13 +52,12 @@ class AccessCodes(unittest.TestCase):
         self.assertEqual(status, "unqueried")
         self.assertIn("공시 URL 접근 확인", reason)
         self.assertIn("불변 보관 전", reason)
-        for url, access in (("", "reachable"), ("   ", "reachable"),
-                            ("https://example.invalid", "origin_denied")):
-            with self.subTest(url=url, access=access):
-                status, reason = rn.disclosure(dict(disclosure_url=url, disclosure_access=access,
-                                                    home_access="reachable"))
+        for url in ("", "   "):
+            with self.subTest(url=url):
+                status, reason = rn.disclosure(dict(disclosure_url=url, disclosure_access="reachable",
+                                                    home_access="not_checked"))
                 self.assertEqual(status, "failed")
-                self.assertTrue(reason)
+                self.assertIn("공시 URL이 비어 있음", reason)
 
     def test_access_results_alone_never_prove_archival(self):
         for home in rn.HOST_CODES:
@@ -78,6 +77,17 @@ class AccessCodes(unittest.TestCase):
                 self.assertEqual(status, expected)
                 self.assertTrue(reason)
         self.assertEqual(rn.disclosure({})[0], "unqueried")
+
+    def test_recorded_disclosure_attempt_takes_precedence_over_home_access(self):
+        for access, home, expected in (("geo_blocked", "not_checked", "blocked"),
+                                       ("origin_denied", "reachable", "blocked"),
+                                       ("timeout", "geo_blocked", "failed"),
+                                       ("js_shell", "not_checked", "failed")):
+            with self.subTest(access=access, home=home):
+                status, reason = rn.disclosure(dict(disclosure_url="https://example.invalid/terms",
+                                                    disclosure_access=access, home_access=home))
+                self.assertEqual(status, expected)
+                self.assertIn(f"공시실 접근 결과: {access}", reason)
 
 
 class RegistryCsv(unittest.TestCase):
@@ -134,6 +144,18 @@ class RegistryCsv(unittest.TestCase):
         first = self.path.read_bytes()
         rn.normalize(self.path)
         self.assertEqual(self.path.read_bytes(), first)
+
+    def test_historical_disclosure_attempt_survives_csv_normalization(self):
+        self.path = self.path.with_name(rn.HISTORICAL_TABLE)
+        self.write([dict(entity_evidence="one_source", historical_product_scope="in_scope",
+                         disclosure_url="https://example.invalid/terms", disclosure_access="geo_blocked",
+                         home_access="not_checked")])
+        self.assertEqual(rn.normalize(self.path), 1)
+        row = self.read()[0]
+        self.assertEqual(row["disclosure_access"], "geo_blocked")
+        self.assertEqual(row["home_access"], "not_checked")
+        self.assertEqual(row["disclosure_status"], "blocked")
+        self.assertIn("공시실 접근 결과: geo_blocked", row["disclosure_gap_reason"])
 
     def test_all_evidence_aliases_and_canonical_values(self):
         cases = [("verified_2_sources", "two_or_more_sources"), ("verified_1_source", "one_source"),

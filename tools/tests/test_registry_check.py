@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
+from urllib.parse import urlencode
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import registry_check as rc
@@ -67,12 +68,13 @@ class RegistryCheck(unittest.TestCase):
                          Counter(two_or_more_sources=2, one_source=47))
         self.assertTrue(all(r["in_current_assoc_list"] == "false" for r in historical))
         self.assertEqual(Counter(r["historical_product_scope"] for r in historical),
-                         Counter(in_scope=6, review_required=37, out_of_scope=6))
+                         Counter(in_scope=7, review_required=36, out_of_scope=6))
         for field in ("disclosure_status", "product_list_status"):
             self.assertEqual(Counter(r[field] for r in historical), Counter(unqueried=49))
 
         expected_successors = {
             "hist-nonlife-mg": "nonlife-yebyeol", "hist-nonlife-carrot": "nonlife-hanwha",
+            "dart-592232da": "hist-nonlife-mg",
             "dart-9027ec66": "life-miraeasset", "dart-d8d5621b": "life-shinhan",
             "dart-a3a75abb": "life-kb", "dart-6da11385": "nonlife-hanwha",
         }
@@ -80,6 +82,26 @@ class RegistryCheck(unittest.TestCase):
                           if r["historical_product_scope"] == "in_scope"}, expected_successors)
         self.assertTrue(all((r["historical_product_scope"] == "out_of_scope") ==
                             r["insurer_id"].startswith("kidi-public-") for r in historical))
+
+    def test_green_enters_historical_discovery_under_its_original_seller_id(self):
+        green = next(r for r in self.rows(HISTORICAL_TABLE) if r["name_ko"] == "그린손해보험")
+        self.assertEqual(green["insurer_id"], "dart-592232da")
+        self.assertEqual(green["historical_product_scope"], "in_scope")
+        self.assertEqual(green["product_list_status"], "unqueried")
+        self.assertIn("awaiting_T-DT-04", green["product_list_reason_codes"].split(";"))
+        self.assertEqual(green["successor_evidence_url"], "https://www.fsc.go.kr/po010103/70689")
+
+    def test_pca_and_kb_successor_evidence_points_to_issuer_filings(self):
+        rows = {r["insurer_id"]: r for r in self.rows(HISTORICAL_TABLE)}
+        expected = {
+            "dart-9027ec66": "https://kind.krx.co.kr/external/2026/04/20/000545/20260420001513/11011.htm",
+            "dart-a3a75abb": "https://www.kbfg.com/common/jsp/fileDownUtil.jsp?" + urlencode({
+                "filepath": "/kor/ir/disclosure/sales/__attachFile/2022회계연도_KB금융지주_영업보고서.pdf",
+            }),
+        }
+        for insurer, filing in expected.items():
+            with self.subTest(insurer=insurer):
+                self.assertEqual(rows[insurer]["successor_evidence_url"], filing)
 
     def test_historical_scope_rejects_invalid_disposition_reasons_and_progress(self):
         name = HISTORICAL_TABLE
@@ -104,17 +126,27 @@ class RegistryCheck(unittest.TestCase):
     def test_historical_successor_requires_distinct_registered_insurer_and_evidence(self):
         name = HISTORICAL_TABLE
         original = self.rows(name)
-        for successor in ("", "hist-nonlife-mg", "missing-insurer", "public-epost"):
+        for successor in ("", "hist-nonlife-mg", "missing-insurer", "public-epost",
+                          "kidi-public-326323", "dart-968e6028"):
             with self.subTest(successor=successor):
                 self.write(name, original)
                 self.change(name, "insurer_id", "hist-nonlife-mg", successor_insurer_id=successor)
-                self.assertFinding("invalid successor_insurer_id")
+                self.assertFinding(f"invalid successor_insurer_id {successor!r}")
         for url in ("", "http://example.invalid/notice", "https://", "https://[invalid",
                     "https://example.invalid/url with spaces"):
             with self.subTest(url=url):
                 self.write(name, original)
                 self.change(name, "insurer_id", "hist-nonlife-carrot", successor_evidence_url=url)
                 self.assertFinding("successor_evidence_url must be a public HTTPS source")
+
+    def test_successor_sector_column_is_required(self):
+        for name in rc.ENTITY_TABLES:
+            with self.subTest(name=name):
+                original = self.rows(name)
+                self.write(name, [{key: value for key, value in row.items() if key != "sector"}
+                                  for row in original])
+                self.assertFinding(f"{name}:1: missing required columns: sector")
+                self.write(name, original)
 
     def test_hyundai_note_describes_initial_js_shell_and_failed_tls_followup(self):
         row = next(r for r in self.rows("insurers.csv") if r["insurer_id"] == "nonlife-hyundai")

@@ -70,19 +70,25 @@ def disclosure_entry_reachable(row):
 
 
 def disclosure(row):
-    if disclosure_entry_reachable(row):
+    access = row.get("disclosure_access", "not_checked")
+    if access == "reachable":
+        if not disclosure_entry_reachable(row):
+            return "failed", "공시실 접근 결과는 reachable이나 공시 URL이 비어 있음"
         # The registry records access observations, not verified immutable assets.
         # Do not infer archived from host_access.maps_to or a legacy status claim.
         return "unqueried", "공시 URL 접근 확인(reachable). 원문 무결성 검사·불변 보관 전"
-    home = row.get("home_access", "not_checked")
-    if home in ("reachable", "js_shell"):
-        return "failed", "홈페이지는 열리나 정적 HTML에서 공시실 진입점을 찾지 못함(JS 메뉴 등)"
-    maps_to = HOST_CODES[home].get("maps_to")
+    source = "공시실"
+    if access == "not_checked":
+        source = "홈페이지"
+        access = row.get("home_access", "not_checked")
+        if access in ("reachable", "js_shell"):
+            return "failed", "홈페이지는 열리나 정적 HTML에서 공시실 진입점을 찾지 못함(JS 메뉴 등)"
+    maps_to = HOST_CODES[access].get("maps_to")
     if maps_to == "unqueried":
         return "unqueried", "아직 홈페이지·공시실을 조회하지 않음"
     if maps_to not in ("blocked", "failed"):
-        raise SystemExit(f"unsupported acquisition mapping: {home} -> {maps_to}")
-    return maps_to, f"홈페이지 접근 결과: {home}"
+        raise SystemExit(f"unsupported acquisition mapping: {access} -> {maps_to}")
+    return maps_to, f"{source} 접근 결과: {access}"
 
 
 PRODUCT_LIST_REASON_CODES = {

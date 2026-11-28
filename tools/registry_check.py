@@ -23,6 +23,7 @@ INSURERS = "insurers.csv"
 OTHER_INSTITUTIONS = "cooperatives_and_others.csv"
 SCOPE_TABLES = (INSURERS, OTHER_INSTITUTIONS)
 ENTITY_TABLES = (*SCOPE_TABLES, rn.HISTORICAL_TABLE)
+INSURER_SECTORS = {"life", "non_life", "reinsurance", "guarantee"}
 SCOPE_COLUMNS = {"in_denominator", "scope_adr"}
 SCOPE_ADR = "ADR-0018"
 EPOST = "public-epost"
@@ -39,7 +40,7 @@ FINE_CATEGORIES = {
     "nonlife_foreign": ("외국손해보험회사", 2),
 }
 REQUIRED = {
-    **{name: {"insurer_id", "name_ko", "listed_in", "home_access", "disclosure_access"}
+    **{name: {"insurer_id", "name_ko", "sector", "listed_in", "home_access", "disclosure_access"}
        for name in ENTITY_TABLES},
     "sources.csv": {"source_id", "url", "retrieved_at", "http_status", "sha256"},
     "access_log.csv": {"purpose", "url", "attempted_at", "result", "host_access", "host",
@@ -220,7 +221,8 @@ def check_historical_scope(rows, entities, fail):
         if not successor and not evidence:
             continue
         entity = entities.get(successor)
-        if successor == row["insurer_id"] or entity is None or entity[0] == OTHER_INSTITUTIONS:
+        if (successor == row["insurer_id"] or entity is None or entity[0] == OTHER_INSTITUTIONS
+                or entity[2]["sector"] not in INSURER_SECTORS):
             fail(name, line, f"invalid successor_insurer_id {successor!r}")
         try:
             url = urlsplit(evidence)

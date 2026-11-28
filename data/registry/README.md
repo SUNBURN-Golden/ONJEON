@@ -15,8 +15,8 @@
 
 | 파일 | 내용 |
 |---|---|
-| `insurers.csv` | 협회 **현행** 목록(KLIA 회원사, KNIA 정회원·준회원·비회원사)에 있는 보험회사 53곳. 보험회사 확보율의 분모 후보 |
-| `cooperatives_and_others.csv` | 공제조합·우체국보험·한국무역보험공사 16행(시드 1 포함). **보험회사 수에 섞지 않는다.** 범위는 아래 "범위(ADR-0018)" |
+| `insurers.csv` | 협회 **현행** 목록(KLIA 회원사, KNIA 정회원·준회원·비회원사)에 있는 보험회사 53곳. 기관 분모에 53곳 모두 포함 |
+| `cooperatives_and_others.csv` | 공제조합·우체국보험·한국무역보험공사 16행(시드 1 포함). 기관 분모에는 우체국보험 1곳 포함 |
 | `excluded_or_historical.csv` | 가져온 페이지에는 있으나 현행 협회 목록에 없는 49행: 과거·합병 추정 보험사, DART 업종 목록의 비보험 법인, KIDI '공영보험'의 사회보험 기관. 제외 사유를 남기려고 둔 파일이며 분모가 아니다 |
 | `sources.csv` | 사용한 모든 페이지(목록 출처, 탐색용 페이지, 회사 홈페이지·공시 페이지) 75건과 응답 본문 sha256. 2026-11-10 감독당국 재조회 9건 포함 |
 | `source_fetch_hosts.json` | `verify_sources.py detect`의 명시적 호스트 허용 목록. HTTPS·같은 출처 리다이렉트·robots 제한을 함께 적용한다 |
@@ -33,11 +33,15 @@
 이 목록은 접근 성공·상품 범위 편입·수집 실행 승인을 뜻하지 않으며 robots 보류를 해제하지 않는다.
 기존 `--raw file://…` 로컬 보관소 재현은 네트워크 출처 허용 목록과 별개다.
 
-`insurers.csv` 열은 과제에서 정한 11개 뒤에 3개를 덧붙였다.
+`insurers.csv`의 협회 소속과 홈페이지 관련 열은 다음과 같다.
 - `in_current_assoc_list`: KLIA·KNIA 현행 목록에 있으면 true(이 파일에서는 전부 true).
 - `home_url`, `home_access`: 공시실 URL을 못 찾았을 때도 크롤 계획에 쓸 수 있게, 회사 홈페이지 접속 결과를 남긴다. `A -> B`는 JS·메타 리다이렉트를 한 번 더 따라간 결과다.
 
 ## 범위 (ADR-0018, 2026-10-10)
+
+기관 분모는 `insurers.csv`와 `cooperatives_and_others.csv`의 행 중 `in_denominator`가 소문자 `true`인 행으로 만든다. `false`는 제외이며, `scope_adr`는 각 행의 결정 근거 `ADR-0018`을 담는다. 우체국보험(`public-epost`)의 `sector=other`, `in_current_assoc_list=false`는 기관 분류와 협회 소속을 나타낸다. 기관 분모는 보험사 53곳과 우체국보험 1곳, 총 54곳이다.
+
+저장소 루트에서 `python3 -I tools/registry_check.py --denominator`를 실행하면 검증을 통과한 기관 ID를 한 줄에 하나씩 출력한다. CI의 기본 검사도 두 열의 누락과 ADR-0018에 어긋나는 값을 거부한다. 상품·특약·판매본의 열거는 T-DT-04에서 진행한다.
 
 | 행 | 범위 | 확보율 분모 | 이유 |
 |---|---|---|---|
@@ -148,7 +152,7 @@ CI 원장 검사기는 기관 CSV의 `disclosure_status=archived`를 파일·행
 6. **영문명(`name_en`)은 대부분 비어 있다.** 출처에 영문 표기가 있는 경우(Munich Re, Hannover Re, SCOR, RGA)만 채웠다.
 7. **공시실 URL 45곳이 비어 있다**(53곳 중 `archived` 0, `failed` 31, `blocked` 3, `unqueried` 19. `unqueried`는 접근 확인 후 보관 전 8곳과 미조회 11곳). SPA, 해외 IP 차단, 연결 거부가 원인이다. 국내 IP의 렌더링 브라우저나 XHR 분석이 필요하다. 국내 IP 수집 실행 환경은 열린 관문 O19(결정 원장 §3)이고, T-DT-04의 실데이터 관문(`decision_gates.real_data`: D-04, O19)이다. 그 전의 결과는 상품·문서 분모(09 P01·P02) 증거가 아니다.
 8. **명칭 변경과 합병 이력(기관 별칭)은 확보하지 못했다.** KLIA 회원사변천과정은 JS로 렌더링되고, KNIA에는 해당 페이지를 찾지 못했다.
-9. **공제는 KIDI 링크 목록 한 곳에만 근거한다.** 군인공제회 등 KIDI에 없는 공제는 조사하지 않았다. 공제는 ADR-0018로 범위·확보율 분모에서 제외됐으므로 공제 상품공시 URL은 탐색하지 않는다. 행별 `notes`도 위 "범위(ADR-0018)" 표의 결정을 적는다(우체국보험 포함, 공제·한국무역보험공사 제외). 다만 정규화기는 범위 열 없이 이 파일의 모든 행에 `product_list_status=unqueried`와 `awaiting_T-DT-04` 사유를 붙이므로, 제외 행의 사유 코드는 분모 편입을 뜻하지 않는다.
+9. **공제는 KIDI 링크 목록 한 곳에만 근거한다.** 군인공제회 등 KIDI에 없는 공제는 조사하지 않았다. 공제는 ADR-0018로 범위·확보율 분모에서 제외됐으므로 공제 상품공시 URL은 탐색하지 않는다. 정규화기가 유지하는 `product_list_status`와 사유 코드는 행의 조사 상태를 기록한다. 분모 편입은 `in_denominator`로 판단한다.
 10. **KNIA 비회원사 목록 밖의 소형·신설 보험사가 더 있을 수 있다.** 2026-11-10 교차검증에서 FISIS에만 있는 젠워스 모기지 인슈어런스 코퍼레이션 한국지점과 파인에만 있는 동경해상일동화재보험(주)서울지점을 확인했다. 전자는 두 registry CSV 어디에도 없고, 후자는 `excluded_or_historical.csv`의 Aioi 영문명과 같은 기관으로 추정된다. 두 기관을 `insurers.csv` 분모에 넣을지는 편입 근거와 동경해상일동=Aioi 중복 여부를 확인한 뒤 결정한다.
 
 ## 이번 단계에서 열거하지 않은 것
@@ -181,7 +185,7 @@ CI 원장 검사기는 기관 CSV의 `disclosure_status=archived`를 파일·행
 | `disclosure_entry_missing` | `disclosure_url`이 없거나 `disclosure_access`가 `reachable`이 아닌 행 | 접근 가능한 공시 진입점을 확보하지 못함. 원문 보관 상태와 별개 |
 | `foreign_sandbox_geo_blocked` | `home_access` 또는 `disclosure_access`가 `geo_blocked`인 행 | 해외 IP 샌드박스에서 해외 IP 차단 |
 
-현재 `insurers.csv` 53행 모두 `unqueried`이고, 45행에 `disclosure_entry_missing`, 그중 3행에 `foreign_sandbox_geo_blocked`가 붙는다. 이 수치와 코드 규칙은 `tools/tests/test_registry_denominator.py`가 실제 CSV로 검사한다.
+현재 `insurers.csv` 53행 모두 `unqueried`이고, 45행에 `disclosure_entry_missing`, 그중 3행에 `foreign_sandbox_geo_blocked`가 붙는다. 우체국보험도 `unqueried`이며 `disclosure_entry_missing`이 붙어 있다. 이 수치와 코드 규칙은 `tools/tests/test_registry_denominator.py`가 실제 CSV로 검사한다.
 
 전 보험사·전 상품·전 특약이 확정 범위다(ADR-0004·0013). 설계 검증 표본(`docs/blueprint/validation/`)은 이 목록의 일부만 쓰지만 범위를 줄이는 것이 아니다. 이 표의 모든 행이 수집·처리될 때까지 상태와 사유를 갱신한다.
 

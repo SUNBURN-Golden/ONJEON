@@ -28,12 +28,10 @@ js_shell, redirect_loop, not_checked); the daily-cap outcome's kind is "deferred
 reason is rate_limited (a self-imposed limit, not the host's).
 Body inspection works on a bounded prefix (BODY_PREFIX_BYTES) so memory stays small.
 """
-import email.utils
 import random
 import threading
 import time
 from dataclasses import dataclass
-from datetime import timezone
 from typing import Callable, Dict, Iterable, Iterator, Mapping, Optional, Tuple
 from urllib.parse import urlsplit
 
@@ -41,7 +39,7 @@ from .config import CrawlerConfig
 from .hostlimit import HostAtCapError, HostBusyError, HostRateLimiter
 from .robots import RobotsCache, RobotsDecision
 from .transport import (BodyTooLargeError, NetworkDisabledError, RefusedRequestError, Response,
-                        Transport, TransportError)
+                        Transport, TransportError, retry_after_until)
 
 DAY_S = 86400
 BODY_PREFIX_BYTES = 32 * 1024
@@ -363,7 +361,7 @@ class PoliteFetcher:
         count, last_day = self._host_429_day.get(host, (0, 0.0))
         if last_day != day_start:
             count = 0
-        retry_after = _parse_retry_after(response.headers.get("retry-after"), now)
+        retry_after = retry_after_until(response.headers.get("retry-after"), now)
         if response.status == 429 and count >= 1:
             # A second 429 the same UTC day: stop the host for the rest of the day — and never
             # less than the Retry-After the server just sent, even when it lands past midnight.
@@ -538,24 +536,6 @@ def _day_end(now: float) -> float:
 def _backoff(attempts_so_far: int, rng: Callable[[], float]) -> float:
     """Exponential backoff: 2**attempts_so_far seconds + injected jitter."""
     return (2 ** attempts_so_far) + rng()
-
-
-def _parse_retry_after(value: Optional[str], now: float) -> Optional[float]:
-    """Retry-After as an absolute epoch: delta-seconds or HTTP-date (GMT; naive treated as UTC)."""
-    if not value:
-        return None
-    value = value.strip()
-    if value.isdigit():
-        return now + int(value)
-    try:
-        dt = email.utils.parsedate_to_datetime(value)
-    except (TypeError, ValueError):
-        return None
-    if dt is None:
-        return None
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return dt.timestamp()
 
 
 def _classify_transport_error(exc: TransportError) -> Tuple[str, str, bool]:

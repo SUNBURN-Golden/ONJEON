@@ -25,7 +25,8 @@ MIME/signature and known HTML block-page checks run before any write. Redirect r
 are closed unread. Final bodies over MAX_FETCH_BYTES are refused
 (streaming stops at cap + 1 byte). TLS verification stays on; only network errors are retried.
 Each fetch has one wall-clock deadline across robots.txt, body reads and retries. Rejections are
-`fetch_failed`. Reproduction bounds extractor subprocesses and removes its temporary files.
+`fetch_failed`. Document rate limits defer later samples on the same host in the current run.
+Reproduction bounds extractor subprocesses and removes its temporary files.
 
 Usage:
   verify_sources.py reproduce --raw file:///archive/raw [--derived file:///archive/derived] [--ocr] --report r.json
@@ -54,9 +55,10 @@ import html_content_hash as hch  # noqa: E402
 import source_archive as sa  # noqa: E402
 import source_metadata as sm  # noqa: E402
 from crawler.config import ConfigError, CrawlerConfig, HARD_OBJECT_CAP_BYTES  # noqa: E402
-from crawler.robots import RobotsCache  # noqa: E402
+from crawler.robots import DAY_S, RobotsCache  # noqa: E402
 from crawler.transport import (  # noqa: E402
     BodyFramingError, BodyTooLargeError, NetworkDisabledError, RefusedRequestError, TransportError, UrllibTransport,
+    retry_after_until,
 )
 from crawler.useragent import UserAgentError  # noqa: E402
 
@@ -475,7 +477,7 @@ def _validate_fetch_request(url, attempts, max_bytes, expected_format):
 
 
 def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf", robots_deferrals=None):
-    """Return (admitted bytes, MIME, final URL, HTTP status) within one deadline per source."""
+    """Return (bytes, MIME, final URL, HTTP status), sharing robots and document holds by host."""
     kind = _validate_fetch_request(url, attempts, max_bytes, expected_format)
     if robots_deferrals is None:
         robots_deferrals = {}
@@ -510,6 +512,8 @@ def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf", 
             if "response" not in result:
                 break
             observed = result["response"]
+            if "deferral" in result:
+                robots_deferrals[host] = tuple(result["deferral"])
         if deadline is not None:
             raise FetchRejected(f"deadline_exceeded: source fetch exceeded {FETCH_DEADLINE_SECONDS:g}s",
                                 **observed) from deadline
@@ -528,8 +532,10 @@ def fetch(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format="pdf", 
 def _fetch_worker(input_stream, output_stream):
     url, attempts, max_bytes, kind = json.load(input_stream)
 
-    def record_response(final_url, http_status):
+    def record_response(final_url, http_status, deferral):
         metadata = {"response": {"final_url": final_url, "http_status": http_status}}
+        if deferral is not None:
+            metadata["deferral"] = deferral
         output_stream.write(json.dumps(metadata).encode() + b"\n")
         output_stream.flush()
 
@@ -572,8 +578,19 @@ def _fetch_https(url, attempts=3, max_bytes=MAX_FETCH_BYTES, *, expected_format=
         try:
             with transport.request(url, None, FETCH_SOCKET_TIMEOUT_SECONDS, max_bytes) as response:
                 final_url, http_status = url, response.status
+                retry_after = response.headers.get("retry-after")
+                deferral = None
+                if http_status == 429 or (http_status == 503 and retry_after is not None):
+                    received_at = time.time()
+                    until = retry_after_until(retry_after, received_at)
+                    if until is None or until <= received_at:
+                        until = (int(received_at // DAY_S) + 1) * DAY_S
+                    deferral = (until, f"rate_limited: {http_status}")
                 if record_response is not None:
-                    record_response(final_url, http_status)
+                    record_response(final_url, http_status, deferral)
+                if deferral is not None:
+                    until, detail = deferral
+                    raise FetchRejected(detail, deferred_until=until)
                 if 300 <= http_status < 400:
                     raise FetchRejected(f"redirect_disallowed: {http_status}")
                 if http_status != 200:
@@ -603,7 +620,7 @@ def cmd_detect(args):
     raw = sa.store(args.raw, args.endpoint_url) if args.raw else None
     out = Path(args.out)
     results = []
-    robots_deferrals = {}  # Host-wide decisions survive each sample's deadline-bounded worker.
+    host_deferrals = {}  # Host-wide decisions survive each sample's deadline-bounded worker.
     for r in rows():
         sid = r["sample_id"]
         res = {"sample_id": sid, "url": r["url"], "requested_url": r["url"], "final_url": None, "http_status": None,
@@ -622,7 +639,7 @@ def cmd_detect(args):
             continue
         try:
             body, ctype, final_url, http_status = fetch(r["url"], expected_format=r["format"],
-                                                      robots_deferrals=robots_deferrals)
+                                                      robots_deferrals=host_deferrals)
         except FetchRejected as e:
             res.update(status="fetch_failed", detail=str(e)[:200], http_status=e.http_status, final_url=e.final_url)
             if e.final_url is not None:

@@ -14,12 +14,14 @@ UrllibTransport (stdlib) rules:
 - invalid body framing and a length mismatch fail the stream (BodyFramingError).
 """
 import abc
+import email.utils
 import http.client
 import ipaddress
 import math
 import os
 import urllib.request
 from dataclasses import dataclass, field
+from datetime import timezone
 from typing import Callable, Iterator, Mapping, Optional
 from urllib.parse import urlsplit
 
@@ -81,6 +83,22 @@ class Transport(abc.ABC):
     @abc.abstractmethod
     def request(self, url: str, headers: Optional[Mapping[str, str]], timeout: float, max_bytes: int) -> Response:
         """GET url. Never follows redirects. body_iter yields at most max_bytes in total."""
+
+
+def retry_after_until(value: Optional[str], now: float) -> Optional[float]:
+    """Return the deadline from a Retry-After delay in seconds or HTTP date."""
+    if not value:
+        return None
+    value = value.strip()
+    try:
+        if value.isascii() and value.isdigit():
+            return now + int(value)
+        date = email.utils.parsedate_to_datetime(value)
+        if date.tzinfo is None:
+            date = date.replace(tzinfo=timezone.utc)
+        return date.timestamp()
+    except (TypeError, ValueError, OverflowError, OSError):
+        return None
 
 
 def is_loopback_host(host: Optional[str]) -> bool:

@@ -10,7 +10,11 @@
 
 robots 조회에서 호스트를 보류하면 작업 프로세스가 보류 사유와 만료 시각을 부모에 전달한다. 같은 실행에서 해당 호스트의 이후 표본은 UTC 자정까지 요청 없이 같은 사유를 기록한다. 대소문자와 관계없이 제품 토큰과 일치하는 모든 그룹의 경로 규칙을 합치고, 일치 그룹이 없으면 `*` 그룹의 규칙을 합친다. 해당 그룹들의 `Crawl-delay` 중 가장 긴 값을 적용한다. [RFC 9309 §2.2.1](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.1).
 
-공용 전송 계층은 `Content-Length`가 반복되면 같은 숫자 값만 허용하고, 선언 길이와 읽은 본문의 길이가 다르면 실패 처리한다. 불완전한 robots 응답은 `robots_unreachable`로 호스트를 보류하며, 본문 길이가 일치하지 않는 문서는 `length_mismatch`로 거부한다. [RFC 9112 §6.3](https://www.rfc-editor.org/rfc/rfc9112.html#section-6.3).
+경로와 쿼리를 비교할 때 비예약 ASCII의 퍼센트 인코딩은 해제하고, `%2F` 같은 예약 문자 이스케이프는 보존한다. `Crawl-delay` 등 확장 레코드 사이에 놓인 `User-agent` 행들도 규칙이 시작되기 전까지 같은 그룹에 속한다. [RFC 9309 §2.2.2](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.2) · [RFC 9309 §2.2.4](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.4).
+
+공용 전송 계층은 `Content-Length`가 반복되면 같은 숫자 값만 허용하고, 선언 길이와 읽은 본문의 길이가 다르면 실패 처리한다. 불완전하게 전송된 robots 응답은 `robots_unreachable`로 호스트를 보류하며, 본문 길이가 일치하지 않는 문서는 `length_mismatch`로 거부한다. robots의 206 또는 `Content-Range`가 있는 다른 2xx도 본문을 읽기 전에 `robots_unreachable`로 호스트를 보류한다. [RFC 9112 §6.3](https://www.rfc-editor.org/rfc/rfc9112.html#section-6.3) · [RFC 9110 §15.3.7](https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.7).
+
+문서 응답이 429이거나 `Retry-After`가 있는 503이면 해당 호스트의 이후 robots·문서 요청을 같은 실행에서 보류한다. `Retry-After`의 초 또는 HTTP 날짜로 만료 시각을 정하며, 사용할 수 있는 미래 시각이 없으면 다음 UTC 자정을 사용한다. 첫 보고 행은 받은 `final_url`과 `http_status`를 기록하고, 보류로 요청을 건너뛴 행은 두 필드를 `null`로 기록한다. 작업 프로세스가 헤더를 기록한 뒤 시간 초과로 종료돼도 부모는 그 호스트의 보류를 적용한다. [RFC 9110 §10.2.3](https://www.rfc-editor.org/rfc/rfc9110.html#section-10.2.3).
 
 ## 검증
 
@@ -41,5 +45,23 @@ ONJEON_CRAWLER_CONTACT= ONJEON_CRAWLER_ALLOW_NETWORK=1 \
 | `cargo test --all --locked --offline` | 566개 통과, 기존 1개 무시. 삽입 순서·시나리오 API·온톨로지 실행기의 추가 시험은 2·4·4개 통과 |
 
 워크플로 고정·권한 검사, 공시 원장과 검증 자료 일관성 검사, 변조 자체 시험 40건, 제품 목적 대응표와 설계 묶음 검사도 통과했다.
+
+## 2차 검토 수정 검증
+
+- 루프백 HTTPS에서 예약 문자 이스케이프를 포함한 경로와 `Crawl-delay`가 사이에 있는 `User-agent` 그룹에 대해 금지 규칙이 적용됐다. 각 경우에 `/robots.txt` 요청 1건, 문서 요청·캐시·보관 쓰기 0건을 확인했다.
+- `Content-Length`가 부분 본문의 실제 길이와 일치하는 robots 206도 문서 요청 전에 보류했다. 캐시 단위 시험은 `Content-Range`가 없는 206과 `Content-Range`가 있는 200도 본문을 읽지 않고 포트와 무관하게 호스트를 보류하는지 확인했다.
+- 문서 429와 `Retry-After: 600` 뒤 같은 호스트의 두 표본을 검사했다. 첫 robots·문서 요청만 발생했고 이후 요청은 0건이었다. 첫 행의 응답 URL과 429, 뒤 두 행의 `null` 메타데이터와 실패 사유를 대조했다. 단위 시험은 초·날짜 형식, UTC 자정을 넘기는 보류, 헤더가 없거나 사용할 수 없는 경우, 응답 헤더 직후 작업 프로세스 시간 초과를 확인했다.
+- 호스트 등록 파일 설명에 HTTPS와 문서·robots 리다이렉트 거부를 명시하고 기존 68개 호스트 항목을 대조했다.
+
+| 명령 | 결과 |
+|---|---|
+| `python3 -m unittest discover -s tools/tests -p 'test_verify_sources*.py' -v` | 72개 통과, 보관본이 필요한 3개 건너뜀 |
+| `python3 -m unittest discover -s tools/tests -p 'test_crawler*.py' -v` | 309개 통과 |
+| `python3 -m unittest discover -s tools/tests -p test_workflow_sources.py -v` | 7개 통과 |
+| `python3 -m unittest discover -s tools/tests -v` | 1,829개 통과, 보관본이 필요한 5개와 구버전 botocore 전용 1개 건너뜀 |
+| `python3 -m unittest discover -s tools/daemon/runner_verify/tests -v` | 81개 통과 |
+| `cargo test --all --locked --offline` | 566개 통과, 기존 1개 무시. 삽입 순서·시나리오 API·온톨로지 실행기의 추가 시험은 2·4·4개 통과 |
+
+공시 원장, 워크플로 권한·고정 검사, 검증 자료 검사와 변조 자체 시험 40건, 제품 목적 대응표·설계 묶음·온톨로지 검사도 통과했다.
 
 로컬 시험은 출처 변경 감지의 전송 경계와 보고서 기록을 검증했다. 실제 공시 확보율, R2 관측 대조와 변경 후 재처리는 각 행에서 증거를 요구한다. [09 제품 목적 대응표](../proposals/설계검토_결과/09_제품목적_대응표.md).

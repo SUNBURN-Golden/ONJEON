@@ -17,6 +17,7 @@ import time
 import unittest
 import urllib.error
 from email.message import Message
+from email.utils import formatdate
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from unittest import mock
@@ -239,12 +240,32 @@ class ResponseAdmission(unittest.TestCase):
         self.assertEqual(self.fetch_with(Response(pdf))[0], pdf)
 
     def test_non_200_responses_are_not_read_or_retried(self):
-        for status in (204, 206, 403, 404, 429, 503):
+        for status in (204, 206, 403, 404, 503):
             with self.subTest(status=status):
                 response = Response(PDF, status=status)
                 with self.assertRaisesRegex(vs.FetchRejected, "unexpected_status") as error:
                     self.fetch_with(response)
                 self.assertEqual((error.exception.final_url, error.exception.http_status), (SOURCE_URL, status))
+                self.assertIsNone(error.exception.deferred_until)
+                self.assertEqual(response.read_sizes, [])
+
+    def test_document_rate_limit_honors_retry_after_without_reading_or_retrying(self):
+        for status, header, until in (
+            (429, "600", 86_900),
+            (503, formatdate(86_900, usegmt=True), 86_900),
+            (429, None, 86_400),
+            (429, "invalid", 86_400),
+            (429, "0", 86_400),
+            (429, formatdate(86_299, usegmt=True), 86_400),
+        ):
+            with self.subTest(status=status, header=header), mock.patch.object(vs.time, "time", return_value=86_300):
+                response = Response(PDF, status=status)
+                if header is not None:
+                    response.headers["Retry-After"] = header
+                with self.assertRaisesRegex(vs.FetchRejected, f"^rate_limited: {status}$") as error:
+                    self.fetch_with(response)
+                self.assertEqual((error.exception.final_url, error.exception.http_status), (SOURCE_URL, status))
+                self.assertEqual(error.exception.deferred_until, until)
                 self.assertEqual(response.read_sizes, [])
 
     def test_body_at_the_cap_is_returned(self):
@@ -307,7 +328,7 @@ class ResponseAdmission(unittest.TestCase):
         self.assertEqual(sleep.call_args_list, [mock.call(5), mock.call(5)])
 
 
-class RobotsDeferrals(unittest.TestCase):
+class HostDeferrals(unittest.TestCase):
     def test_deferral_is_host_scoped_and_expires_at_the_recorded_time(self):
         deferrals = {"www.kyobo.com": (86400, "robots_rate_limited")}
 
@@ -326,12 +347,32 @@ class RobotsDeferrals(unittest.TestCase):
             self.assertEqual(vs.fetch(SOURCE_URL, robots_deferrals=deferrals)[0], PDF)
             self.assertEqual(run.call_count, 2)
 
+    def test_document_deferral_survives_worker_deadline_after_response_headers(self):
+        def worker(command, *, stdout, timeout, **kwargs):
+            metadata = {"response": {"final_url": SOURCE_URL, "http_status": 429},
+                        "deferral": [86_900, "rate_limited: 429"]}
+            stdout.write(json.dumps(metadata).encode() + b"\n")
+            raise subprocess.TimeoutExpired(command, timeout)
+
+        deferrals = {}
+        with mock.patch.object(vs.subprocess, "run", side_effect=worker) as run, \
+                mock.patch.object(vs.time, "time", return_value=86_401):
+            with self.assertRaisesRegex(vs.FetchRejected, "deadline_exceeded") as error:
+                vs.fetch(SOURCE_URL, robots_deferrals=deferrals)
+            self.assertEqual((error.exception.final_url, error.exception.http_status), (SOURCE_URL, 429))
+            with self.assertRaisesRegex(vs.FetchRejected, "rate_limited: 429") as suppressed:
+                vs.fetch("https://www.kyobo.com:8443/later", robots_deferrals=deferrals)
+            self.assertIsNone(suppressed.exception.final_url)
+            self.assertIsNone(suppressed.exception.http_status)
+            run.assert_called_once()
+
 
 class DetectLocalHTTPS(unittest.TestCase):
     def setUp(self):
         self.robots_status = 200
         self.robots_body = b"User-agent: *\nDisallow:\n"
         self.robots_length = None
+        self.robots_range = None
         self.server.test = self
         # Loopback hosts are admitted only in this isolated test registry.
         policy_dir = tempfile.TemporaryDirectory()
@@ -366,8 +407,15 @@ class DetectLocalHTTPS(unittest.TestCase):
                     self.send_header("Content-Length", str(len(body) if length is None else length))
                     if status == 302:
                         self.send_header("Location", "/must-not-fetch")
+                    if self.server.test.robots_range is not None:
+                        self.send_header("Content-Range", self.server.test.robots_range)
                     self.end_headers()
                     self.wfile.write(body)
+                    return
+                if self.path == "/rate-limit":
+                    self.send_response(429)
+                    self.send_header("Retry-After", "600")
+                    self.end_headers()
                     return
                 if self.path == "/disconnect":
                     self.close_connection = True
@@ -574,6 +622,25 @@ class DetectLocalHTTPS(unittest.TestCase):
             self.assertFalse((root / "downloads").exists())
             self.assertFalse((root / "archive").exists())
 
+    def test_document_rate_limit_stops_later_robots_and_document_requests_on_host(self):
+        urls = (self.origin + "/rate-limit", self.origin + "/document", "https://127.0.0.1:1/document")
+        rows = [{"sample_id": f"source-{i}", "url": url, "format": "text_pdf",
+                 "cache_path": f"source/document-{i}", "sha256": "0" * 64}
+                for i, url in enumerate(urls)]
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            before = len(self.requests)
+            code, results = self.run_detect_rows(root, rows)
+            self.assertEqual(self.requests[before:], ["/robots.txt", "/rate-limit"])
+            self.assertEqual(code, 1)
+            self.assertEqual([(r["status"], r["detail"]) for r in results], [("fetch_failed", "rate_limited: 429")] * 3)
+            self.assertEqual((results[0]["final_url"], results[0]["http_status"]), (urls[0], 429))
+            for result in results[1:]:
+                self.assertIsNone(result["http_status"])
+                self.assertIsNone(result["final_url"])
+            self.assertFalse((root / "downloads").exists())
+            self.assertFalse((root / "archive").exists())
+
     def test_incomplete_robots_response_never_authorizes_document_request(self):
         self.robots_length = len(self.robots_body) + len(b"Disallow: /document\n")
         with tempfile.TemporaryDirectory() as d:
@@ -587,17 +654,38 @@ class DetectLocalHTTPS(unittest.TestCase):
             self.assertFalse((root / "downloads").exists())
             self.assertFalse((root / "archive").exists())
 
-    def test_later_matching_robots_group_disallows_document_request(self):
-        self.robots_body = (b"User-agent: ONJEON-SourceArchiver\nAllow: /\n\n"
-                            b"User-agent: onjeon-sourcearchiver\nDisallow: /document\n")
+    def test_partial_robots_response_with_correct_message_length_never_authorizes_document(self):
+        self.robots_status = 206
+        length = len(self.robots_body)
+        self.robots_range = f"bytes 0-{length - 1}/{length + len(b'Disallow: /document') + 1}"
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
             before = len(self.requests)
             code, result = self.run_detect(root, "/document")
             self.assertEqual(self.requests[before:], ["/robots.txt"])
-            self.assertEqual((code, result["status"], result["detail"]), (1, "fetch_failed", "robots_disallow"))
+            self.assertEqual((code, result["status"], result["detail"]), (1, "fetch_failed", "robots_unreachable"))
+            self.assertIsNone(result["final_url"])
+            self.assertIsNone(result["http_status"])
             self.assertFalse((root / "downloads").exists())
             self.assertFalse((root / "archive").exists())
+
+    def test_robots_rules_disallow_document_request(self):
+        for path, body in (
+            ("/document", b"User-agent: ONJEON-SourceArchiver\nAllow: /\n\n"
+             b"User-agent: onjeon-sourcearchiver\nDisallow: /document\n"),
+            ("/parts%2fmanual", b"User-agent: *\nDisallow: /parts%2Fmanual\nAllow: /parts/manual\n"),
+            ("/document", b"User-agent: ONJEON-SourceArchiver\nCrawl-delay: 0\n"
+             b"User-agent: OtherBot\nDisallow: /document\n"),
+        ):
+            with self.subTest(path=path, robots=body), tempfile.TemporaryDirectory() as d:
+                root = Path(d)
+                self.robots_body = body
+                before = len(self.requests)
+                code, result = self.run_detect(root, path)
+                self.assertEqual(self.requests[before:], ["/robots.txt"])
+                self.assertEqual((code, result["status"], result["detail"]), (1, "fetch_failed", "robots_disallow"))
+                self.assertFalse((root / "downloads").exists())
+                self.assertFalse((root / "archive").exists())
 
     def test_initial_http_url_fails_without_request_cache_or_archive(self):
         with tempfile.TemporaryDirectory() as d:

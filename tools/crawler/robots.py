@@ -1,11 +1,12 @@
-"""robots.txt policy over bytes supplied by the injected transport (stdlib urllib.robotparser logic).
+"""robots.txt policy over bytes supplied by the injected transport.
 
-Parsing uses the stdlib RobotFileParser. Group selection and rule matching follow RFC 9309: matching groups
+Group selection and rule matching follow RFC 9309: matching groups
 are combined, the longest matching rule wins, Allow wins a tie, and `*` and a trailing `$` work.
 
 Outcomes per host (RFC 9309, plus the project rule "when in doubt, do not fetch"):
   200            parse; Disallow/Allow honoured for our product token; Crawl-delay returned (else None)
-  other 2xx      treated as 200
+  206 or another 2xx with Content-Range   partial policy: defer as robots_unreachable
+  remaining 2xx  treated as 200
   4xx except 401/403/429   robots.txt not found => everything allowed
   429            rate limited: host DEFERRED for the rest of the UTC day, reason robots_rate_limited
   2xx larger than the cap with nothing parseable (declared Content-Length too big, or no full line
@@ -18,12 +19,13 @@ the injected clock (epoch seconds). The robots.txt request itself is made throug
 supplies, once per origin per TTL (cached in between); PoliteFetcher supplies a budgeted request callback.
 Not a limiter, not thread-safe by itself (an RLock serialises check()).
 """
+import re
 import threading
 import time
 from dataclasses import dataclass
+from string import ascii_letters, digits
 from typing import Callable, Dict, Mapping, Optional, Tuple
-from urllib.parse import unquote, urljoin, urlsplit
-from urllib.robotparser import RobotFileParser, RuleLine
+from urllib.parse import quote, urljoin, urlsplit
 
 from .transport import BodyTooLargeError, NetworkDisabledError, Transport, TransportError
 from .useragent import PRODUCT_NAME, build_user_agent
@@ -32,6 +34,10 @@ DAY_S = 86400
 ROBOTS_MAX_BYTES = 512 * 1024  # RFC 9309: parse at least the first 500 KiB
 MAX_REDIRECTS = 5
 ROBOTS_ACCEPT = {"Accept": "text/plain"}
+UNRESERVED = frozenset(ascii_letters + digits + "-._~")
+URI_RESERVED = ":/?#[]@!$&'()*+,;="
+ESCAPED_OCTET = re.compile(r"%([0-9a-fA-F]{2})")
+Rule = Tuple[str, bool]  # normalized path pattern, allowance
 
 
 @dataclass(frozen=True)
@@ -50,7 +56,7 @@ class RobotsDecision:
 @dataclass
 class _Entry:
     fetched_at: float
-    rulelines: Tuple[RuleLine, ...]
+    rulelines: Tuple[Rule, ...]
     crawl_delay: Optional[float]
     reason: str
 
@@ -142,7 +148,11 @@ class RobotsCache:
                             return None
                         url = target
                         continue
-                    body = _read_capped(resp) if 200 <= status < 300 else b""
+                    success = 200 <= status < 300
+                    if success and (status == 206 or "content-range" in resp.headers):
+                        self._defer(host, now, "robots_unreachable")
+                        return None
+                    body = _read_capped(resp) if success else b""
                 break
             else:
                 self._defer(host, now, "robots_redirect_refused")
@@ -188,37 +198,57 @@ def _read_capped(resp) -> Optional[bytes]:
     return bytes(buf)
 
 
-class _GroupParser(RobotFileParser):
-    def _add_entry(self, entry):
-        # Keep every group, including wildcard groups the stdlib would discard.
-        self.entries.append(entry)
+def _normalize_path(value: str) -> str:
+    """Normalize UTF-8 and unreserved escapes while preserving escaped delimiters and rule operators."""
+    def normalize_escape(match: re.Match) -> str:
+        octet = chr(int(match[1], 16))
+        return octet if octet in UNRESERVED else match[0].upper()
+
+    return ESCAPED_OCTET.sub(normalize_escape, quote(value, safe=URI_RESERVED + "%"))
 
 
 def _parse(now: float, body: bytes) -> _Entry:
-    parser = _GroupParser()
-    lines = body.decode("utf-8-sig", errors="replace").splitlines()
-    parser.parse(line for line in lines if line.strip())
+    groups = []
+    agents, rules, delay = set(), [], None
+    for line in re.split(r"\r\n?|\n", body.decode("utf-8-sig", errors="replace")):
+        name, colon, value = line.partition("#")[0].partition(":")
+        if not colon:
+            continue
+        name, value = name.strip(" \t").lower(), value.strip(" \t")
+        if name == "user-agent" and value:
+            if rules:
+                groups.append((agents, rules, delay))
+                agents, rules, delay = set(), [], None
+            agents.add(value.lower())
+        elif agents and name in ("allow", "disallow"):
+            rules.append((_normalize_path(value), name == "allow"))
+        elif agents and name == "crawl-delay" and value.isascii() and value.isdigit():
+            # Extension records do not mark the end of a user-agent list.
+            delay = max(delay or 0, float(value))
+    if agents:
+        groups.append((agents, rules, delay))
+
     token = PRODUCT_NAME.lower()
-    groups = [group for group in parser.entries if any(agent.lower() == token for agent in group.useragents)]
-    if not groups:
-        groups = [group for group in parser.entries if "*" in group.useragents]
-    rulelines = tuple(rule for group in groups for rule in group.rulelines)
-    delay = max((group.delay for group in groups if group.delay is not None), default=None)
-    return _Entry(now, rulelines, float(delay) if delay is not None else None, "ok")
+    selected = [(rules, delay) for agents, rules, delay in groups if token in agents]
+    if not selected:
+        selected = [(rules, delay) for agents, rules, delay in groups if "*" in agents]
+    rulelines = tuple(rule for rules, _ in selected for rule in rules)
+    delay = max((delay for _, delay in selected if delay is not None), default=None)
+    return _Entry(now, rulelines, delay, "ok")
 
 
-def _can_fetch(rulelines: Tuple[RuleLine, ...], url: str) -> bool:
+def _can_fetch(rulelines: Tuple[Rule, ...], url: str) -> bool:
     if not rulelines:
         return True
     parts = urlsplit(url)
-    path = unquote(parts.path or "/") + (f"?{unquote(parts.query)}" if parts.query else "")
+    target = (parts.path or "/") + (f"?{parts.query}" if "?" in url.partition("#")[0] else "")
+    path = _normalize_path(target)
     best_len, allowed = -1, True
-    for rule in rulelines:
-        pattern = unquote(rule.path)  # RuleLine re-quotes its path (turning * and $ into %2A, %24)
+    for pattern, allowance in rulelines:
         if not pattern or not _matches(pattern, path):
             continue  # an empty Disallow/Allow matches nothing
-        if len(pattern) > best_len or (len(pattern) == best_len and rule.allowance):
-            best_len, allowed = len(pattern), rule.allowance
+        if len(pattern) > best_len or (len(pattern) == best_len and allowance):
+            best_len, allowed = len(pattern), allowance
     return allowed
 
 

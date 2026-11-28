@@ -242,6 +242,28 @@ class RobotsTest(unittest.TestCase):
         self.assertTrue(c.check("https://a.example/tmp123/other").allowed)
         self.assertFalse(c.check("https://a.example/q?a=1&secret=2").allowed)
 
+    def test_reserved_escapes_are_distinct_from_uri_delimiters(self):
+        body = (b"User-agent: *\nDisallow: /parts%2Fmanual$\nAllow: /parts/manual$\n"
+                b"Disallow: /search?field=a%26other=b$\nAllow: /search?field=a&other=b$\n")
+        c, _, _ = make({ROBOTS: (200, {}, body)})
+        for path in ("/parts%2fmanual", "/search?field=a%26other=b"):
+            with self.subTest(path=path):
+                self.assertFalse(c.check("https://a.example" + path).allowed)
+        for path in ("/parts/manual", "/search?field=a&other=b"):
+            with self.subTest(path=path):
+                self.assertTrue(c.check("https://a.example" + path).allowed)
+
+    def test_utf8_and_unreserved_escapes_are_normalized_without_creating_operators(self):
+        body = ("User-agent: *\nDisallow: /교재/~intro$\nDisallow: /escaped%2A/end%24$\n"
+                "Disallow: /empty?$\n").encode()
+        c, _, _ = make({ROBOTS: (200, {}, body)})
+        for path in ("/교재/~intro", "/%ea%b5%90%EC%9E%AC/%7Eintro", "/escaped%2a/end%24", "/empty?"):
+            with self.subTest(path=path):
+                self.assertFalse(c.check("https://a.example" + path).allowed)
+        for path in ("/escaped-other/end", "/escaped*/end$", "/empty"):
+            with self.subTest(path=path):
+                self.assertTrue(c.check("https://a.example" + path).allowed)
+
     def test_matches_helper_edges(self):
         m = r._matches
         self.assertTrue(m("/", "/anything"))
@@ -279,6 +301,17 @@ class RobotsTest(unittest.TestCase):
         self.assertTrue(c.check("https://a.example/folder").allowed)
         self.assertTrue(c.check("https://a.example/unrelated").allowed)
         self.assertEqual(c.crawl_delay("https://a.example/public"), 7)
+
+    def test_extension_records_do_not_split_consecutive_user_agents(self):
+        body = (b"Allow: /no-agent\nUser-agent: ONJEON-SourceArchiver\r\nCrawl-delay: 4\n"
+                b"Sitemap: https://a.example/sitemap.xml\nRequest-rate: 1/4\n\n# comment\n"
+                b"User-agent: OtherBot\nDisallow: /restricted\nCrawl-delay: 2\n"
+                b"User-agent: OtherBot2/1.0\nAllow: /restricted\n"
+                b"User-agent: *\nDisallow: /fallback\nCrawl-delay: 9\n")
+        c, _, _ = make({ROBOTS: (200, {}, body)})
+        self.assertFalse(c.check("https://a.example/restricted").allowed)
+        self.assertTrue(c.check("https://a.example/fallback").allowed)
+        self.assertEqual(c.crawl_delay("https://a.example/public"), 4)
 
     def test_wildcard_groups_merge_and_only_a_full_product_token_matches(self):
         body = (b"User-agent: SourceArchiver\nAllow: /\n"
@@ -383,6 +416,23 @@ class RobotsTest(unittest.TestCase):
             raise TransportError("read failed")
         c, _, _ = make({ROBOTS: lambda url: Response(200, {}, boom())})
         self.assertTrue(c.check("https://a.example/x").deferred)
+
+    def test_partial_success_response_defers_host_without_parsing_body(self):
+        def unreadable_body():
+            self.fail("robots policy body was read")
+            yield b""
+
+        for status, headers in ((206, {}), (206, {"Content-Range": "bytes 0-19/40"}),
+                                (200, {"Content-Range": "bytes 0-19/40"})):
+            with self.subTest(status=status, headers=headers):
+                response = Response(status, headers, unreadable_body())
+                c, t, _ = make({ROBOTS: lambda url: response})
+                decision = c.check("https://a.example/document")
+                self.assertFalse(decision.allowed)
+                self.assertTrue(decision.deferred)
+                self.assertEqual(decision.reason, "robots_unreachable")
+                self.assertEqual(c.check("https://a.example:8443/later"), decision)
+                self.assertEqual(t.urls, [ROBOTS])
 
     def test_403_and_401_are_blocked_and_deferred_with_reason(self):
         for status in (401, 403):

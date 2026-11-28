@@ -5680,6 +5680,7 @@
       ],
       "inputs": [
         "data/registry/*.csv(V0)",
+        "BLUEPRINT §7.1: insurers.csv와 cooperatives_and_others.csv의 in_denominator=true 행을 합친 ADR-0018 기관 분모",
         "DATA_PIPELINE_CONTRACT §1·§2",
         "ADR-0018 §3·§4",
         "조사 H1~H14"
@@ -5731,6 +5732,7 @@
       "consumes": [
         "crate:onjeon-collect",
         "path:data/registry/insurers.csv",
+        "path:data/registry/cooperatives_and_others.csv",
         "path:data/registry/excluded_or_historical.csv"
       ],
       "test_outputs_within_allowed": true,
@@ -5743,10 +5745,10 @@
       ],
       "done_criteria": [
         "기관마다 진행표가 있고 미확보 사유를 확보로 세지 않는다",
+        "현행 보험사·공제 및 기타 기관 원장의 in_denominator=true 행을 적재해 우체국보험을 포함한다. 공제는 분모에서 제외하고 사유를 남긴다(ADR-0018)",
         "과거 기관 원장의 in_scope 행에서 원판매사 ID로 범위 안 판매본을 열거하고 확인된 승계 기관을 공시 탐색에 연결한다. review_required 행은 미확인 공백으로 남기고 out_of_scope 행은 상품 분모에서 제외한다(09 P01)",
         "robots 확인 불가 호스트는 보류",
         "200 로그인 HTML을 성공으로 세지 않는다",
-        "공제는 분모에서 제외하고 사유를 남긴다(ADR-0018)",
         "미확보 사유 기록은 확보로 세지 않는다(09 P02). 문서 종류(약관·특약·별표·사업방법서·상품요약서·가격 조건)별 확보·미확보(사유)가 분모 기록에 따로 있다"
       ],
       "required_test_ids": [

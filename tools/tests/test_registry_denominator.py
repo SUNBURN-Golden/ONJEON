@@ -44,7 +44,11 @@ class RegistryCounts(unittest.TestCase):
         self.assertTrue(all(r["disclosure_status"] == "unqueried" for r in reachable))
 
     def test_no_product_list_is_enumerated_yet(self):
-        self.assertEqual(Counter(r["product_list_status"] for r in self.insurers), Counter(unqueried=53))
+        included = [row for row in self.insurers + rows("cooperatives_and_others")
+                    if row["in_denominator"] == "true"]
+        self.assertEqual(Counter(r["product_list_status"] for r in included), Counter(unqueried=54))
+        epost = next(row for row in included if row["insurer_id"] == "public-epost")
+        self.assertIn("disclosure_entry_missing", codes(epost))
 
     def test_reason_code_counts(self):
         per_code = Counter(c for r in self.insurers for c in codes(r))
@@ -181,11 +185,17 @@ class DomesticEnvironmentGate(unittest.TestCase):
         self.task = next(t for t in tasks if t["id"] == "T-DT-04")
         self.tasks = tasks
 
-    def test_t_dt_04_uses_historical_registry_as_a_denominator_input(self):
-        self.assertIn(f"path:data/registry/{rn.HISTORICAL_TABLE}", self.task["consumes"])
+    def test_t_dt_04_tracks_historical_products_and_keeps_epost_in_the_institution_denominator(self):
+        registry_inputs = {path for path in self.task["consumes"] if path.startswith("path:data/registry/")}
+        self.assertEqual(registry_inputs, {"path:data/registry/insurers.csv",
+                                           "path:data/registry/cooperatives_and_others.csv",
+                                           f"path:data/registry/{rn.HISTORICAL_TABLE}"})
         criteria = next(c for c in self.task["done_criteria"] if "in_scope" in c)
         for phrase in ("원판매사 ID", "승계 기관", "review_required", "out_of_scope", "P01"):
             self.assertIn(phrase, criteria)
+        institution_criteria = next(c for c in self.task["done_criteria"] if "in_denominator=true" in c)
+        self.assertIn("우체국보험을 포함", institution_criteria)
+        self.assertIn("공제는 분모에서 제외", institution_criteria)
 
     def test_t_dt_04_real_data_still_waits_for_o19_after_d04_resolution(self):
         self.assertEqual(self.task["decision_gates"]["real_data"], ["O19"])

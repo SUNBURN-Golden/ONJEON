@@ -51,6 +51,12 @@ class RegistryCheck(unittest.TestCase):
     def snapshot(self):
         return {p.name: p.read_bytes() for p in self.reg.glob("*.csv")}
 
+    def copy_scripts(self):
+        scripts = self.root / "tools"
+        scripts.mkdir()
+        for name in ("registry_check.py", "registry_normalize.py", "vocab_check.py"):
+            shutil.copy2(ROOT / "tools" / name, scripts / name)
+
     def test_repository_passes_without_writing_and_historical_scope_is_independent_of_membership(self):
         before = self.snapshot()
         self.assertEqual(rc.check(self.root), [])
@@ -188,6 +194,72 @@ class RegistryCheck(unittest.TestCase):
     def test_entity_ids_cannot_collide_across_tables(self):
         self.change("cooperatives_and_others.csv", "insurer_id", "coop-suhyup", insurer_id="life-hanwha")
         self.assertFinding("duplicate insurer_id: 'life-hanwha'")
+
+    def test_scope_columns_are_required_in_both_denominator_inputs(self):
+        for name in ("insurers.csv", "cooperatives_and_others.csv"):
+            original = self.rows(name)
+            for column in ("in_denominator", "scope_adr"):
+                with self.subTest(name=name, column=column):
+                    self.write(name, [{k: v for k, v in row.items() if k != column} for row in original])
+                    self.assertFinding(f"{name}:1: missing required columns: {column}")
+            self.write(name, original)
+
+    def test_scope_values_must_follow_adr_0018(self):
+        cases = (
+            ("insurers.csv", "life-hanwha", "in_denominator", "false"),
+            ("cooperatives_and_others.csv", "public-epost", "in_denominator", "false"),
+            ("cooperatives_and_others.csv", "public-epost", "in_denominator", "True"),
+            ("cooperatives_and_others.csv", "public-epost", "in_denominator", ""),
+            ("cooperatives_and_others.csv", "coop-suhyup", "in_denominator", "true"),
+            ("cooperatives_and_others.csv", "seed-coop-nh", "in_denominator", "true"),
+            ("cooperatives_and_others.csv", "public-ksure", "in_denominator", "true"),
+            ("cooperatives_and_others.csv", "public-epost", "scope_adr", ""),
+            ("insurers.csv", "life-hanwha", "scope_adr", "ADR-0004"),
+        )
+        for name, entity, column, bad in cases:
+            with self.subTest(entity=entity, column=column, value=bad):
+                original = (self.reg / name).read_bytes()
+                self.change(name, "insurer_id", entity, **{column: bad})
+                self.assertFinding(f"{column}={bad!r} for {entity!r}")
+                (self.reg / name).write_bytes(original)
+
+    def test_epost_is_required_in_the_separate_institution_table(self):
+        name = "cooperatives_and_others.csv"
+        self.write(name, [row for row in self.rows(name) if row["insurer_id"] != "public-epost"])
+        self.assertFinding(f"{name}:1: ADR-0018 requires 'public-epost'")
+
+    def test_denominator_cli_selects_all_53_insurers_and_epost_and_rejects_drift(self):
+        self.copy_scripts()
+        command = [sys.executable, "-I", "tools/registry_check.py", "--denominator"]
+        snapshot = self.snapshot()
+        result = subprocess.run(command, cwd=self.root, capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.stderr, "")
+        insurers = [r["insurer_id"] for r in self.rows("insurers.csv")]
+        self.assertEqual(len(insurers), 53)
+        self.assertEqual(len(set(insurers)), 53)
+        self.assertNotIn("public-epost", insurers)
+        self.assertEqual(result.stdout.splitlines(), insurers + ["public-epost"])
+        self.assertEqual(self.snapshot(), snapshot)
+
+        self.change("cooperatives_and_others.csv", "insurer_id", "public-epost", in_denominator="false")
+        snapshot = self.snapshot()
+        result = subprocess.run(command, cwd=self.root, capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("in_denominator='false' for 'public-epost'", result.stderr)
+        self.assertEqual(self.snapshot(), snapshot)
+
+    def test_denominator_cli_rejects_invalid_historical_evidence_without_emitting_ids(self):
+        self.copy_scripts()
+        self.change(HISTORICAL_TABLE, "insurer_id", "hist-nonlife-mg", successor_insurer_id="missing-insurer")
+        snapshot = self.snapshot()
+        result = subprocess.run([sys.executable, "-I", "tools/registry_check.py", "--denominator"],
+                                cwd=self.root, capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("invalid successor_insurer_id 'missing-insurer'", result.stderr)
+        self.assertEqual(self.snapshot(), snapshot)
 
     def test_legacy_status_column_and_values_fail_without_rewriting(self):
         name = "excluded_or_historical.csv"
@@ -371,10 +443,7 @@ class RegistryCheck(unittest.TestCase):
         self.assertEqual(command, "python3 -I tools/registry_check.py")
         self.assertLess(match.start(), workflow.index("python3 -m pip install"))
         self.assertLess(match.start(), workflow.index("run: cargo build"))
-        scripts = self.root / "tools"
-        scripts.mkdir()
-        for name in ("registry_check.py", "registry_normalize.py", "vocab_check.py"):
-            shutil.copy2(ROOT / "tools" / name, scripts / name)
+        self.copy_scripts()
         baseline = self.snapshot()
         aia_row = next(row for row in baseline["insurers.csv"].splitlines() if row.startswith(b"life-aia,"))
         cases = (
@@ -390,6 +459,8 @@ class RegistryCheck(unittest.TestCase):
             ("excluded_or_historical.csv", b"entity_evidence,", b"status,", "deprecated field `status`"),
             ("excluded_or_historical.csv", b",historical_product_scope,", b",unknown_scope,",
              "missing required columns: historical_product_scope"),
+            ("cooperatives_and_others.csv", b",in_denominator,scope_adr\r\n", b",scope_adr\r\n",
+             "missing required columns: in_denominator"),
             (rc.CROSSCHECK, b",life-hanwha,", b",unmatched-hanwha,",
              "no supervisory cross-check for 'life-hanwha'"),
         )

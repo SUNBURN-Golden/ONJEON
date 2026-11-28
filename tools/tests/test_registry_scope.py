@@ -40,7 +40,12 @@ class ScopeNotes(unittest.TestCase):
                                 self.assertNotIn(phrase, cell or "")
 
     def test_epost_is_included_and_not_described_as_mutual_aid(self):
-        notes = self.others["public-epost"]["notes"]
+        epost = self.others["public-epost"]
+        self.assertEqual(epost["in_denominator"], "true")
+        self.assertEqual(epost["scope_adr"], "ADR-0018")
+        self.assertEqual(epost["sector"], "other")
+        self.assertEqual(epost["in_current_assoc_list"], "false")
+        notes = epost["notes"]
         self.assertIn("ADR-0018: 범위 포함", notes)
         self.assertIn("기관 유형은 보험사와 구분", notes)
         self.assertNotIn("공제", notes)

@@ -2,9 +2,11 @@
 """Read-only registry, access and supervisory evidence checks (stdlib only).
 
 Usage (repository root): python3 -I tools/registry_check.py
+Add --denominator to emit the validated V0 institution IDs, one per line.
 Only homepage, homepage_redirect and disclosure purposes identify entities.
 The dated supervisory snapshot has its own recorded list artifact names.
 """
+import argparse
 import csv
 import json
 import re
@@ -17,7 +19,13 @@ import registry_normalize as rn
 import vocab_check as vc
 
 ROOT = Path(__file__).resolve().parents[1]
-ENTITY_TABLES = ("insurers.csv", "cooperatives_and_others.csv", rn.HISTORICAL_TABLE)
+INSURERS = "insurers.csv"
+OTHER_INSTITUTIONS = "cooperatives_and_others.csv"
+SCOPE_TABLES = (INSURERS, OTHER_INSTITUTIONS)
+ENTITY_TABLES = (*SCOPE_TABLES, rn.HISTORICAL_TABLE)
+SCOPE_COLUMNS = {"in_denominator", "scope_adr"}
+SCOPE_ADR = "ADR-0018"
+EPOST = "public-epost"
 PREFIXES = ("homepage_redirect", "homepage", "disclosure")
 CROSSCHECK_DATE = "2026-11-10"
 CROSSCHECK = f"authority_crosscheck_{CROSSCHECK_DATE}.csv"
@@ -39,6 +47,8 @@ REQUIRED = {
     CROSSCHECK: {"category", "fisis_id", "fine_id", "registry_table", "registry_id",
                  "registry_name", "comparison", "fisis_source_id", "fine_source_ids"},
 }
+for name in SCOPE_TABLES:
+    REQUIRED[name].update(SCOPE_COLUMNS)
 REQUIRED[rn.HISTORICAL_TABLE].update({
     "in_current_assoc_list", "historical_product_scope", "historical_scope_reason",
     "successor_insurer_id", "successor_evidence_url", "disclosure_gap_reason",
@@ -48,6 +58,11 @@ REQUIRED[rn.HISTORICAL_TABLE].update({
 
 def check(root=ROOT):
     """Return path/physical-line diagnostics; never normalize or write inputs."""
+    problems, _ = _inspect(root)
+    return problems
+
+
+def _inspect(root):
     root = Path(root)
     problems = []
     tables = {}
@@ -82,7 +97,7 @@ def check(root=ROOT):
 
     # Stop before foreign-key checks if the input structure is incomplete.
     if problems:
-        return problems
+        return problems, []
     vocab = json.loads((root / "packages/schemas/vocabulary.json").read_text(encoding="utf-8"))
     problems.extend(vc.lint_registry(vocab, root=root))
 
@@ -101,6 +116,7 @@ def check(root=ROOT):
 
     entities = index(ENTITY_TABLES, "insurer_id")
     sources = index(("sources.csv",), "source_id")
+    denominator_ids = check_scope(tables, fail)
     for name in ENTITY_TABLES:
         for line, row in tables[name]:
             # These CSVs track access evidence. Archival requires a verified archive record.
@@ -155,7 +171,29 @@ def check(root=ROOT):
             break
     check_historical_scope(tables[rn.HISTORICAL_TABLE], entities, fail)
     check_authority_crosscheck(tables, entities, sources, fail)
-    return problems
+    return problems, denominator_ids
+
+
+def check_scope(tables, fail):
+    """Validate ADR-0018 and select the institution IDs from both scope inputs."""
+    if not any(row["insurer_id"] == EPOST for _, row in tables[OTHER_INSTITUTIONS]):
+        fail(OTHER_INSTITUTIONS, 1, f"{SCOPE_ADR} requires {EPOST!r}")
+
+    included = []
+    for name in SCOPE_TABLES:
+        for line, row in tables[name]:
+            key = row["insurer_id"]
+            # Track all current insurers. Of the separately listed institutions,
+            # ADR-0018 includes EPOST and excludes mutual aid and K-SURE.
+            expected = "true" if name == INSURERS or key == EPOST else "false"
+            flag = row["in_denominator"]
+            if flag != expected:
+                fail(name, line, f"in_denominator={flag!r} for {key!r}, expected {expected!r} under {SCOPE_ADR}")
+            if row["scope_adr"] != SCOPE_ADR:
+                fail(name, line, f"scope_adr={row['scope_adr']!r} for {key!r}, expected {SCOPE_ADR!r}")
+            if flag == "true":
+                included.append(key)
+    return included
 
 
 def check_historical_scope(rows, entities, fail):
@@ -182,7 +220,7 @@ def check_historical_scope(rows, entities, fail):
         if not successor and not evidence:
             continue
         entity = entities.get(successor)
-        if successor == row["insurer_id"] or entity is None or entity[0] == "cooperatives_and_others.csv":
+        if successor == row["insurer_id"] or entity is None or entity[0] == OTHER_INSTITUTIONS:
             fail(name, line, f"invalid successor_insurer_id {successor!r}")
         try:
             url = urlsplit(evidence)
@@ -284,11 +322,18 @@ def access_matches(name, line, column, code, raw, fail):
 
 
 def main():
-    problems = check()
+    parser = argparse.ArgumentParser(description="Validate the institution registry.")
+    parser.add_argument("--denominator", action="store_true", help="print the validated V0 institution IDs")
+    args = parser.parse_args()
+    problems, denominator_ids = _inspect(ROOT)
     if problems:
-        print("registry check failed:\n  " + "\n  ".join(problems))
+        print("registry check failed:\n  " + "\n  ".join(problems),
+              file=sys.stderr if args.denominator else sys.stdout)
         return 1
-    print("registry check passed (IDs, vocabulary, access, historical scope and supervisory evidence)")
+    if args.denominator:
+        print("\n".join(denominator_ids))
+    else:
+        print("registry check passed (IDs, ADR-0018 scope, historical scope, vocabulary, access and supervisory evidence)")
     return 0
 
 

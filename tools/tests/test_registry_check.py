@@ -68,7 +68,7 @@ class RegistryCheck(unittest.TestCase):
                          Counter(two_or_more_sources=2, one_source=47))
         self.assertTrue(all(r["in_current_assoc_list"] == "false" for r in historical))
         self.assertEqual(Counter(r["historical_product_scope"] for r in historical),
-                         Counter(in_scope=7, review_required=36, out_of_scope=6))
+                         Counter(in_scope=8, review_required=35, out_of_scope=6))
         for field in ("disclosure_status", "product_list_status"):
             self.assertEqual(Counter(r[field] for r in historical), Counter(unqueried=49))
 
@@ -76,7 +76,8 @@ class RegistryCheck(unittest.TestCase):
             "hist-nonlife-mg": "nonlife-yebyeol", "hist-nonlife-carrot": "nonlife-hanwha",
             "dart-592232da": "hist-nonlife-mg",
             "dart-9027ec66": "life-miraeasset", "dart-d8d5621b": "life-shinhan",
-            "dart-a3a75abb": "life-kb", "dart-6da11385": "nonlife-hanwha",
+            "dart-da28807a": "dart-a3a75abb", "dart-a3a75abb": "life-kb",
+            "dart-6da11385": "nonlife-hanwha",
         }
         self.assertEqual({r["insurer_id"]: r["successor_insurer_id"] for r in historical
                           if r["historical_product_scope"] == "in_scope"}, expected_successors)
@@ -91,10 +92,16 @@ class RegistryCheck(unittest.TestCase):
         self.assertIn("awaiting_T-DT-04", green["product_list_reason_codes"].split(";"))
         self.assertEqual(green["successor_evidence_url"], "https://www.fsc.go.kr/po010103/70689")
 
-    def test_pca_and_kb_successor_evidence_points_to_issuer_filings(self):
+    def test_hanil_awaits_t_dt_04_enumeration_after_scope_confirmation(self):
+        hanil = next(r for r in self.rows(HISTORICAL_TABLE) if r["insurer_id"] == "dart-da28807a")
+        self.assertEqual(hanil["product_list_status"], "unqueried")
+        self.assertIn("awaiting_T-DT-04", hanil["product_list_reason_codes"].split(";"))
+
+    def test_historical_successor_evidence_points_to_issuer_filings(self):
         rows = {r["insurer_id"]: r for r in self.rows(HISTORICAL_TABLE)}
         expected = {
             "dart-9027ec66": "https://kind.krx.co.kr/external/2026/04/20/000545/20260420001513/11011.htm",
+            "dart-da28807a": "https://www.kblife.co.kr/api/archive/archives/download/posting/130933/0",
             "dart-a3a75abb": "https://www.kbfg.com/common/jsp/fileDownUtil.jsp?" + urlencode({
                 "filepath": "/kor/ir/disclosure/sales/__attachFile/2022회계연도_KB금융지주_영업보고서.pdf",
             }),
@@ -102,6 +109,25 @@ class RegistryCheck(unittest.TestCase):
         for insurer, filing in expected.items():
             with self.subTest(insurer=insurer):
                 self.assertEqual(rows[insurer]["successor_evidence_url"], filing)
+
+    def test_historical_registry_counts_match_readme_and_p01_evidence(self):
+        rows = self.rows(HISTORICAL_TABLE)
+        scopes = Counter(row["historical_product_scope"] for row in rows)
+        linked = sum(bool(row["successor_insurer_id"]) for row in rows)
+        readme = (REG / "README.md").read_text(encoding="utf-8")
+        purpose = ROOT / "docs/blueprint/proposals/설계검토_결과/09_제품목적_대응표.md"
+        p01 = next(line for line in purpose.read_text(encoding="utf-8").splitlines()
+                   if line.startswith("- P01의 과거 보험사 근거는"))
+
+        for scope, count in scopes.items():
+            with self.subTest(scope=scope):
+                self.assertIn(f"`{scope}` {count}곳", readme)
+        self.assertIn(f"`review_required` {scopes['review_required']}곳의 기관 유형", readme)
+        self.assertIn(f"과거 목록에서 {linked}건을 근거와 함께 연결했다.", readme)
+        self.assertIn(f"현행 협회 목록 밖 {len(rows)}행", p01)
+        self.assertIn(f"{linked}곳에는 승계 기관을 연결했고", p01)
+        self.assertIn(f"{scopes['review_required']}곳은 확인 대기", p01)
+        self.assertIn(f"{scopes['out_of_scope']}곳은 범위 밖", p01)
 
     def test_historical_scope_rejects_invalid_disposition_reasons_and_progress(self):
         name = HISTORICAL_TABLE

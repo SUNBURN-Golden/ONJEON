@@ -2,7 +2,7 @@
 
 기준 원장의 49행은 Audit 2에서 이미 `entity_evidence`로 전환돼 있었다. 정규화기가 이 파일에서 공시·상품 목록 열을 생략해, 현행 협회 목록 밖에 있는 보험사의 과거 판매본과 보유계약을 수집 대상으로 표시할 수 없었다. [기준 범위](../../BLUEPRINT.md#71-범위) · [Audit 2 기록](2026-10-27_registry_excluded_not_normalized.md)
 
-49행의 기존 16개 열은 병합한 main 원장과 셀 단위로 일치한다. 나머지 원장 CSV 5개는 main과 바이트 단위로 일치한다. 새 `disclosure_status`와 `product_list_status`는 49행 모두 `unqueried`다. 범위 근거가 부족한 DART 항목 36곳은 확인 대기로 남겼다. KIDI 목록에 사회보험·연금·심사 기관으로 기록된 6곳은 §7.1 범위 밖으로 표시했다. 범위 열이 없는 옛 CSV를 재처리하면 각 행을 확인 대기로 초기화한다. [현행 원장과 범위 열](../../../data/registry/README.md)
+49행의 기존 16개 열은 병합한 main 원장과 셀 단위로 일치한다. 나머지 원장 CSV 5개는 main과 바이트 단위로 일치한다. 새 `disclosure_status`와 `product_list_status`는 49행 모두 `unqueried`다. 범위 근거가 부족한 DART 항목 35곳은 확인 대기로 남겼다. KIDI 목록에 사회보험·연금·심사 기관으로 기록된 6곳은 §7.1 범위 밖으로 표시했다. 범위 열이 없는 옛 CSV를 재처리하면 각 행을 확인 대기로 초기화한다. [현행 원장과 범위 열](../../../data/registry/README.md)
 
 | 원판매 기관 | 공시 탐색을 위해 연결한 기관 | 확인한 사건과 근거 |
 |---|---|---|
@@ -11,12 +11,13 @@
 | 캐롯손해보험 | 한화손해보험 | 2025-10-01 흡수합병. [한화손해보험 합병 등 종료보고서](https://kind.krx.co.kr/external/2025/10/01/000937/20251001002482/12000.htm) |
 | PCA생명보험 | 미래에셋생명 | 2018년 3월 합병 및 통합 출범. [미래에셋생명 2025년 사업보고서, 회사의 연혁](https://kind.krx.co.kr/external/2026/04/20/000545/20260420001513/11011.htm) |
 | 오렌지라이프생명보험 | 신한라이프 | 2021-05-12 신한생명과의 합병 인가. [금융위원회 발표](https://www.fsc.go.kr/no010101/75900) |
+| 한일생명보험 | 케이비생명보험 | KB생명 경영공시의 연혁은 2004-05-31 계약이전 결정을 기록한다. 금융감독위원회 발표에서 KB생명으로의 보험계약 이전을 확인했다. KB라이프생명이 공개한 과거 개인보험 약관에 한일생명의 보험료 납입 안내가 실려 있다. [KB생명 2017년 경영공시 11쪽](https://www.kblife.co.kr/api/archive/archives/download/posting/130933/0) · [금융감독위원회 발표](https://m.korea.kr/briefing/pressReleaseView.do?newsId=65084725) · [한일생명 약관 6~7쪽](https://www.kblife.co.kr/api/archive/archives/download/product-terms/12012/2) |
 | 케이비생명보험 | KB라이프생명 | 2023-01-01 KB라이프생명(구 푸르덴셜생명)을 존속법인으로 합병 완료. [KB금융지주 2022회계연도 영업보고서, 35쪽](https://www.kbfg.com/common/jsp/fileDownUtil.jsp?filepath=%2Fkor%2Fir%2Fdisclosure%2Fsales%2F__attachFile%2F2022%ED%9A%8C%EA%B3%84%EC%97%B0%EB%8F%84_KB%EA%B8%88%EC%9C%B5%EC%A7%80%EC%A3%BC_%EC%98%81%EC%97%85%EB%B3%B4%EA%B3%A0%EC%84%9C.pdf) |
 | 제일화재해상보험 | 한화손해보험 | 2009-12-29 흡수합병. [한화손해보험 분기보고서](https://kind.krx.co.kr/external/2026/05/29/000301/20260529000475/11013.htm) |
 
-검색 색인에서 제공하는 예별손해보험 PDF 본문으로 상품 항목을 확인했다. 로컬 환경의 직접 요청은 웹 방화벽 안내를 반환했다.
+검색 색인에서 제공하는 예별손해보험 PDF 본문으로 상품 항목을 확인했다. 로컬 환경의 직접 요청은 웹 방화벽 안내를 반환했다. KB생명 경영공시와 한일생명 약관의 본문도 검색 색인에서 확인했다. 두 문서의 로컬 다운로드는 TLS 연결에 실패했다.
 
-7개 승계 링크는 각 사건의 근거에 기록된 기관을 가리킨다. 그린손보는 원판매사 ID `dart-592232da`로 T-DT-04의 개인보험 판매본 추적에 포함한다. 공시 탐색에서는 `hist-nonlife-mg`의 승계 링크를 통해 `nonlife-yebyeol`까지 이어진다. T-DT-04는 과거 원장을 입력으로 읽어 원판매사 ID를 유지하고 개인보험 판매본에 §7.1 상품 범위를 적용한다. 자동차보험·단체보험·퇴직연금은 후속 통합 대상이다. 실제 판매본·특약·공시 URL과 원문 확보율, 가입일 기준 판매본 선택 E2E는 남은 P01·P02 증거다. [T-DT-04 작업 계약](../proposals/설계검토_결과/tasks.json) · [09 제품 목적 대응표](../proposals/설계검토_결과/09_제품목적_대응표.md)
+8개 승계 링크는 각 사건의 근거에 기록된 기관을 가리킨다. 그린손보는 원판매사 ID `dart-592232da`로 T-DT-04의 개인보험 판매본 추적에 포함한다. 공시 탐색에서는 `hist-nonlife-mg`의 승계 링크를 통해 `nonlife-yebyeol`까지 이어진다. 한일생명은 원판매사 ID `dart-da28807a`로 추적하며 `dart-a3a75abb`(KB생명)를 거쳐 `life-kb`(KB라이프생명)로 이어진다. T-DT-04는 과거 원장을 입력으로 읽어 원판매사 ID를 유지하고 개인보험 판매본에 §7.1 상품 범위를 적용한다. 자동차보험·단체보험·퇴직연금은 후속 통합 대상이다. 실제 판매본·특약·공시 URL과 원문 확보율, 가입일 기준 판매본 선택 E2E는 남은 P01·P02 증거다. [T-DT-04 작업 계약](../proposals/설계검토_결과/tasks.json) · [09 제품 목적 대응표](../proposals/설계검토_결과/09_제품목적_대응표.md)
 
 ## 로컬 회귀 검증
 
@@ -47,6 +48,18 @@
 | `python3 -m unittest discover -s tools/tests -p 'test_registry*.py' -v` | 106개 통과 |
 | `python3 -I tools/registry_check.py`, `python3 tools/vocab_check.py` | 모두 통과. `--denominator` 결과는 고유 기관 ID 54개이며 우체국보험은 1회 포함 |
 | `python3 -m unittest discover -s tools/tests -v` | 1,824개 통과, 로컬 보관 원본이 필요한 5개와 이전 botocore가 필요한 1개 건너뜀 |
+| `python3 -m unittest discover -s tools/daemon/runner_verify/tests -v` | 81개 통과 |
+| `cargo test --all --locked --offline` | 566개 통과, 1개 무시 |
+| 규칙 해시 순서, 시나리오 API, 온톨로지 실행기 `cargo test --locked --offline` | 각각 2개, 4개, 4개 통과 |
+| Rust 포맷·린트, 설계 명세·온톨로지·BLUEPRINT 집계·검증 자료 검사와 변이 시험, 데몬 모의 전이 검사 | 모두 통과 |
+
+5차 수정의 회귀 시험은 한일생명의 직접 승계 기관과 공시 근거, `awaiting_T-DT-04` 사유, 기관 원장 README와 P01에 적힌 집계를 검사한다. 수정 전 원장과 문서에서 네 검증이 실패했고, 수정 뒤 각 문서에 이전 집계를 따로 넣자 회귀 시험이 두 경우 모두 검출했다. 한일생명 1행만 바뀌었고 기존 16개 열은 유지됐다. 49행의 임시 사본을 다시 정규화해 바이트 일치를 확인했다.
+
+| 명령 | 결과 |
+|---|---|
+| `python3 -I tools/registry_check.py`, `python3 tools/vocab_check.py` | 모두 통과. `--denominator`는 우체국보험을 한 번 포함한 고유 기관 ID 54개를 출력 |
+| `python3 -m unittest discover -s tools/tests -p 'test_registry*.py' -v`, `python3 -m unittest discover -s tools/tests -p test_vocab_check.py -v` | 각각 108개, 27개 통과 |
+| `python3 -m unittest discover -s tools/tests -v` | 1,826개 통과, 로컬 보관 원본이 필요한 5개와 이전 botocore가 필요한 1개 건너뜀 |
 | `python3 -m unittest discover -s tools/daemon/runner_verify/tests -v` | 81개 통과 |
 | `cargo test --all --locked --offline` | 566개 통과, 1개 무시 |
 | 규칙 해시 순서, 시나리오 API, 온톨로지 실행기 `cargo test --locked --offline` | 각각 2개, 4개, 4개 통과 |

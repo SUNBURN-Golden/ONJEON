@@ -19,6 +19,7 @@ from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import r2_budget  # noqa: E402
 import source_archive as sa  # noqa: E402
+import verify_sources as vs  # noqa: E402
 
 try:
     import boto3  # noqa: F401
@@ -65,6 +66,12 @@ class Provider(unittest.TestCase):
             with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
                 sa.provider_of(endpoint)
 
+    def test_backslash_in_authority_is_refused(self):
+        for host in ("localhost", "127.0.0.1", "fixture.r2.cloudflarestorage.com"):
+            endpoint = f"https://storage.invalid\\@{host}:5000/"
+            with self.subTest(host=host), self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint"):
+                sa.provider_of(endpoint)
+
     def test_r2_requires_https(self):
         for endpoint in (R2, R2 + ".", R2.upper() + ".:443/"):
             with self.subTest(endpoint=endpoint), self.assertRaisesRegex(SystemExit, "must be https"):
@@ -91,7 +98,8 @@ class Provider(unittest.TestCase):
 class EndpointGate(unittest.TestCase):
     def test_remote_endpoint_is_refused_before_client_creation(self):
         for endpoint in ("https://s3.ap-northeast-2.amazonaws.com", "https://example.invalid",
-                         "https://x.r2.cloudflarestorage.com.evil.example."):
+                         "https://x.r2.cloudflarestorage.com.evil.example.",
+                         "https://storage.invalid\\@localhost:5000/"):
             for from_env in (False, True):
                 for active in (None, mock.Mock(meter=None, policy={"per_request": {"max_attempts": 3}})):
                     for ledger in (False, True):
@@ -134,6 +142,28 @@ class EndpointGate(unittest.TestCase):
                             sa.main()
                     self.assertFalse(report.exists())
                     self.assertIsNone(r2_budget.ACTIVE)
+
+    def test_archive_and_verify_cli_refuse_remote_env_endpoint(self):
+        for endpoint in ("https://s3.ap-northeast-2.amazonaws.com",
+                         "https://storage.invalid\\@localhost:5000/"):
+            with tempfile.TemporaryDirectory() as tmp:
+                report = Path(tmp) / "report.json"
+                commands = (
+                    (sa.main, ["source_archive.py", "listing", "--src", "s3://raw", "--out", str(report)]),
+                    (vs.main, ["verify_sources.py", "detect", "--raw", "s3://raw", "--out", tmp,
+                               "--report", str(report)]),
+                )
+                for main, argv in commands:
+                    with self.subTest(endpoint=endpoint, cli=argv[0]), \
+                            mock.patch.dict(os.environ, {"ONJEON_S3_ENDPOINT": endpoint}, clear=True), \
+                            mock.patch.object(sys, "argv", argv), \
+                            mock.patch.object(vs.shutil, "which", return_value="pdftotext"), \
+                            mock.patch.object(vs, "fetch", side_effect=AssertionError("unexpected fetch")), \
+                            mock.patch.object(boto3, "client", side_effect=AssertionError("unexpected client")):
+                        with self.assertRaisesRegex(SystemExit, "unsupported S3 endpoint") as cm:
+                            main()
+                        self.assertNotIn(endpoint, str(cm.exception))
+                    self.assertFalse(report.exists())
 
     def test_local_emulator_can_create_a_client_without_a_budget(self):
         for endpoint in ("http://localhost:5000", "http://127.0.0.1:5000",
